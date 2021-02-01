@@ -1,0 +1,55 @@
+{
+  "name": "@priolo/iistore",
+  "version": "0.1.5",
+  "private": false,
+  "keywords": [
+    "react",
+    "store",
+    "hooks",
+    "reducer"
+  ],
+  "description": "React manager state with reducers hooks",
+  "author": "Iorio Ivano <iorioivano@gmail.com>",
+  "license": "MIT",
+  "homepage": "https://gitlab.com/priolo22/iistore",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/priolo22/iistore.git"
+  },
+  "main": "src/index.js",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.11.6",
+    "@testing-library/react": "^11.2.2",
+    "@testing-library/user-event": "^12.5.0",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-scripts": "^4.0.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.12.10",
+    "@babel/core": "^7.12.10",
+    "@babel/preset-react": "^7.12.10",
+    "cross-env": "^7.0.3"
+  },
+  "scripts": {
+    "test": "react-scripts test",
+    "build": "cross-env NODE_ENV=production babel src -d dist --copy-files",
+    "pub": "npm publish"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
