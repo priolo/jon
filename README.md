@@ -284,3 +284,5 @@ export function async apiIndex () {
 ```
 
 ### Check a "**store**" from the inspector
+
+![chrome inspector](res/screenshot1.png)
