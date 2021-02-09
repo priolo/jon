@@ -148,8 +148,41 @@ It is useful for using a STORE in a REACT COMPONENT
 		setValue: (state, value, store) => ({ value }),
 		...
 	},
+	
 }
 ```
+
+*ATTENTION!!!*  
+MUTATORS cannot call other MUTATORS  
+this would not update the state  
+To call multiple MUTATORS use an ACTION  
+```js
+{  
+	...
+	actions: {
+		onChangeValueMulti: (state, value, store ) => {
+			store.setValue1(value)
+			store.setValue2(value)
+			...
+		}
+	},
+	mutators: {
+		// not work
+		setValue: (state, {value1, value2}, store) => {
+			store.setValue1(value1)
+			return { value2 }
+		},
+		setValue1: (state, value, store) => ({ value }),
+		setValue2: (state, value, store) => ({ value }),
+		// OR change the whole state at once
+		setValue12: (state, {value1, value2}, store) => 
+			({ value1, value2 }),
+		setValueHasChanged: (state, value, store) => 
+			({ value: value, valueHasChanged: state.value!=value }),
+	}
+}
+```
+
 
 As you may have noticed: the functions always have the same signature:  
 **fn (state, payload, store) => {}**  
@@ -163,12 +196,91 @@ parameters:
 
 # TIPS
 
-### Usare il parametro STORE come se fosse this
+### Use the "**store**" parameter as if it were "**this**"
+You can use the "store" parameter
+as the object that contains the getters / action / mutators
+in order to refer to them
+```js
+{
+	...
+	actions: {
+		fetchCropCycles: async (state, farmId, store) => {
+			const { data } = await farmApi.index(farmId)
+			store.setCrops(data)
+		}
+	},
+	mutators: {
+		setCrops: (state, crops) => ({ crops }),
+	}
+}
+```
 
-### Spezzare uno store in piu' files
+### Break a "**store**" into several files
+`/stores/index.js`
+```js
+import mixStores from "@priolo/iistore"
+import store2 from "./store2"
 
-### Usare uno store dentro un altro store
+const store1 = {
+	state: { ... },
+	getters: { ... },
+	actions: { ... },
+	mutators: { ... }
+}
 
-### Usare uno store in una funzione esterna
+export default mixStores(store1, store2)
+```
+`/stores/store2.js`
+```js
+const store2 = {
+	state: { ... },
+	getters: { ... },
+	actions: { ... },
+	mutators: { ... }
+}
 
-### Controllare da ispector uno STORE
+export default store2
+```
+
+### Using a "**store**" inside another "**store**"
+`/stores/layout.js`
+```js
+export default {
+	...
+	actions: { 
+		dialogOpen: (state, payload, store) => {
+			...
+		},
+	},
+}
+```
+`/stores/store2.js`
+```js
+import { getStore } from "@priolo/iistore"
+
+export default {
+	...
+	actions: {
+		save: (state, payload, store) => {
+			const { dialogOpen } = getStore("layout")
+			dialogOpen()
+		}
+	},
+}
+```
+
+### Using a "**store**" in an external function
+`/stores/store2.js`
+```js
+import { getStore } from "@priolo/iistore"
+
+export function async apiIndex () {
+	const { state, myAction, myGetter, myMutator } = getStore("myStore")
+	// the "actions" can be asynchronous
+	// and can return a value
+	const {data} = await myAction()
+	console.log(state.value)
+}
+```
+
+### Check a "**store**" from the inspector
