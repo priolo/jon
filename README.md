@@ -80,7 +80,7 @@ export default function App() {
 }
 ```
 
-[online](https://codesandbox.io/s/react-store-example-1-ct8r4)
+[online](https://codesandbox.io/s/example-1-5d2tt)
 
 
 
@@ -90,16 +90,16 @@ You want to pass component data to component
 until what complexity will be unmanageable? He ??? NO!  
 And then you will have to use the [PROVIDERS](https://it.reactjs.org/docs/hooks-reference.html#usecontext)  
 this utility is REALLY VERY VERY VERY LIGHT  
-[Take a look!](https://gitlab.com/priolo22/iistore/-/tree/master/src/lib/store) It is basically like using native [useReducer](https://it.reactjs.org/docs/hooks-reference.html#usereducer)   
+[Take a look!](https://github.com/priolo/store/tree/master/src/lib/store) It is basically like using native [useReducer](https://it.reactjs.org/docs/hooks-reference.html#usereducer)   
 
 
 
 # Examples
 
-- [basic](https://codesandbox.io/s/react-store-example-1-ct8r4)
-- [multi stores](https://codesandbox.io/s/iistore-examples-2-b8xml)
-- [action](https://codesandbox.io/s/react-store-example-3-fepd8)
-- [material-ui](https://codesandbox.io/s/react-stores-example-4-43b3g)
+- [basic](https://codesandbox.io/s/example-1-5d2tt)
+- [multi stores](https://codesandbox.io/s/example-2-iz6l7)
+- [action](https://codesandbox.io/s/example-3-hw6hs)
+- [material-ui](https://codesandbox.io/s/example-4-0jeqi)
 
 
 
