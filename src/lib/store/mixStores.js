@@ -31,5 +31,9 @@ function mix ( store1, store2 ) {
 			...store1.actions,
 			...store2.actions,
 		},
+		actionsSync: {
+			...store1.actionsSync,
+			...store2.actionsSync,
+		},
 	}
 }

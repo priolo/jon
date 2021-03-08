@@ -4,70 +4,69 @@ import { useState, useRef, useEffect } from "react";
 // un hook che permette di validare una input-text
 let Listeners = []
 
-export function validateAll(callback = null, extras = []) {
-	let errors = false
-	Listeners.forEach(v => {
-		const [ref, valid] = v()
-		if (ref.current!=null && errors == false && valid == false) {
-			errors = true
-			ref.current.focus()
+export function validateAll() {
+
+	// ciclo ed eseguo tutti i validator
+	return Listeners.reduce((errors, validate) => {
+		const { error, ref } = validate()
+		if (error != null) {
+			errors.push({ error, ref })
+			if (errors.length == 1 && ref?.current != null) ref.current.focus()
 		}
-	})
-	extras.forEach(v => {
-		if (v() == false) errors = true
-	})
-	if (errors) return
-	if (callback) callback()
+		return errors
+	}, [])
 }
 
+/**
+ * Validatore riferito ad un componente
+ * @param {Array<rule>} rules 
+ */
+export function useValidator(value, rules) {
 
-export function useValidator(rules) {
-
+	// stringa contenente l'errore
 	const [error, setError] = useState()
+	// ref del componente (opzionale)
 	const ref = useRef(null)
+	// il valore inserito lo devo memorizzare nel ref perche' altrimenti me lo perdo se chiamo il validate esternamente
+	const refValue = useRef(value)
+	// indica se c'e' stata un interazione prima d'ora
+	const refInteraction = useRef(false)
 
-	// restituisce semplicemente se c'e' un errore o no
-	const haveError = () => error != null
 
 	// registra i validator. per usare "validateAll"
 	useEffect(() => {
-		Listeners.push(validateRef)
-		return () => Listeners = []
-	}, [ref]);
+		// elimino eventualmente un listener precedente e aggiungo questo
+		const listeners = Listeners.filter(l => l != validate)
+		listeners.push(validate)
+		Listeners = listeners
 
-	// chiamato sul cambio valore effettua una validazione. Restituisce il valore validato (senza modifiche)
-	function handleChange(evn) {
-		const value = evn.target.value
-		validate(value)
-		return value
-	}
-
-	// valida il corrente stato del componente input
-	function validateRef() {
-		// se non c'e' il componente allora è sempre valido
-		return [ref, ref.current ? validate(ref.current.value) : true]
-	}
-
-	// valida tuttele rule e restituisce se sono ttte valide (true) o no (false)
-	function validate(value) {
-		let error = null;
-		Object.keys(rules).find(k => error = rules[k](value))
-		setError(error)
-		return error == null
-	}
-
-	// per la validazione extra che necessita di un dato correlato con un altro componente
-	// [II] eliminare codice duplicato!!!
-	function extra(rule) {
-		// se il componente non esiste allora restituisce sempre false
-		if ( ref.current==null) return ()=>true
-		const error = rule(ref.current.value)
+		// su unmounth
 		return () => {
-			setError(error)
-			ref.current.focus()
-			return error == null
+			// ... elimino questo listener (se non è specificato altrimenti) 
+			Listeners = Listeners.filter(l => l != validate)
 		}
+	}, []);
+
+	useEffect(() => {
+		refValue.current = value
+		if (refInteraction.current == false && checkRules() != null) return
+		validate()
+	}, [value])
+
+	// valida tutte le rule e restituisce se sono valide (true) o no (false)
+	// memorizza la stringa dell'errore
+	function validate() {
+		refInteraction.current = true
+		const err = checkRules()
+		setError(err)
+		return { error:err, ref }
 	}
 
-	return [error, haveError, handleChange, ref, extra]
+	function checkRules() {
+		let err = null;
+		Object.keys(rules).some(k => err = rules[k](refValue.current))
+		return err
+	}
+
+	return { helperText: error, error: error != null, inputRef: ref }
 }

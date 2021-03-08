@@ -4,7 +4,7 @@
  * @return if obj is an Object, including an Array.
  * @param {object}
  */
-export function isObject(value) {
+ export function isObject(value) {
     return value !== null && typeof value === 'object';
 }
 
