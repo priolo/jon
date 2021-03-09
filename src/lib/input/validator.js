@@ -11,7 +11,7 @@ export function validateAll() {
 		const { error, ref } = validate()
 		if (error != null) {
 			errors.push({ error, ref })
-			if (errors.length == 1 && ref?.current != null) ref.current.focus()
+			if (errors.length == 1 && ref && ref.current != null) ref.current.focus()
 		}
 		return errors
 	}, [])

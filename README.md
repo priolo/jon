@@ -1,3 +1,5 @@
+![logo](./res/logo.png)
+
 ## INDEX
 - [Quick start](#quick-start)  
 		- [Installation](#installation)  
