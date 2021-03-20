@@ -1,4 +1,5 @@
-![logo](./res/logo.png)
+![logo](./res/logo.png)  
+[Jon](https://github.com/priolo/jon)
 
 ## INDEX
 - [Quick start](#quick-start)  
