@@ -2,8 +2,11 @@
 import { setupStore, MultiStoreProvider, getStore, useStore } from './lib/store/rvxProviders'
 import mixStores from './lib/store/mixStores'
 
-import { useValidator, validateAll } from './lib/input/validator'
+import { useValidator, validateAll, resetAll } from './lib/input/validator'
 import { rules } from './lib/input/rules'
+
+import * as ref from "./lib/object/ref"
+
 
 export {
   setupStore,
@@ -16,5 +19,7 @@ export {
 export {
 	useValidator,
 	validateAll,
+  resetAll,
 	rules,
+  ref,
 }

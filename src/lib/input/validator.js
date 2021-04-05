@@ -7,8 +7,8 @@ let Listeners = []
 export function validateAll() {
 
 	// ciclo ed eseguo tutti i validator
-	return Listeners.reduce((errors, validate) => {
-		const { error, ref } = validate()
+	return Listeners.reduce((errors, listener) => {
+		const { error, ref } = listener.validate()
 		if (error != null) {
 			errors.push({ error, ref })
 			if (errors.length == 1 && ref && ref.current != null) ref.current.focus()
@@ -17,6 +17,11 @@ export function validateAll() {
 	}, [])
 }
 
+export function resetAll() {
+	return Listeners.forEach(listener => listener.reset())
+}
+
+
 /**
  * Validatore riferito ad un componente
  * @param {Array<rule>} rules 
@@ -24,7 +29,7 @@ export function validateAll() {
 export function useValidator(value, rules) {
 
 	// stringa contenente l'errore
-	const [error, setError] = useState()
+	const [error, setError] = useState(null)
 	// ref del componente (opzionale)
 	const ref = useRef(null)
 	// il valore inserito lo devo memorizzare nel ref perche' altrimenti me lo perdo se chiamo il validate esternamente
@@ -32,21 +37,23 @@ export function useValidator(value, rules) {
 	// indica se c'e' stata un interazione prima d'ora
 	const refInteraction = useRef(false)
 
-
 	// registra i validator. per usare "validateAll"
 	useEffect(() => {
 		// elimino eventualmente un listener precedente e aggiungo questo
 		const listeners = Listeners.filter(l => l != validate)
-		listeners.push(validate)
+		listeners.push({ validate, reset })
 		Listeners = listeners
 
 		// su unmounth
 		return () => {
 			// ... elimino questo listener (se non è specificato altrimenti) 
-			Listeners = Listeners.filter(l => l != validate)
+			Listeners = Listeners.filter(listener => listener.validate != validate)
 		}
 	}, []);
 
+	// se cambia il "value" ma non ho fatto ancora nessuna validazione allora non fare nulla
+	// invece se c'e' stata un "refInteraction" allora valida il cambio del "value"
+	// quiesto per evitare di far uscire error appena aperta la pagina ma solo dopo che s'è cercato di validare la prima volta (validateAll)
 	useEffect(() => {
 		refValue.current = value
 		if (refInteraction.current == false && checkRules() != null) return
@@ -62,6 +69,12 @@ export function useValidator(value, rules) {
 		return { error:err, ref }
 	}
 
+	// resetta le validazioni
+	function reset() {
+		refInteraction.current = false
+		setError(null)
+	}
+
 	function checkRules() {
 		let err = null;
 		Object.keys(rules).some(k => err = rules[k](refValue.current))
@@ -70,3 +83,4 @@ export function useValidator(value, rules) {
 
 	return { helperText: error, error: error != null, inputRef: ref }
 }
+

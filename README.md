@@ -83,7 +83,7 @@ export default function App() {
 }
 ```
 
-[online](https://codesandbox.io/s/example-1-5d2tt)
+[sandbox](https://codesandbox.io/s/example-1-5d2tt)
 
 
 
@@ -163,10 +163,10 @@ To call multiple MUTATORS use an ACTION
 {  
 	...
 	actions: {
+		// work
 		onChangeValueMulti: (state, value, store ) => {
 			store.setValue1(value)
 			store.setValue2(value)
-			...
 		}
 	},
 	mutators: {

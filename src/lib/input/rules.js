@@ -1,11 +1,37 @@
 /* eslint eqeqeq: "off" */
 
+
+
+
 // regole da applicare ai "validator"
 export const rules = {
 
 	obligatory: v => {
-		if (v != null && v.trim().length > 0 ) return
-		return "validation.obligatory"
+		if (v != null && v.trim().length > 0) return
+		return "string.obligatory"
+	},
+
+	email: v => {
+		// https://www.w3resource.com/javascript/form/email-validation.php
+		if (/^[^\s@]+@[^\s@]+$/.test(v)) return
+		return "email.syntax"
+	},
+
+	url: v => {
+		// https://stackoverflow.com/a/5717133/5224029
+		var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
+			'((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+			'((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+			'(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+			'(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+			'(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
+		if (!!pattern.test(v)) return
+		return "url.syntax"
+	},
+
+	obligatoryArray: v => {
+		if (Array.isArray(v) && v.length > 0) return
+		return "array.obligatory"
 	},
 
 	// // non va piu' bene
@@ -20,10 +46,6 @@ export const rules = {
 	// 	return "validation.not_the_same"
 	// },
 
-	obligatoryArray: v => {
-		if (Array.isArray(v) && v.length > 0 ) return
-		return "insert at least one element"
-	},
 
 	// photoperiod: ([day, night]) => {
 	// 	if ( day<0 || night<0 ) return "no negative number"
@@ -31,6 +53,6 @@ export const rules = {
 	// 	if ( sum==0 || (sum <= 24 && 24 % sum == 0) ) return
 	// 	return "Invalid values"
 	// },
-	
+
 }
 
