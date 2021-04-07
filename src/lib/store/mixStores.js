@@ -35,5 +35,10 @@ function mix ( store1, store2 ) {
 			...store1.actionsSync,
 			...store2.actionsSync,
 		},
+		// DA CONTROLLARE
+		init: ()=> {
+			if (store1.init) store1.init()
+			if (store2.init) store2.init()
+		}
 	}
 }

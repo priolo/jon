@@ -22,7 +22,7 @@
 
 ### Installation
 
-`npm install @priolo/iistore`
+`npm install @priolo/jon`
 
 ### Create STORE
 `my_app/myStore.js`
@@ -53,7 +53,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 
-import { MultiStoreProvider, setupStore } from '@priolo/iistore';
+import { MultiStoreProvider, setupStore } from '@priolo/jon';
 import myStore from "./myStore"
 setupStore({ myStore })
 
@@ -69,7 +69,7 @@ ReactDOM.render(
 ### Use STORE
 `my_app/App.js`
 ```jsx
-import { useStore } from "@priolo/iistore";
+import { useStore } from "@priolo/jon";
 import React from "react";
 
 export default function App() {
@@ -221,7 +221,7 @@ in order to refer to them
 ### Break a "**store**" into several files
 `/stores/index.js`
 ```js
-import mixStores from "@priolo/iistore"
+import mixStores from "@priolo/jon"
 import store2 from "./store2"
 
 const store1 = {
@@ -259,7 +259,7 @@ export default {
 ```
 `/stores/store2.js`
 ```js
-import { getStore } from "@priolo/iistore"
+import { getStore } from "@priolo/jon"
 
 export default {
 	...
@@ -275,7 +275,7 @@ export default {
 ### Using a "**store**" in an external function
 `/stores/store2.js`
 ```js
-import { getStore } from "@priolo/iistore"
+import { getStore } from "@priolo/jon"
 
 export function async apiIndex () {
 	const { state, myAction, myGetter, myMutator } = getStore("myStore")

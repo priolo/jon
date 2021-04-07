@@ -5,9 +5,9 @@ import { useContext } from "react";
  * So we always use the same STORE instance but with a different REDUCER
  * Use this instance synchronously!
  */
-export function getApplyStore(store, reducer, bundle) {
+export function getApplyStore(store, reducer/*, bundle*/) {
 	store._reducer = reducer;
-	store._bundle = bundle;
+	//store._bundle = bundle;
 	return store
 }
 
@@ -18,10 +18,10 @@ export function getApplyStore(store, reducer, bundle) {
  * @param {*} context 
  * @param {*} bundle 
  */
-export function useApplyStore(store, context, bundle) {
+export function useApplyStore(store, context/*, bundle*/) {
 	const reducer = useContext(context)
-	store._reducer = reducer;
-	store._bundle = bundle;
+	store._reducer = reducer
+	//store._bundle = bundle
 	return store
 }
 
@@ -30,9 +30,11 @@ export function useApplyStore(store, context, bundle) {
  * @param {JSON} setup 
  */
 export function createStore ( setup ) {
+
+	// default
 	let store = { 
 		_reducer:null, 
-		_bundle:null,
+		//_bundle:null,
 		get state () {
 			return store._reducer[0]
 		},
@@ -40,15 +42,22 @@ export function createStore ( setup ) {
 			return store._reducer[1]
 		}
 	}
+
+	// permette di aggiornare lo "state"
 	store._update = payload => store.d(state => ({ ...state }))
+
+	// initialization
+	store._init = ()=> {
+		if ( setup.init ) setup.init(store)
+	}
 
 	/**
 	 * GETTERS
 	 */
 	if (setup.getters) {
 		store = Object.keys(setup.getters).reduce((acc, key) => {
-			acc[key] = payload => setup.getters[key](store.state, payload, store, store._bundle);
-			return acc;
+			acc[key] = payload => setup.getters[key](store.state, payload, store/*, store._bundle*/)
+			return acc
 		}, store)
 	}
 
@@ -58,10 +67,10 @@ export function createStore ( setup ) {
 	if (setup.actions) {
 		store = Object.keys(setup.actions).reduce((acc, key) => {
 			acc[key] = async payload => {
-				const result = await setup.actions[key](store.state, payload, store, store._bundle)
-				return result;
+				const result = await setup.actions[key](store.state, payload, store/*, store._bundle*/)
+				return result
  			}
-			return acc;
+			return acc
 		}, store)
 	}
 
@@ -71,10 +80,10 @@ export function createStore ( setup ) {
 	if (setup.actionsSync) {
 		store = Object.keys(setup.actionsSync).reduce((acc, key) => {
 			acc[key] = payload => {
-				const result = setup.actionsSync[key](store.state, payload, store, store._bundle)
-				return result;
+				const result = setup.actionsSync[key](store.state, payload, store/*, store._bundle*/)
+				return result
  			}
-			return acc;
+			return acc
 		}, store)
 	}
 
@@ -84,11 +93,13 @@ export function createStore ( setup ) {
 	if (setup.mutators) {
 		store = Object.keys(setup.mutators).reduce((acc, key) => {
 			acc[key] = payload => store.d(state => {
-				const stub = setup.mutators[key](state, payload, store, store._bundle);
-				if ( stub == null ) return state;
-				return { ...state, ...stub };
-			});
-			return acc;
+				const stub = setup.mutators[key](state, payload, store/*, store._bundle*/)
+				if ( stub == null ) return state
+				// per ottimizzare controllo se c'e' qualche cambiamento
+				if ( Object.keys(stub).some(key=>stub[key]!=state[key])) return { ...state, ...stub }
+				return state
+			})
+			return acc
 		}, store)
 	}
 
@@ -108,5 +119,5 @@ export function createStore ( setup ) {
 	// 	}, store)
 	// }
 
-	return store;
+	return store
 }

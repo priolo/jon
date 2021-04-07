@@ -1,6 +1,6 @@
 {
-	"name": "@priolo/iistore",
-	"version": "0.1.13",
+	"name": "@priolo/jon",
+	"version": "0.2.00",
 	"private": false,
 	"keywords": [
 		"react",
@@ -11,10 +11,10 @@
 	"description": "React manager state with reducers hooks",
 	"author": "Iorio Ivano <iorioivano@gmail.com>",
 	"license": "MIT",
-	"homepage": "https://github.com/priolo/store",
+	"homepage": "https://github.com/priolo/jon",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/priolo/store.git"
+		"url": "https://github.com/priolo/jon.git"
 	},
 	"main": "dist/index.js",
 	"files": [
@@ -24,7 +24,7 @@
 	"scripts": {
 		"test": "react-scripts test",
 		"build": "cross-env NODE_ENV=production babel src -d dist --copy-files",
-		"pub": "npm publish"
+		"pub": "npm publish --access public"
 	},
 	"dependencies": {
 		"cross-env": "^7.0.3"

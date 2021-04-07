@@ -35,6 +35,8 @@ export function setupStore(stp) {
 		return acc
 	}, {})
 
+	Object.values(stores).forEach(store => store._init())
+
 }
 
 /**
@@ -43,8 +45,8 @@ export function setupStore(stp) {
  * @param {string} storeName 
  * @param {any} bundle 
  */
-export function getStore(storeName, bundle) {
-	return getApplyStore(stores[storeName], reducers[storeName], bundle)
+export function getStore(storeName/*, bundle*/) {
+	return getApplyStore(stores[storeName], reducers[storeName]/*, bundle*/)
 }
 
 /**
@@ -53,8 +55,8 @@ export function getStore(storeName, bundle) {
  * @param {*} storeName 
  * @param {*} bundle 
  */
-export function useStore(storeName, bundle) {
-	return useApplyStore(stores[storeName], contexts[storeName], bundle)
+export function useStore(storeName/*, bundle*/) {
+	return useApplyStore(stores[storeName], contexts[storeName]/*, bundle*/)
 }
 
 /**

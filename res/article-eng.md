@@ -13,7 +13,7 @@ but, in my opinion, they are too basic to use them directly.
 So I wrote a "utility" (NOT a "library") served in several projects
 very very light.
 
-https://gitlab.com/priolo22/iistore
+https://gitlab.com/priolo22/jon
 
 Basic example:
 
@@ -46,7 +46,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 
-import { MultiStoreProvider, setupStore } from '@priolo/iistore';
+import { MultiStoreProvider, setupStore } from '@priolo/jon';
 import myStore from "./myStore"
 setupStore({ myStore })
 
@@ -62,7 +62,7 @@ ReactDOM.render(
 ### Use STORE
 `my_app/App.js`
 ```jsx
-import { useStore } from "@priolo/iistore";
+import { useStore } from "@priolo/jon";
 import React from "react";
 
 export default function App() {

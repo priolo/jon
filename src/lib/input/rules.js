@@ -1,8 +1,6 @@
 /* eslint eqeqeq: "off" */
 
 
-
-
 // regole da applicare ai "validator"
 export const rules = {
 
@@ -11,14 +9,15 @@ export const rules = {
 		return "string.obligatory"
 	},
 
+	// https://www.w3resource.com/javascript/form/email-validation.php
 	email: v => {
-		// https://www.w3resource.com/javascript/form/email-validation.php
+		
 		if (/^[^\s@]+@[^\s@]+$/.test(v)) return
 		return "email.syntax"
 	},
 
+	// https://stackoverflow.com/a/5717133/5224029
 	url: v => {
-		// https://stackoverflow.com/a/5717133/5224029
 		var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
 			'((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
 			'((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
