@@ -35,7 +35,7 @@ export function setupStore(stp) {
 		return acc
 	}, {})
 
-	Object.values(stores).forEach(store => store._init())
+	//Object.values(stores).forEach(store => store._init())
 
 }
 
