@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import { getApplyStore, createStore, useApplyStore } from './rvx';
 
 // All the SETUP used to create the STORE
@@ -34,8 +34,6 @@ export function setupStore(stp) {
 		acc[p] = createStore(setups[p]);
 		return acc
 	}, {})
-
-	//Object.values(stores).forEach(store => store._init())
 
 }
 
@@ -81,6 +79,9 @@ export const MultiStoreProvider = ({ providers, children }) => {
 	// 		children
 	// 	)}
 	// </context.Provider>)
+
+	// call init
+	useEffect(() => { stores[provider]._init() }, [])
 
 	return React.createElement(context.Provider, {
 		value: redux

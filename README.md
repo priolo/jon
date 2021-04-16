@@ -131,6 +131,11 @@ It is useful for using a STORE in a REACT COMPONENT
 		value: "init value",
 		...
 	},
+	// Function called once. Used to initialize the store. 
+	// For example if I have to listen to an event 
+	init: (store) => {
+		...
+	},
 	// returns a value
 	getters: {
 		getUppercase: (state, payload, store) => state.value.toUpperCase(),

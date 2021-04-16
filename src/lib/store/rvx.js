@@ -7,10 +7,6 @@ import { useContext } from "react";
  */
 export function getApplyStore(store, reducer) {
 	store._reducer = reducer;
-	if (store._init) {
-		store._init()
-		store._init = null
-	}
 	return store
 }
 
@@ -24,10 +20,6 @@ export function getApplyStore(store, reducer) {
 export function useApplyStore(store, context) {
 	const reducer = useContext(context)
 	store._reducer = reducer
-	if (store._init) {
-		store._init()
-		store._init = null
-	}
 	return store
 }
 
