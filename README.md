@@ -34,12 +34,6 @@ export default {
 	getters: {
 		getUppercase: (state) => state.value.toUpperCase(),
 	},
-	actions: {
-		fetch: async (state, payload, store) => {
-			//const {response} = await ajax.get(`my_server`)
-			//store.setValue(response)
-		}
-	},
 	mutators: {
 		setValue: (state, value) => ({ value }),
 	},
@@ -77,8 +71,11 @@ export default function App() {
   const { state, setValue, getUppercase } = useStore("myStore")
 
   return (<div>
-      <h1>{state.value}</h1><h2>{getUppercase()}</h2>
-      <input onChange={(e)=>setValue(e.target.value)} />
+		<h1>{state.value}</h1><h2>{getUppercase()}</h2>
+		<input 
+			value={state.value} 
+			onChange={(e)=>setValue(e.target.value)} 
+		/>
   </div>);
 }
 ```
