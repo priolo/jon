@@ -34,6 +34,21 @@
 			"console": "integratedTerminal",
 			"internalConsoleOptions": "neverOpen"
 		},
+		{
+			"name": "test object",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceRoot}/node_modules/react-scripts/bin/react-scripts.js",
+			"args": [
+				"test",
+				"src/tests/object.test.js",
+				"--verbose",
+				"-i",
+				"--no-cache"
+			],
+			"console": "integratedTerminal",
+			"internalConsoleOptions": "neverOpen"
+		},
 		
 	]
 }

@@ -4,7 +4,7 @@
  * @return if obj is an Object, including an Array.
  * @param {object}
  */
- export function isObject(value) {
+export function isObject(value) {
     return value !== null && typeof value === 'object';
 }
 
@@ -122,4 +122,18 @@ export function add(obj, diff) {
     }
 
     return ret;
+}
+
+/**
+ * Deep merge from two object
+ */
+export function merge(from, to) {
+    return Object.keys(from).reduce((merged, key) => {
+        if (from[key] instanceof Object && !Array.isArray(from[key])) {
+            merged[key] = merge(from[key], merged[key] ?? {})
+        } else {
+            merged[key] = from[key]
+        }
+        return merged
+    }, { ...to })
 }
