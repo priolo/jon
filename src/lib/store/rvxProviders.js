@@ -30,8 +30,8 @@ export function setupStore(stp) {
 		return acc
 	}, {})
 
-	stores = Object.keys(setups).reduce((acc, p) => {
-		acc[p] = createStore(setups[p]);
+	stores = Object.keys(setups).reduce((acc, storeName) => {
+		acc[storeName] = createStore(setups[storeName]);
 		return acc
 	}, {})
 
@@ -43,8 +43,8 @@ export function setupStore(stp) {
  * @param {string} storeName 
  * @param {any} bundle 
  */
-export function getStore(storeName/*, bundle*/) {
-	return getApplyStore(stores[storeName], reducers[storeName]/*, bundle*/)
+export function getStore(storeName) {
+	return getApplyStore(stores[storeName], reducers[storeName])
 }
 
 /**
@@ -53,9 +53,55 @@ export function getStore(storeName/*, bundle*/) {
  * @param {*} storeName 
  * @param {*} bundle 
  */
-export function useStore(storeName/*, bundle*/) {
-	return useApplyStore(stores[storeName], contexts[storeName]/*, bundle*/)
+export function useStore(storeName) {
+	return useApplyStore(stores[storeName], contexts[storeName])
 }
+
+
+
+
+
+
+
+
+
+
+
+
+export function getAllStates(ignore) {
+	return Object.keys(stores).reduce((states, key) => {
+		states[key] = stores[key].state
+		return states
+	}, {})
+}
+
+export function setAllState(states) {
+	return Object.keys(stores).forEach(key => {
+		stores[key]._update(states[key])
+	}, {})
+}
+
+export function getAllStores() {
+	return stores
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * REACT PROVIDER that contains all REDUCERS
@@ -81,7 +127,11 @@ export const MultiStoreProvider = ({ providers, children }) => {
 	// </context.Provider>)
 
 	// call init
-	useEffect(() => { stores[provider]._init() }, [])
+	useEffect(() => {
+		// [II] inserire qua un init dello store con il suo reducer!
+		stores[provider]._reducer = reducers[provider]
+		stores[provider]._init()
+	}, [])
 
 	return React.createElement(context.Provider, {
 		value: redux

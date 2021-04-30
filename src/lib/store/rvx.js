@@ -1,12 +1,20 @@
 import { useContext } from "react";
 
+
+export const EVENT_TYPE = {
+	ACTION: 1,
+	ACTION_SYNC: 2,
+	MUTATION: 3,
+}
+
+
 /**
  * simply put REDUCER (and BUNDLE) in a STORE and returns the instance. This is to optimize.
  * So we always use the same STORE instance but with a different REDUCER
  * Use this instance synchronously!
  */
 export function getApplyStore(store, reducer) {
-	store._reducer = reducer;
+	store._reducer = reducer
 	return store
 }
 
@@ -23,6 +31,9 @@ export function useApplyStore(store, context) {
 	return store
 }
 
+
+
+
 /**
  * create a STORE with a SETUP-STORE
  * @param {JSON} setup 
@@ -31,21 +42,48 @@ export function createStore(setup) {
 
 	// default
 	let store = {
+
 		_reducer: null,
+
 		get state() {
 			return store._reducer[0]
 		},
+
 		get d() {
 			return store._reducer[1]
 		},
-	}
 
-	// permette di aggiornare lo "state"
-	store._update = payload => store.d(state => ({ ...state }))
+		// permette di aggiornare lo "state"
+		_update: payload => {
+			store.d(state => {
+				if ( payload==null ) payload = {...state}
+				return payload
+			})
+		},
 
-	// initialization
-	store._init = () => {
-		if (setup.init) setup.init(store)
+		// initialization
+		_init: () => {
+			if (setup.init) setup.init(store)
+		},
+
+
+
+
+		_listeners: [],
+
+		subscribe: (callback) => {
+			store.unsubscribe(callback)
+			store._listeners.push(callback)
+		},
+
+		unsubscribe: (callback) => {
+			const index = store._listeners.findIndex(listener => listener == callback)
+			if (index != -1) store._listeners.splice(index, 1)
+		},
+
+		notify: (type, key, payload, result) => {
+			store._listeners.forEach ( listener => listener(type, key, payload, result) )
+		}
 	}
 
 	/**
@@ -53,7 +91,7 @@ export function createStore(setup) {
 	 */
 	if (setup.getters) {
 		store = Object.keys(setup.getters).reduce((acc, key) => {
-			acc[key] = payload => setup.getters[key](store.state, payload, store/*, store._bundle*/)
+			acc[key] = payload => setup.getters[key](store.state, payload, store)
 			return acc
 		}, store)
 	}
@@ -64,7 +102,8 @@ export function createStore(setup) {
 	if (setup.actions) {
 		store = Object.keys(setup.actions).reduce((acc, key) => {
 			acc[key] = async payload => {
-				const result = await setup.actions[key](store.state, payload, store/*, store._bundle*/)
+				const result = await setup.actions[key](store.state, payload, store)
+				store.notify(EVENT_TYPE.ACTION, key, payload, result)
 				return result
 			}
 			return acc
@@ -77,7 +116,8 @@ export function createStore(setup) {
 	if (setup.actionsSync) {
 		store = Object.keys(setup.actionsSync).reduce((acc, key) => {
 			acc[key] = payload => {
-				const result = setup.actionsSync[key](store.state, payload, store/*, store._bundle*/)
+				const result = setup.actionsSync[key](store.state, payload, store)
+				store.notify(EVENT_TYPE.ACTION_SYNC, key, payload, result)
 				return result
 			}
 			return acc
@@ -90,10 +130,14 @@ export function createStore(setup) {
 	if (setup.mutators) {
 		store = Object.keys(setup.mutators).reduce((acc, key) => {
 			acc[key] = payload => store.d(state => {
-				const stub = setup.mutators[key](state, payload, store/*, store._bundle*/)
+				const stub = setup.mutators[key](state, payload, store)
 				if (stub == null) return state
+
 				// per ottimizzare controllo se c'e' qualche cambiamento
-				if (Object.keys(stub).some(key => stub[key] != state[key])) return { ...state, ...stub }
+				if (Object.keys(stub).some(key => stub[key] != state[key])) state = { ...state, ...stub }
+
+				store.notify(EVENT_TYPE.MUTATION, key, payload)
+
 				return state
 			})
 			return acc
