@@ -32,6 +32,8 @@ export function useApplyStore(store, context) {
 }
 
 
+let _block_subcall = false
+
 
 
 /**
@@ -56,7 +58,7 @@ export function createStore(setup) {
 		// permette di aggiornare lo "state"
 		_update: payload => {
 			store.d(state => {
-				if ( payload==null ) payload = {...state}
+				if (payload == null) payload = { ...state }
 				return payload
 			})
 		},
@@ -65,6 +67,7 @@ export function createStore(setup) {
 		_init: () => {
 			if (setup.init) setup.init(store)
 		},
+
 
 
 
@@ -82,7 +85,7 @@ export function createStore(setup) {
 		},
 
 		notify: (type, key, payload, result) => {
-			store._listeners.forEach ( listener => listener(type, key, payload, result) )
+			store._listeners.forEach(listener => listener(type, key, payload, result))
 		}
 	}
 
@@ -102,8 +105,15 @@ export function createStore(setup) {
 	if (setup.actions) {
 		store = Object.keys(setup.actions).reduce((acc, key) => {
 			acc[key] = async payload => {
-				const result = await setup.actions[key](store.state, payload, store)
-				store.notify(EVENT_TYPE.ACTION, key, payload, result)
+				let result
+				if (_block_subcall == false) {
+					_block_subcall = true
+					result = await setup.actions[key](store.state, payload, store)
+					store.notify(EVENT_TYPE.ACTION, key, payload, result)
+					_block_subcall = false
+				} else {
+					result = await setup.actions[key](store.state, payload, store)
+				}
 				return result
 			}
 			return acc
@@ -116,8 +126,15 @@ export function createStore(setup) {
 	if (setup.actionsSync) {
 		store = Object.keys(setup.actionsSync).reduce((acc, key) => {
 			acc[key] = payload => {
-				const result = setup.actionsSync[key](store.state, payload, store)
-				store.notify(EVENT_TYPE.ACTION_SYNC, key, payload, result)
+				let result
+				if (_block_subcall == false) {
+					_block_subcall = true
+					result = setup.actionsSync[key](store.state, payload, store)
+					store.notify(EVENT_TYPE.ACTION_SYNC, key, payload, result)
+					_block_subcall = false
+				} else {
+					result = setup.actionsSync[key](store.state, payload, store)
+				}
 				return result
 			}
 			return acc
@@ -132,12 +149,10 @@ export function createStore(setup) {
 			acc[key] = payload => store.d(state => {
 				const stub = setup.mutators[key](state, payload, store)
 				if (stub == null) return state
-
 				// per ottimizzare controllo se c'e' qualche cambiamento
 				if (Object.keys(stub).some(key => stub[key] != state[key])) state = { ...state, ...stub }
-
-				store.notify(EVENT_TYPE.MUTATION, key, payload)
-
+				// notifica mutation
+				if (_block_subcall == false) store.notify(EVENT_TYPE.MUTATION, key, payload)
 				return state
 			})
 			return acc

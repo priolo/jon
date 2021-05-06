@@ -1,7 +1,7 @@
-import { cloneDeep, diff } from "../object/ref"
 import { getAllStates, getAllStores } from "./rvxProviders"
 import { EVENT_TYPE } from "./rvx"
-
+//import { ref } from "@priolo/jon-utils";
+import { cloneDeep, diff } from "../object/ref"
 
 
 export const RECORDER_STATE = {
@@ -12,16 +12,14 @@ export const RECORDER_ACTIONS = {
 	SET_STATE: 0, ACTION: 1, ACTION_SYNC: 2, MUTATION: 3, CHECK: 4
 }
 
-
 // le action che sto registrando ora
 let actions = []
 // l'ultima store analizzata
 let lastStoreState = null
 // stato del "recorder"
-let _state = RECORDER_STATE.STOP
-
-let _unsubMutations = null
-let _unsubActions = null
+let state = RECORDER_STATE.STOP
+// sono tutte le subscription eseguite
+let callbacks = {}
 
 const options = {
 	ignoreModules: [],
@@ -29,13 +27,18 @@ const options = {
 }
 
 
+
+export function recorderState() {
+	return state
+}
+
 /**
  * Avvia l'ascolto dello store e la registrazione in actions
  * @param {boolean} initialState 
  */
 export function recorderStart(initialState = true) {
-	if (_state == RECORDER_STATE.PLAY) return
-	_state = RECORDER_STATE.PLAY
+	if (state == RECORDER_STATE.PLAY) return
+	state = RECORDER_STATE.PLAY
 	actions = []
 
 	if (initialState) _addCurrentState()
@@ -48,10 +51,11 @@ export function recorderStart(initialState = true) {
  * restituisce le actions registrate
  */
 export function recorderStop() {
-	if (_state == RECORDER_STATE.STOP) return
-	_state = RECORDER_STATE.STOP
-	_stopStoreSubscribe()
+debugger
+	if (state == RECORDER_STATE.STOP) return
 	recorderCheck(false)
+	state = RECORDER_STATE.STOP
+	_stopStoreSubscribe()
 	return actions
 }
 
@@ -70,10 +74,11 @@ export function recorderStop() {
  * @param {boolean} shot se true ricattura lo stato dello store per il prossimo CHECK
  */
 export function recorderCheck(shot = true) {
+
 	const current = getAllStates(options.ignoreModules);
 	add({
 		type: RECORDER_ACTIONS.CHECK,
-		payload: diff(lastStoreState, current)
+		payload: /*ref.*/diff(lastStoreState, current)
 	});
 	if (shot) {
 		lastStoreState = current;
@@ -82,14 +87,17 @@ export function recorderCheck(shot = true) {
 }
 
 
+
+
+
 /**
  * Setta lo stato corrente. Usato all'inizio per inizializzare lo store 
  */
 function _addCurrentState() {
-	const states = getAllStates(options.ignoreModules)
+	const storeStates = getAllStates(options.ignoreModules)
 	add({
 		type: RECORDER_ACTIONS.SET_STATE,
-		payload: states,
+		payload: storeStates,
 	})
 }
 
@@ -98,7 +106,7 @@ function _addCurrentState() {
  * @param {object} action 
  */
 function add(action) {
-	//if (state != RECORDER_STATE.PLAY) return;
+	if (state != RECORDER_STATE.PLAY) return;
 	// for (let ig of options.ignoreModules) {
 	// 	if (action.path.startsWith(`${ig}/`)) return;
 	// }
@@ -109,7 +117,6 @@ function add(action) {
 	actions.push(action)
 }
 
-
 /**
  * Prelevo lo stato dello store e lo metto come "ultimo controllato" (lastStoreState)
  */
@@ -117,15 +124,12 @@ function _shotStoreState() {
 	lastStoreState = getAllStates(options.ignoreModules)
 }
 
-
-let callbacks = {}
-
 /**
  * Attiva i subscribe per monitorare action e mutation dello store
  */
 function _startStoreSubscribe() {
 	_stopStoreSubscribe();
-	debugger
+
 	const stores = getAllStores(options.ignoreModules)
 
 	const recAction = {
@@ -139,8 +143,8 @@ function _startStoreSubscribe() {
 			add({
 				type: recAction[type],		// tipo di intervento (action, mutation)
 				storeName,
-				propName, 						// nome della funzione richiamata
-				payload: cloneDeep(payload),
+				propName, 					// nome della funzione richiamata
+				payload: /*ref.*/cloneDeep(payload),
 			})
 		}
 		stores[storeName].subscribe(callback)
