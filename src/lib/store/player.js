@@ -1,7 +1,7 @@
 import { setAllState, getStore, getAllStates } from "./rvxProviders";
 import { RECORDER_ACTIONS } from "./recorder";
-//import { ref } from "@priolo/jon-utils";
-import { diff, isEqualDeep } from "../object/ref";
+import utils from "@priolo/jon-utils";
+
 
 
 let lastStoreState = null
@@ -53,8 +53,8 @@ export async function playerStart(actions) {
 				{
 					const cloneState = getAllStates();
 				debugger
-					const check = /*ref.*/diff(lastStoreState, cloneState)
-					if (/*ref.*/isEqualDeep(check, action.payload) == false) {
+					const check = utils.ref.diff(lastStoreState, cloneState)
+					if (utils.ref.isEqualDeep(check, action.payload) == false) {
 						log.push ({
 							type: PLAY_LOG_TYPE.FAIL,
 							index: i,
