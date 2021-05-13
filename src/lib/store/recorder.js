@@ -87,8 +87,6 @@ export function recorderCheckDiff() {
 
 export function recorderCheckHash() {
 	const current = getAllStates(options)
-console.log(current)
-debugger
 	const hash = utils.hashCode(utils.jsonStream(current))
 	add({
 		type: RECORDER_ACTIONS.CHECK_HASH,

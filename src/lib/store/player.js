@@ -73,8 +73,6 @@ export async function playerStart(actions) {
 			case RECORDER_ACTIONS.CHECK_HASH:
 				{
 					const currentState = getAllStates(options)
-console.log(currentState)
-debugger
 					const hashState = utils.hashCode(utils.jsonStream(currentState))
 					if (hashState != action.payload ) {
 						log.push({

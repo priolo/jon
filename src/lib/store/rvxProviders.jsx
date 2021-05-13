@@ -57,7 +57,6 @@ export function getAllStores() {
 	return stores
 }
 
-
 /**
  * Use a STORE by its name
  * It is useful for using a STORE in a REACT COMPONENT
@@ -67,28 +66,6 @@ export function getAllStores() {
 export function useStore(storeName) {
 	return useApplyStore(stores[storeName], contexts[storeName])
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -117,7 +94,6 @@ export const MultiStoreProvider = ({ providers, children }) => {
 
 	// call init
 	useEffect(() => {
-		// [II] inserire qua un init dello store con il suo reducer!
 		stores[provider]._reducer = reducers[provider]
 		stores[provider]._init()
 	}, [])
