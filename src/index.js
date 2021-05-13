@@ -1,42 +1,39 @@
-//import { MultiStoreProvider, rvxStoreSetup } from './lib/store/rvx'
-import { 
-    setupStore, MultiStoreProvider, getStore, useStore,
-    getAllStates, setAllState, getAllStores
-} from './lib/store/rvxProviders'
+
+import { setupStore, MultiStoreProvider, getStore, useStore } from './lib/store/rvxProviders'
+import { getAllStates, setAllState } from './lib/store/rvxUtils'
+
 import mixStores from './lib/store/mixStores'
 
 import { useValidator, validateAll, resetAll } from './lib/input/validator'
 import { rules } from './lib/input/rules'
 
-//import * as ref from "./lib/object/ref"
 import * as recorder from "./lib/store/recorder"
 import * as player from "./lib/store/player"
 
+
+
 // store
 export {
-  setupStore,
-  MultiStoreProvider,
-  getStore, 
-  useStore,
-  mixStores,
+	setupStore,
+	MultiStoreProvider,
+	getStore,
+	useStore,
+	mixStores,
 
-  getAllStates,
-  setAllState,
-  getAllStores,
+	getAllStates,
+	setAllState,
 }
 
 // recrder, player
 export {
-  recorder,
-  player
+	recorder,
+	player
 }
 
 // validate, ref
 export {
 	useValidator,
 	validateAll,
-  resetAll,
+	resetAll,
 	rules,
-
-  //ref,
 }

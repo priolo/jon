@@ -1,15 +1,24 @@
-import { getAllStates, getAllStores } from "./rvxProviders"
+import { getAllStores } from "./rvxProviders"
+import { getAllStates } from "./rvxUtils"
 import { EVENT_TYPE } from "./rvx"
 import utils from "@priolo/jon-utils";
 
 
 
 export const RECORDER_STATE = {
-	STOP: 0, PAUSE: 1, PLAY: 2
+	STOP: 0, 
+	PAUSE: 1, 
+	PLAY: 2
 }
 
 export const RECORDER_ACTIONS = {
-	SET_STATE: 0, ACTION: 1, ACTION_SYNC: 2, MUTATION: 3, CHECK: 4
+	OPTIONS: 0, 
+	SET_STATE: 1, 
+	ACTION: 2, 
+	ACTION_SYNC: 3, 
+	MUTATION: 4, 
+	CHECK_DIFF: 5, 
+	CHECK_HASH: 6
 }
 
 // le action che sto registrando ora
@@ -21,15 +30,12 @@ let state = RECORDER_STATE.STOP
 // sono tutte le subscription eseguite
 let callbacks = {}
 
-
 const optionsDefault = {
+	include:[],
 	exclude: [],
-
-	mouseEventsNull: true,
-	initialState: true,
+	initState: true,	// all'inizio della REC c'e' uno snapshot dello STATE
 }
 let options = optionsDefault
-
 
 
 export function recorderState() {
@@ -45,10 +51,12 @@ export function recorderStart(opt) {
 	state = RECORDER_STATE.PLAY
 	actions = []
 
-	options = utils.merge (opt, optionsDefault)
-	if (options.initialState) _addCurrentState()
-	_shotStoreState()
-	_startStoreSubscribe()
+	options = utils.merge(opt, optionsDefault)
+	add({ type: RECORDER_ACTIONS.OPTIONS, payload: options })
+
+	if (options.initState) addCurrentState()
+	
+	startStoreSubscribe()
 }
 
 /**
@@ -57,82 +65,68 @@ export function recorderStart(opt) {
  */
 export function recorderStop() {
 	if (state == RECORDER_STATE.STOP) return
-	recorderCheck(false)
+
+	recorderCheckHash()
 	state = RECORDER_STATE.STOP
-	_stopStoreSubscribe()
+	stopStoreSubscribe()
 	return actions
 }
-
-/**
- * Cambia lo stato in PAUSE in questo stato non registra nulla
- * Richiamare play() per riavviare la registrazione
- */
-// function pause() {
-// 	if (_state == RECORDER_STATE.PAUSE) return
-// 	_state = RECORDER_STATE.PAUSE
-// 	_stopStoreSubscribe()
-// }
 
 /**
  * aggiunge alle action un CHECK con payload la differenza con l'ultimo stato memorizzato (lastStoreState)
  * @param {boolean} shot se true ricattura lo stato dello store per il prossimo CHECK
  */
-export function recorderCheck(shot = true) {
-
-	const current = getAllStates(options);
+export function recorderCheckDiff() {
+	const current = getAllStates(options)
 	add({
-		type: RECORDER_ACTIONS.CHECK,
+		type: RECORDER_ACTIONS.CHECK_DIFF,
 		payload: utils.diff(lastStoreState, current)
 	});
-	if (shot) {
-		lastStoreState = current;
-		//_shotStoreState();
-	}
+	lastStoreState = current
 }
 
-
-
-
-
-/**
- * Setta lo stato corrente. Usato all'inizio per inizializzare lo store 
- */
-function _addCurrentState() {
-	const storeStates = getAllStates(options)
+export function recorderCheckHash() {
+	const current = getAllStates(options)
+console.log(current)
+debugger
+	const hash = utils.hashCode(utils.jsonStream(current))
 	add({
-		type: RECORDER_ACTIONS.SET_STATE,
-		payload: storeStates,
-	})
+		type: RECORDER_ACTIONS.CHECK_HASH,
+		payload: hash
+	});
+	lastStoreState = current
 }
+
+
+
 
 /**
  * Aggiungo un action alle actions registrate
  * @param {object} action 
  */
-function add(action) {
+ function add(action) {
 	if (state != RECORDER_STATE.PLAY) return;
-	// for (let ig of options.ignoreModules) {
-	// 	if (action.path.startsWith(`${ig}/`)) return;
-	// }
-	// if (options.mouseEventsNull) {
-	// 	const cn = action.payload && action.payload.constructor && action.payload.constructor.name;
-	// 	if (cn == "MouseEvent") action.payload = null;
-	// }
 	actions.push(action)
 }
 
 /**
- * Prelevo lo stato dello store e lo metto come "ultimo controllato" (lastStoreState)
+ * Setta lo stato corrente. 
+ * Effettuato all'inizio della registrazione 
+ * per inizializzare lo store quando andrà in play
  */
-function _shotStoreState() {
-	lastStoreState = getAllStates(options)
+function addCurrentState() {
+	lastStoreState = getAllStates()
+	add({
+		type: RECORDER_ACTIONS.SET_STATE,
+		payload: lastStoreState,
+	})
 }
 
 /**
  * Attiva i subscribe per monitorare action e mutation dello store
  */
-function _startStoreSubscribe() {
-	_stopStoreSubscribe();
+function startStoreSubscribe() {
+	stopStoreSubscribe();
 
 	const stores = getAllStores(options)
 
@@ -160,8 +154,8 @@ function _startStoreSubscribe() {
 /**
  * Elimina tutti i subscribe creati (se ci sono)
  */
-function _stopStoreSubscribe() {
-	const stores = getAllStores(options.ignoreModules)
+function stopStoreSubscribe() {
+	const stores = getAllStores(options)
 	Object.keys(stores).forEach(key => {
 		const callback = callbacks[key]
 		stores[key].unsubscribe(callback)

@@ -1,10 +1,13 @@
-import { setAllState, getStore, getAllStates } from "./rvxProviders";
+
+import { getStore } from "./rvxProviders";
+import { getAllStates, setAllState } from "./rvxUtils"
 import { RECORDER_ACTIONS } from "./recorder";
 import utils from "@priolo/jon-utils";
 
 
 
-let lastStoreState = null
+let lastState = null
+let options = {}
 
 export async function playerStart(actions) {
 
@@ -16,11 +19,15 @@ export async function playerStart(actions) {
 
 		switch (type) {
 
+			case RECORDER_ACTIONS.OPTIONS:
+				options = payload
+				break
+
 			// setta lo stato
 			case RECORDER_ACTIONS.SET_STATE:
 				{
 					setAllState(action.payload)
-					lastStoreState = action.payload
+					lastState = action.payload
 				}
 				break
 
@@ -49,16 +56,31 @@ export async function playerStart(actions) {
 				break
 
 
-			case RECORDER_ACTIONS.CHECK:
+			case RECORDER_ACTIONS.CHECK_DIFF:
 				{
-					const cloneState = getAllStates();
-				debugger
-					const check = utils.ref.diff(lastStoreState, cloneState)
-					if (utils.ref.isEqualDeep(check, action.payload) == false) {
-						log.push ({
-							type: PLAY_LOG_TYPE.FAIL,
+					const currentState = getAllStates(options)
+					const deltaState = utils.diff(lastState, currentState)
+					if (utils.isEqualDeep(deltaState, action.payload) == false) {
+						log.push({
+							type: PLAY_LOG_TYPE.CHECK_DIFF_FAIL,
 							index: i,
-							diff: check,
+							diff: deltaState,
+						})
+					}
+				}
+				break
+
+			case RECORDER_ACTIONS.CHECK_HASH:
+				{
+					const currentState = getAllStates(options)
+console.log(currentState)
+debugger
+					const hashState = utils.hashCode(utils.jsonStream(currentState))
+					if (hashState != action.payload ) {
+						log.push({
+							type: PLAY_LOG_TYPE.CHECK_HASH_FAIL,
+							index: i,
+							diff: hashState,
 						})
 					}
 				}
@@ -71,5 +93,6 @@ export async function playerStart(actions) {
 
 
 const PLAY_LOG_TYPE = {
-	FAIL: 0
+	CHECK_DIFF_FAIL: 0,
+	CHECK_HASH_FAIL: 1,
 }

@@ -5,13 +5,14 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "all tests",
+			"name": "action",
 			"type": "node",
 			"request": "launch",
 			"program": "${workspaceRoot}/node_modules/react-scripts/bin/react-scripts.js",
 			"args": [
 				"test",
-				"src/tests",
+				"src/tests/action.test.js",
+				"--watchAll=false",
 				"--verbose",
 				"-i",
 				"--no-cache"
@@ -20,13 +21,14 @@
 			"internalConsoleOptions": "neverOpen"
 		},
 		{
-			"name": "test Validators",
+			"name": "validators",
 			"type": "node",
 			"request": "launch",
 			"program": "${workspaceRoot}/node_modules/react-scripts/bin/react-scripts.js",
 			"args": [
 				"test",
 				"src/tests/validators.test.js",
+				"--watchAll=false",
 				"--verbose",
 				"-i",
 				"--no-cache"
@@ -35,13 +37,34 @@
 			"internalConsoleOptions": "neverOpen"
 		},
 		{
-			"name": "test object",
+			"name": "store",
 			"type": "node",
 			"request": "launch",
 			"program": "${workspaceRoot}/node_modules/react-scripts/bin/react-scripts.js",
 			"args": [
 				"test",
-				"src/tests/object.test.js",
+				"src/tests/store.test.js",
+				"--watchAll=false",
+				"--verbose",
+				"-i",
+				"--no-cache"
+			],
+			"console": "integratedTerminal",
+			"internalConsoleOptions": "neverOpen"
+		},
+
+
+
+
+		{
+			"name": "record",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceRoot}/node_modules/react-scripts/bin/react-scripts.js",
+			"args": [
+				"test",
+				"src/tests/record.test.js",
+				"--watchAll=false",
 				"--verbose",
 				"-i",
 				"--no-cache"

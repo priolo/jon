@@ -9,40 +9,39 @@ beforeEach(() => {
 	setupStore({ myStore: setupMyStore })
 })
 
-test('simply getStore', async () => {
+test('getters/mutators', async () => {
 
 	render(<MultiStoreProvider><TestView /><TestCommand/></MultiStoreProvider>)
 
 	// get myStore with reducer
-	const myStoreWithReducer = getStore("myStore")
-	expect(myStoreWithReducer.state.value).toBe("init value")
+	const myStore = getStore("myStore")
+	expect(myStore.state.value).toBe("init value")
 
 	// change state value with reducer
 	act(() => {
-		myStoreWithReducer.setValue("new value")
+		myStore.setValue("new value")
 	})
 	expect(screen.getByTestId('view')).toHaveTextContent("new value")
 
 	// get value with getter
-	expect(myStoreWithReducer.getUppercase()).toBe("NEW VALUE")
+	expect(myStore.getUppercase()).toBe("NEW VALUE")
 
 })
 
-test('simply useStore', async () => {
+test('call action', async () => {
 
 	render(<MultiStoreProvider><TestView /><TestCommand/></MultiStoreProvider>)
 
 	// get myStore with reducer
-	const myStoreWithReducer = getStore("myStore")
-	expect(myStoreWithReducer.state.value).toBe("init value")
+	const myStore = getStore("myStore")
 
-	// change state value with event
-	fireEvent.click(screen.getByText('click'))
+	// change state value with event (call action)
+	await fireEvent.click(screen.getByText('click'))
 
 	expect(screen.getByTestId('view')).toHaveTextContent("new value")
 
 	// get value with getter
-	expect(myStoreWithReducer.getUppercase()).toBe("NEW VALUE")
+	expect(myStore.getUppercase()).toBe("NEW VALUE... FROM ACTION!")
 
 })
 
@@ -52,6 +51,11 @@ const setupMyStore = {
 	},
 	getters: {
 		getUppercase: (state) => state.value.toUpperCase(),
+	},
+	actions: {
+		changeValue: (state, value, store) => {
+			store.setValue(`${value}... from action!`)
+		}
 	},
 	mutators: {
 		setValue: (state, value) => ({ value }),
@@ -67,7 +71,7 @@ function TestView() {
 
 function TestCommand() {
 
-	const {  setValue } = useStore("myStore")
+	const { changeValue } = useStore("myStore")
 
-	return <button onClick={() => setValue("new value")}>click</button>
+	return <button onClick={() => changeValue("new value")}>click</button>
 }

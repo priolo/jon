@@ -1,5 +1,9 @@
 
-
+/**
+ * Permette di ottenere uno STORE derivandolo dagli STORES passati come parametro
+ * @param  {...any} stores 
+ * @returns 
+ */
 export default function mixStores ( ...stores ) {
 	return stores.reduce ( (acc, store) => {
 		if ( acc==null ) return store
