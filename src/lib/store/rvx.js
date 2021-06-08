@@ -71,22 +71,40 @@ export function createStore(setup) {
 
 
 
+		//#region EVENTS
 
 		_listeners: [],
 
+		/**
+		 * sottoscrivo una callback da chiamare quando avvengono modifiche sullo store
+		 * @param {(EVENT_TYPE, key:string, payload:any, result:any)=>void} callback 
+		 */
 		subscribe: (callback) => {
 			store.unsubscribe(callback)
 			store._listeners.push(callback)
 		},
 
+		/**
+		 * Elimina l'iscrizione alle modifiche (utilizzare la stessa istanza di funzione)
+		 * @param {*} callback 
+		 */
 		unsubscribe: (callback) => {
 			const index = store._listeners.findIndex(listener => listener == callback)
 			if (index != -1) store._listeners.splice(index, 1)
 		},
 
+		/**
+		 * Smista un messaggio di modifica a tutti i LISTENERS
+		 * @param {EVENT_TYPE} type Typo di modifica
+		 * @param {string} key nome della funzione dello STORE chiamata
+		 * @param {any} payload parametro 
+		 * @param {any} result valore restituita da un ACTION o ACTION_SYNC
+		 */
 		notify: (type, key, payload, result) => {
 			store._listeners.forEach(listener => listener(type, key, payload, result))
 		}
+
+		//#endregion
 	}
 
 	/**

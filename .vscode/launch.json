@@ -4,14 +4,15 @@
 	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
 	"version": "0.2.0",
 	"configurations": [
+
 		{
-			"name": "action",
+			"name": "store action",
 			"type": "node",
 			"request": "launch",
 			"program": "${workspaceRoot}/node_modules/react-scripts/bin/react-scripts.js",
 			"args": [
 				"test",
-				"src/tests/action.test.js",
+				"src/tests/store_action.test.js",
 				"--watchAll=false",
 				"--verbose",
 				"-i",
@@ -20,22 +21,7 @@
 			"console": "integratedTerminal",
 			"internalConsoleOptions": "neverOpen"
 		},
-		{
-			"name": "validators",
-			"type": "node",
-			"request": "launch",
-			"program": "${workspaceRoot}/node_modules/react-scripts/bin/react-scripts.js",
-			"args": [
-				"test",
-				"src/tests/validators.test.js",
-				"--watchAll=false",
-				"--verbose",
-				"-i",
-				"--no-cache"
-			],
-			"console": "integratedTerminal",
-			"internalConsoleOptions": "neverOpen"
-		},
+
 		{
 			"name": "store",
 			"type": "node",
@@ -53,8 +39,39 @@
 			"internalConsoleOptions": "neverOpen"
 		},
 
+		{
+			"name": "store events",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceRoot}/node_modules/react-scripts/bin/react-scripts.js",
+			"args": [
+				"test",
+				"src/tests/store_events.test.js",
+				"--watchAll=false",
+				"--verbose",
+				"-i",
+				"--no-cache"
+			],
+			"console": "integratedTerminal",
+			"internalConsoleOptions": "neverOpen"
+		},
 
-
+		{
+			"name": "validators",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceRoot}/node_modules/react-scripts/bin/react-scripts.js",
+			"args": [
+				"test",
+				"src/tests/validators.test.js",
+				"--watchAll=false",
+				"--verbose",
+				"-i",
+				"--no-cache"
+			],
+			"console": "integratedTerminal",
+			"internalConsoleOptions": "neverOpen"
+		},
 
 		{
 			"name": "record",

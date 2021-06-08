@@ -3,6 +3,9 @@ import { render, fireEvent, waitFor, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import { getStore, MultiStoreProvider, setupStore, useStore } from '../lib/store/rvxProviders'
 
+/**
+ * TEST riguardanti le ACTION dello STORE
+ */
 
 beforeEach(() => {
 	// create CONTEXT and STORE
