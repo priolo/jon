@@ -54,7 +54,7 @@ test('getStructureStoreFromPaths', async () => {
 
 })
 
-test('getAllStates', async () => {
+test('getAllStates exclude', async () => {
 	render(<MultiStoreProvider />)
 
 	const states = getAllStates({
@@ -76,5 +76,25 @@ test('getAllStates', async () => {
 			par2: { par2_1: 'item2.1', par2_2: 'item2.2' },
 			par3: 'item3'
 		}
+	})
+})
+
+test('getAllStates include', async () => {
+	render(<MultiStoreProvider />)
+
+	const states = getAllStates({
+		include: [
+			"store1.users.id",
+			"store3",
+			"undefined",
+			null,
+		]
+	})
+
+	expect(states).toEqual({
+		"store1": {
+			"users": [{ "id": 1 }, { "id": 2 }, { "id": 3 }]
+		},
+		"store3": { "par1": "item1" }
 	})
 })

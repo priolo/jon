@@ -17,12 +17,12 @@ export function getAllStates(options) {
 	const includes = getStructureStoreFromPaths(options?.include)
 	const stores = getAllStores()
 	const states = Object.keys(stores).reduce((states, key) => {
-
 		const includeStore = includes[key]
 		const excludeStore = excludes[key]
 		if (excludeStore && excludeStore.length == 0) return states
+		if (!includeStore && Object.keys(includes).length > 0 ) return states 
 
-		const state = utils.cloneDeep(stores[key].state)
+		let state = utils.cloneDeep(stores[key].state)
 
 		if (excludeStore && excludeStore.length > 0) utils.exploreMap(state, excludeStore).forEach( prop => delete prop.parent[prop.key] )
 		if (includeStore && includeStore.length > 0) state = utils.includeMap(state, includeStore)

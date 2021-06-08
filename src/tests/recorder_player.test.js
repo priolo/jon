@@ -2,8 +2,8 @@ import React from 'react'
 import { render, fireEvent, waitFor, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import { getStore, MultiStoreProvider, setupStore, useStore } from '../lib/store/rvxProviders'
-import { recorderStart, recorderStop } from '../lib/store/recorder'
-import { playerStart } from '../lib/store/player'
+import rec from '../lib/store/recorder'
+import player from '../lib/store/player'
 
 
 beforeEach(() => {
@@ -16,7 +16,7 @@ it('autotest simple', async () => {
 	const myStore = getStore("myStore")
 
 	// rec start
-	recorderStart()
+	rec.start()
 	// change state value with JON
 	await act(() => {
 		myStore.setValue("new value by store")
@@ -24,24 +24,24 @@ it('autotest simple', async () => {
 	// change state value with event
 	await fireEvent.click(screen.getByText('set value'))
 	// rec stop
-	const actions = recorderStop()
+	const actions = rec.stop()
 
 	// player start
 	let problems
 	await act(async () => {
-		problems = await playerStart(actions)
+		problems = await player.all(actions)
 	})
 
 	// expect no problems
 	expect(problems).toHaveLength(0)
 })
 
-it('autotest exclude', async () => {
+it('autotest exclude play stepBystep', async () => {
 	render(<MultiStoreProvider><TestView /><TestCommand /></MultiStoreProvider>)
 	const myStore = getStore("myStore")
 
 	// rec start
-	recorderStart({
+	rec.start({
 		exclude: [ "myStore.users.id" ]
 	})
 	// change state value with JON
@@ -52,12 +52,14 @@ it('autotest exclude', async () => {
  	await fireEvent.click(screen.getByText('set value'))
 	await fireEvent.click(screen.getByText('load users'))
 	// rec stop
-	const actions = recorderStop()
+	const actions = rec.stop()
 
-	// player start
-	let problems
+	// player start step by step
+	let problems = []
 	await act(async () => {
-		problems = await playerStart(actions)
+		for await (let log of player.stepByStep(actions)) {
+			problems = problems.concat (log)
+		}
 	})
 
 	// expect no problems

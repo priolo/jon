@@ -38,7 +38,7 @@ const optionsDefault = {
 let options = optionsDefault
 
 
-export function recorderState() {
+function getState() {
 	return state
 }
 
@@ -46,7 +46,7 @@ export function recorderState() {
  * Avvia l'ascolto dello store e la registrazione in actions
  * @param {boolean} initialState 
  */
-export function recorderStart(opt) {
+function start(opt) {
 	if (state == RECORDER_STATE.PLAY) return
 	state = RECORDER_STATE.PLAY
 	actions = []
@@ -63,10 +63,10 @@ export function recorderStart(opt) {
  * Termina la registrazione
  * restituisce le actions registrate
  */
-export function recorderStop() {
+function stop() {
 	if (state == RECORDER_STATE.STOP) return
 
-	recorderCheckHash()
+	checkHash()
 	state = RECORDER_STATE.STOP
 	stopStoreSubscribe()
 	return actions
@@ -76,7 +76,7 @@ export function recorderStop() {
  * aggiunge alle action un CHECK con payload la differenza con l'ultimo stato memorizzato (lastStoreState)
  * @param {boolean} shot se true ricattura lo stato dello store per il prossimo CHECK
  */
-export function recorderCheckDiff() {
+function checkDiff() {
 	const current = getAllStates(options)
 	add({
 		type: RECORDER_ACTIONS.CHECK_DIFF,
@@ -85,7 +85,7 @@ export function recorderCheckDiff() {
 	lastStoreState = current
 }
 
-export function recorderCheckHash() {
+function checkHash() {
 	const current = getAllStates(options)
 	const hash = utils.hashCode(utils.jsonStream(current))
 	add({
@@ -95,7 +95,13 @@ export function recorderCheckHash() {
 	lastStoreState = current
 }
 
-
+export default {
+	getState,
+	start,
+	stop,
+	checkDiff,
+	checkHash,
+}
 
 
 /**

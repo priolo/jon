@@ -7,8 +7,8 @@ import mixStores from './lib/store/mixStores'
 import { useValidator, validateAll, resetAll } from './lib/input/validator'
 import { rules } from './lib/input/rules'
 
-import * as recorder from "./lib/store/recorder"
-import * as player from "./lib/store/player"
+import recorder from "./lib/store/recorder"
+import player from "./lib/store/player"
 
 
 
