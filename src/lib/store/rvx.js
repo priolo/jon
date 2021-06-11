@@ -1,15 +1,17 @@
 import { useContext } from "react";
+import { EventEmitter } from "@priolo/jon-utils"
+import { STORE_EVENTS } from "./rvxUtils";
 
 
-export const EVENT_TYPE = {
-	ACTION: 1,
-	ACTION_SYNC: 2,
-	MUTATION: 3,
-}
+
+
+
+let _block_subcall = false
+
 
 
 /**
- * simply put REDUCER (and BUNDLE) in a STORE and returns the instance. This is to optimize.
+ * simply put REDUCER in a STORE and returns the instance. This is to optimize.
  * So we always use the same STORE instance but with a different REDUCER
  * Use this instance synchronously!
  */
@@ -32,7 +34,7 @@ export function useApplyStore(store, context) {
 }
 
 
-let _block_subcall = false
+
 
 
 
@@ -68,43 +70,9 @@ export function createStore(setup) {
 			if (setup.init) setup.init(store)
 		},
 
+		// emitter per gestire gli eventi 
+		emitter: new EventEmitter(Object.values(STORE_EVENTS))
 
-
-
-		//#region EVENTS
-
-		_listeners: [],
-
-		/**
-		 * sottoscrivo una callback da chiamare quando avvengono modifiche sullo store
-		 * @param {(EVENT_TYPE, key:string, payload:any, result:any)=>void} callback 
-		 */
-		subscribe: (callback) => {
-			store.unsubscribe(callback)
-			store._listeners.push(callback)
-		},
-
-		/**
-		 * Elimina l'iscrizione alle modifiche (utilizzare la stessa istanza di funzione)
-		 * @param {*} callback 
-		 */
-		unsubscribe: (callback) => {
-			const index = store._listeners.findIndex(listener => listener == callback)
-			if (index != -1) store._listeners.splice(index, 1)
-		},
-
-		/**
-		 * Smista un messaggio di modifica a tutti i LISTENERS
-		 * @param {EVENT_TYPE} type Typo di modifica
-		 * @param {string} key nome della funzione dello STORE chiamata
-		 * @param {any} payload parametro 
-		 * @param {any} result valore restituita da un ACTION o ACTION_SYNC
-		 */
-		notify: (type, key, payload, result) => {
-			store._listeners.forEach(listener => listener(type, key, payload, result))
-		}
-
-		//#endregion
 	}
 
 	/**
@@ -123,15 +91,11 @@ export function createStore(setup) {
 	if (setup.actions) {
 		store = Object.keys(setup.actions).reduce((acc, key) => {
 			acc[key] = async payload => {
-				let result
-				if (_block_subcall == false) {
-					_block_subcall = true
-					result = await setup.actions[key](store.state, payload, store)
-					store.notify(EVENT_TYPE.ACTION, key, payload, result)
-					_block_subcall = false
-				} else {
-					result = await setup.actions[key](store.state, payload, store)
-				}
+				const tmp = _block_subcall
+				if (tmp == false) _block_subcall = true
+				const result = await setup.actions[key](store.state, payload, store)
+				store.emitter.emit(STORE_EVENTS.ACTION, { key, payload, result, subcall: _block_subcall })
+				if (tmp == false) _block_subcall = false
 				return result
 			}
 			return acc
@@ -144,15 +108,11 @@ export function createStore(setup) {
 	if (setup.actionsSync) {
 		store = Object.keys(setup.actionsSync).reduce((acc, key) => {
 			acc[key] = payload => {
-				let result
-				if (_block_subcall == false) {
-					_block_subcall = true
-					result = setup.actionsSync[key](store.state, payload, store)
-					store.notify(EVENT_TYPE.ACTION_SYNC, key, payload, result)
-					_block_subcall = false
-				} else {
-					result = setup.actionsSync[key](store.state, payload, store)
-				}
+				const tmp = _block_subcall
+				if (tmp == false) _block_subcall = true
+				const result = setup.actionsSync[key](store.state, payload, store)
+				store.emitter.emit(STORE_EVENTS.ACTION_SYNC, { key, payload, result, subcall: _block_subcall })
+				if (tmp == false) _block_subcall = false
 				return result
 			}
 			return acc
@@ -166,11 +126,13 @@ export function createStore(setup) {
 		store = Object.keys(setup.mutators).reduce((acc, key) => {
 			acc[key] = payload => store.d(state => {
 				const stub = setup.mutators[key](state, payload, store)
+				// se il "mutator" restituisce "null"  allora non faccio nulla
 				if (stub == null) return state
 				// per ottimizzare controllo se c'e' qualche cambiamento
-				if (Object.keys(stub).some(key => stub[key] != state[key])) state = { ...state, ...stub }
-				// notifica mutation
-				if (_block_subcall == false) store.notify(EVENT_TYPE.MUTATION, key, payload)
+				if (Object.keys(stub).some(key => stub[key] != state[key])) {
+					state = { ...state, ...stub }
+					store.emitter.emit(STORE_EVENTS.MUTATION, { key, payload, subcall: _block_subcall })
+				}
 				return state
 			})
 			return acc
@@ -195,3 +157,4 @@ export function createStore(setup) {
 
 	return store
 }
+

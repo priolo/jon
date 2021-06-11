@@ -1,21 +1,38 @@
 import React, { useEffect, useReducer } from 'react';
 import { getApplyStore, createStore, useApplyStore } from './rvx';
+import { STORE_EVENTS } from './rvxUtils';
 
 
-
-// All the SETUP used to create the STORE
+/**
+ * Create in "setupStore"
+ * All the SETUP used to create the STORE
+ */
 let setups
-/* All the CONTEXT created in "setupStore"
-contain the REDUCER of a STORE
-are taken from the REACT components through a PROVIDER */
+/**
+ * Create in "setupStore"
+ * All the CONTEXT contain the REDUCER of a STORE
+ * are taken from the REACT components through a PROVIDER
+ */
 let contexts
-// All the STORES created in "setupStore"
+/**
+ * Create in "setupStore"
+ * All the STORES
+ */
 let stores
-// all REDUCERS, are inside the CONTEXT, are created in "MultiStoreProvider"
+/**
+ * Create in "MultiStoreProvider"
+ * all REDUCERS, are inside the CONTEXT
+ */
 const reducers = {}
 const reducer = (state, action) => {
 	return action(state);
 };
+
+
+
+
+
+
 
 /**
  * Initialization!
@@ -37,41 +54,35 @@ export function setupStore(stp) {
 		return acc
 	}, {})
 
+	for (const storeName of Object.keys(setups)) {
+		const store = stores[storeName]
+		const setup = setups[storeName]
+		createWatch(setup, store)
+	}
+
 }
 
-/**
- * Returns a STORE by its name
- * It is useful for using a STORE outside a REACT COMPONENT
- * @param {string} storeName 
- * @param {any} bundle 
- */
-export function getStore(storeName) {
-	return getApplyStore(stores[storeName], reducers[storeName])
-}
 
-/**
- * Si insomma... restituisce tutti gli store
- * @returns 
- */
-export function getAllStores() {
-	return stores
-}
-
-/**
- * Use a STORE by its name
- * It is useful for using a STORE in a REACT COMPONENT
- * @param {*} storeName 
- * @param {*} bundle 
- */
-export function useStore(storeName) {
-	return useApplyStore(stores[storeName], contexts[storeName])
+function createWatch(setup, store) {
+	if (!setup || !setup.watch || !store) return
+	for (const storeName of Object.keys(setup.watch)) {
+		const storeWatch = setup.watch[storeName]
+		if (!storeWatch) continue
+		for (const propName of Object.keys(storeWatch)) {
+			const callbackWatch = storeWatch[propName]
+			const storeEmitter = stores[storeName].emitter
+			storeEmitter.on(STORE_EVENTS.MUTATION, e => {
+				if (e.payload.key != propName) return
+				callbackWatch(store, e.payload.payload)
+			})
+		}
+	}
 }
 
 
 
 /**
  * REACT PROVIDER that contains all REDUCERS
- * @param {*} param0 
  */
 export const MultiStoreProvider = ({ providers, children }) => {
 
@@ -98,10 +109,42 @@ export const MultiStoreProvider = ({ providers, children }) => {
 		stores[provider]._init()
 	}, [])
 
-	return React.createElement(context.Provider, {
-		value: redux
-	}, prvs_c.length > 0 ? React.createElement(MultiStoreProvider, {
-		providers: prvs_c,
-		children: children
-	}) : children);
+	return React.createElement(
+		context.Provider,
+		{ value: redux },
+		prvs_c.length > 0 ?
+			React.createElement(MultiStoreProvider, {
+				providers: prvs_c,
+				children: children
+			})
+			: children
+	)
+}
+
+
+
+/**
+ * Returns a STORE by its name
+ * It is useful for using a STORE outside a REACT COMPONENT
+ * @param {string} storeName 
+*/
+export function getStore(storeName) {
+	return getApplyStore(stores[storeName], reducers[storeName])
+}
+
+/**
+ * Si insomma... restituisce tutti gli store
+ * @returns 
+ */
+export function getAllStores() {
+	return stores
+}
+
+/**
+ * Use a STORE by its name
+ * It is useful for using a STORE in a REACT COMPONENT
+ * @param {*} storeName 
+*/
+export function useStore(storeName) {
+	return useApplyStore(stores[storeName], contexts[storeName])
 }

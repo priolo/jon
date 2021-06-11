@@ -15,10 +15,10 @@ test('getters/mutators', async () => {
 
 	const results = []
 	const myStore = getStore("myStore")
-	const onChange = (type, key, payload, result) => {
-		results.push({ type, key, payload, result })
+	const onChange = (payload) => {
+		results.push(payload)
 	}
-	myStore.subscribe(onChange)
+	myStore.emitter.on("*", onChange)
 
 	// with reducer
 	await act(async () => {
@@ -29,32 +29,39 @@ test('getters/mutators', async () => {
 	// with hooks
 	await fireEvent.click(screen.getByText('click'))
 
+	// aspetto un po' altrimenti REACT non setta tutto
 	await new Promise(res => setTimeout(res, 300))
 
 	expect(results).toEqual([
 		{
-			type: 3,
-			key: "setValue",
-			payload: "reducer:mutator",
-			result: undefined,
+			event: "mutation",
+			payload: {
+				key: "setValue",
+				payload: "reducer:mutator",
+			},
 		},
 		{
-			type: 1,
-			key: "changeValue",
-			payload: "reducer:action",
-			result: undefined,
+			event: "action",
+			payload: {
+				key: "changeValue",
+				payload: "reducer:action",
+				result: undefined,
+			},
 		},
 		{
-			type: 1,
-			key: "changeValue",
-			payload: "hook:action",
-			result: undefined,
+			event: "action",
+			payload: {
+				key: "changeValue",
+				payload: "hook:action",
+				result: undefined,
+			},
 		},
 		{
-			type: 3,
-			key: "setValue",
-			payload: "hook:mutator",
-			result: undefined,
+			event: "mutation",
+			payload: {
+				key: "setValue",
+				payload: "hook:mutator",
+			},
 		},
 	])
 

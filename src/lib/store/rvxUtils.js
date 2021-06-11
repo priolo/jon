@@ -3,6 +3,12 @@ import { getAllStores } from "./rvxProviders"
 
 
 
+export const STORE_EVENTS = {
+	ACTION: "action",
+	ACTION_SYNC: "action-sync",
+	MUTATION: "mutation",
+}
+
 
 /**
  * restituisce lo stato di tutti gli STORES
