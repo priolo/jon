@@ -65,6 +65,17 @@ export function createStore(setup) {
 			})
 		},
 
+		// permette di chiamare un "action" in maniera da essere sincronizzato con le "mutation"
+		_syncAct: async (action, payload) => {
+			return new Promise((res, rej) => {
+				store.d(state => {
+					const ret = action(payload, state)
+					res(ret)
+					return state
+				})
+			})
+		},
+
 		// initialization
 		_init: () => {
 			if (setup.init) setup.init(store)
@@ -90,10 +101,13 @@ export function createStore(setup) {
 	 */
 	if (setup.actions) {
 		store = Object.keys(setup.actions).reduce((acc, key) => {
-			acc[key] = async payload => {
+			acc[key] = async (payload, newState) => {
 				const tmp = _block_subcall
 				if (tmp == false) _block_subcall = true
-				const result = await setup.actions[key](store.state, payload, store)
+
+				if (newState == undefined) newState = store.state
+				const result = await setup.actions[key](newState, payload, store)
+
 				store.emitter.emit(STORE_EVENTS.ACTION, { key, payload, result, subcall: tmp })
 				if (tmp == false) _block_subcall = false
 				return result
@@ -107,10 +121,13 @@ export function createStore(setup) {
 	 */
 	if (setup.actionsSync) {
 		store = Object.keys(setup.actionsSync).reduce((acc, key) => {
-			acc[key] = payload => {
+			acc[key] = (payload, newState) => {
 				const tmp = _block_subcall
 				if (tmp == false) _block_subcall = true
+
+				if (newState == undefined) newState = store.state
 				const result = setup.actionsSync[key](store.state, payload, store)
+
 				store.emitter.emit(STORE_EVENTS.ACTION_SYNC, { key, payload, result, subcall: tmp })
 				if (tmp == false) _block_subcall = false
 				return result

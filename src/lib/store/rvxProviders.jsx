@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import { getApplyStore, createStore, useApplyStore } from './rvx';
 import { STORE_EVENTS } from './rvxUtils';
 
@@ -95,7 +95,7 @@ export const MultiStoreProvider = ({ providers, children }) => {
 	const prvs_c = [...providers]
 	const provider = prvs_c.shift();
 
-	const redux = useReducer(reducer, setups[provider].state);
+	const redux = useState(setups[provider].state);
 	reducers[provider] = redux
 	const context = contexts[provider]
 
