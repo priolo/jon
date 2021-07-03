@@ -6,13 +6,15 @@ import rec from '../lib/store/recorder'
 import player from '../lib/store/player'
 
 
+
 beforeEach(() => {
-	// create CONTEXT and STORE
-	setupStore({ myStore: setupMyStore })
+	
 })
 
 it('autotest simple', async () => {
-	render(<MultiStoreProvider><TestView /><TestCommand /></MultiStoreProvider>)
+
+	setupStore({ myStore: setupMyStore })
+	const { unmount } = render(<MultiStoreProvider><TestView /><TestCommand /></MultiStoreProvider>)
 	const myStore = getStore("myStore")
 
 	// rec start
@@ -23,8 +25,15 @@ it('autotest simple', async () => {
 	})
 	// change state value with event
 	await fireEvent.click(screen.getByText('set value'))
-	// rec stop
+	// rec stop and store actions
 	const actions = rec.stop()
+
+
+	//reset
+	unmount()
+	setupStore({ myStore: setupMyStore })
+	render(<MultiStoreProvider><TestView /><TestCommand /></MultiStoreProvider>)
+
 
 	// player start
 	let problems
@@ -37,7 +46,9 @@ it('autotest simple', async () => {
 })
 
 it('autotest exclude play stepBystep', async () => {
-	render(<MultiStoreProvider><TestView /><TestCommand /></MultiStoreProvider>)
+
+	setupStore({ myStore: setupMyStore })
+	const { unmount } = render(<MultiStoreProvider><TestView /><TestCommand /></MultiStoreProvider>)
 	const myStore = getStore("myStore")
 
 	// rec start
@@ -51,8 +62,18 @@ it('autotest exclude play stepBystep', async () => {
 	// change state value with event
  	await fireEvent.click(screen.getByText('set value'))
 	await fireEvent.click(screen.getByText('load users'))
+
+
+	
 	// rec stop
 	const actions = rec.stop()
+
+
+	//reset
+	unmount()
+	setupStore({ myStore: setupMyStore })
+	render(<MultiStoreProvider><TestView /><TestCommand /></MultiStoreProvider>)
+	
 
 	// player start step by step
 	let problems = []

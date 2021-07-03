@@ -87,7 +87,7 @@ async function exe(action) {
 				if (utils.isEqualDeep(deltaState, action.payload) == false) {
 					log.push({
 						type: PLAY_LOG_TYPE.CHECK_DIFF_FAIL,
-						index: i,
+						//index: i,
 						diff: deltaState,
 					})
 				}
@@ -101,7 +101,7 @@ async function exe(action) {
 				if (hashState != action.payload) {
 					log.push({
 						type: PLAY_LOG_TYPE.CHECK_HASH_FAIL,
-						index: i,
+						//index: i,
 						diff: hashState,
 					})
 				}

@@ -94,7 +94,7 @@ export function createStore(setup) {
 				const tmp = _block_subcall
 				if (tmp == false) _block_subcall = true
 				const result = await setup.actions[key](store.state, payload, store)
-				store.emitter.emit(STORE_EVENTS.ACTION, { key, payload, result, subcall: _block_subcall })
+				store.emitter.emit(STORE_EVENTS.ACTION, { key, payload, result, subcall: tmp })
 				if (tmp == false) _block_subcall = false
 				return result
 			}
@@ -111,7 +111,7 @@ export function createStore(setup) {
 				const tmp = _block_subcall
 				if (tmp == false) _block_subcall = true
 				const result = setup.actionsSync[key](store.state, payload, store)
-				store.emitter.emit(STORE_EVENTS.ACTION_SYNC, { key, payload, result, subcall: _block_subcall })
+				store.emitter.emit(STORE_EVENTS.ACTION_SYNC, { key, payload, result, subcall: tmp })
 				if (tmp == false) _block_subcall = false
 				return result
 			}

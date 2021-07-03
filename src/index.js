@@ -7,7 +7,7 @@ import mixStores from './lib/store/mixStores'
 import { useValidator, validateAll, resetAll } from './lib/input/validator'
 import { rules } from './lib/input/rules'
 
-import recorder from "./lib/store/recorder"
+import recorder, {RECORDER_ACTIONS, RECORDER_STATE} from "./lib/store/recorder"
 import player from "./lib/store/player"
 
 
@@ -26,7 +26,7 @@ export {
 
 // recrder, player
 export {
-	recorder,
+	recorder, RECORDER_ACTIONS, RECORDER_STATE,
 	player
 }
 

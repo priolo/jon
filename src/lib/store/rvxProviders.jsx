@@ -59,10 +59,14 @@ export function setupStore(stp) {
 		const setup = setups[storeName]
 		createWatch(setup, store)
 	}
-
 }
 
-
+/**
+ * in base al parametro "watch" del SETUP
+ * creo nello STORE gli eventi per intercettare una modifica e gestirla
+ * @param {*} setup 
+ * @param {*} store 
+ */
 function createWatch(setup, store) {
 	if (!setup || !setup.watch || !store) return
 	for (const storeName of Object.keys(setup.watch)) {

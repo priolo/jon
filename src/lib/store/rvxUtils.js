@@ -16,7 +16,7 @@ export const STORE_EVENTS = {
  * **include**: string[] verranno presi SOLO i dati relativi a queste path  
  * **exclude**: string[] i dati relativi a queste path sono eliminati
  * @returns 
- * JSON copia dei valori presenti in *state* di tutti gli *STORE*
+ * JSON copia dei valori presenti in *STATE* di tutti gli *STORE*
  */
 export function getAllStates(options) {
 	const excludes = getStructureStoreFromPaths(options?.exclude)
@@ -39,6 +39,13 @@ export function getAllStates(options) {
 	return states
 }
 
+/**
+ * Setto lo STATE a tutti gli STORE
+ * @param {*} states   
+ * un DICTIONARY con KEY il nome dello store e come VALUE il valore dello STATE  
+ * e.s.:  
+ * `{ "storename1": { value: 4 }, "storename2": { value: 13 } }`
+ */
 export function setAllState(states) {
 	const stores = getAllStores()
 
@@ -47,11 +54,8 @@ export function setAllState(states) {
 	}, {})
 }
 
-
-
-
 /**
- * trasforma una serie di path in un dictionary utile per quando devo prelevare lo state
+ * trasforma una serie di path in un DICTIONARY utile per quando devo prelevare lo STATE
  * @param {string[]} struct 
  * @returns {object} 
  */
