@@ -53,10 +53,10 @@ setupStore({ myStore })
 
 const rootElement = document.getElementById("root");
 ReactDOM.render(
-  <MultiStoreProvider>
-    <App />
-  </MultiStoreProvider>,
-  rootElement
+	<MultiStoreProvider>
+		<App />
+	</MultiStoreProvider>,
+	rootElement
 );
 ```
 
@@ -71,11 +71,11 @@ export default function App() {
   const { state, setValue, getUppercase } = useStore("myStore")
 
   return (<div>
-		<h1>{state.value}</h1><h2>{getUppercase()}</h2>
-		<input 
-			value={state.value} 
-			onChange={(e)=>setValue(e.target.value)} 
-		/>
+	<h1>{state.value}</h1><h2>{getUppercase()}</h2>
+	<input 
+		value={state.value} 
+		onChange={(e)=>setValue(e.target.value)} 
+	/>
   </div>);
 }
 ```
@@ -153,41 +153,19 @@ It is useful for using a STORE in a REACT COMPONENT
 		setValue: (state, value, store) => ({ value }),
 		...
 	},
+	// Intercepts when a "mutator" is called
+	watch: {
+		"otherStore": {
+			// store: THIS store
+			// value: the new value passed to the "mutator"
+			"setValue": ( store, value ) => {
+				// code
+			}
+		}
+	}
 	
 }
 ```
-
-*ATTENTION!!!*  
-MUTATORS cannot call other MUTATORS  
-this would not update the state  
-To call multiple MUTATORS use an ACTION  
-```js
-{  
-	...
-	actions: {
-		// work
-		onChangeValueMulti: (state, value, store ) => {
-			store.setValue1(value)
-			store.setValue2(value)
-		}
-	},
-	mutators: {
-		// not work
-		setValue: (state, {value1, value2}, store) => {
-			store.setValue1(value1)
-			return { value2 }
-		},
-		setValue1: (state, value, store) => ({ value }),
-		setValue2: (state, value, store) => ({ value }),
-		// OR change the whole state at once
-		setValue12: (state, {value1, value2}, store) => 
-			({ value1, value2 }),
-		setValueHasChanged: (state, value, store) => 
-			({ value: value, valueHasChanged: state.value!=value }),
-	}
-}
-```
-
 
 As you may have noticed: the functions always have the same signature:  
 **fn (state, payload, store) => {}**  
@@ -195,9 +173,83 @@ parameters:
 - **state**:  
   is the current STATE of the STORE (read only)
 - **payload**:  
-  is any parameter (optional)
+  any parameter passed to the function (optional)
 - **store**:  
   it's the same STORE where the function is (a kind of *this*)
+
+
+
+# _syncAct
+
+multiple call to action problem:  
+If the actions use the same variables  
+may not update the STATE correctly ([look here](https://it.reactjs.org/docs/hooks-reference.html#functional-updates))  
+In this case use the `_syncAct` function  
+[sandbox](https://codesandbox.io/s/example-sync-1-fm05e?file=/src/App.js)
+
+```js
+{  
+	...
+	actions: {
+		// NOT WORK: value = 1
+		notWork: (state, value, store ) => {
+			store.update(1)
+			store.update(1)
+		},
+		// WORK: value = 2
+		notWork: (state, value, store ) => {
+			store.update(1)
+			store._syncAct(update, 1)
+		}
+		// WORK 3 TIME: value = 3
+		notWork3: async (state, value, store ) => {
+			store.update(1)
+			await store._syncAct(update, 1)
+			await store._syncAct(update, 1)
+		}
+
+		update: (state, step, store) => {
+			store.setValue(state.value + step)
+		},
+	},
+	mutators: {
+		setValue: (state, value, store) => ({ value }),
+	}
+}
+```
+
+
+
+# Improve performance (with MEMO)
+
+This library offers the bare minimum  
+For the rest, use the official "react" systems  
+To optimize a component that uses STOREs:  
+[sandbox](https://codesandbox.io/s/test-render-memo-47rt7?file=/src/Cmp1.jsx:0-515)
+
+```jsx
+import React, { useMemo } from "react";
+import { useStore } from "@priolo/jon";
+
+export default function Cmp () {
+
+	const { state, setValue } = useStore("myStore")
+
+	return useMemo( ()=>(<div>
+
+			<h1>{state.value}</h1>
+		
+			<input 
+				value={state.value}
+				onChange={(e)=>setValue(e.target.value)} 
+			/>
+		
+	</div>)
+	,[state.value])
+}
+```
+
+
 
 # TIPS
 
@@ -216,6 +268,26 @@ in order to refer to them
 	},
 	mutators: {
 		setCrops: (state, crops) => ({ crops }),
+	}
+}
+```
+
+### Mutate multiple variable
+```js
+{
+	...
+	mutators: {
+		// change a variable of the STATE (boring)
+		setValue: (state, value, store) => ({ value }),
+		// changes two variables of the STATE
+		setValue12: (state, {value1, value2}, store) => 
+			({ value1, value2 }),
+		// changes a property of a variable of the STATE
+		setSubValue: (state, name, store) => 
+			({ user: { ...state.user, name } }),
+		// conditional modification of the STATE
+		setValueHasChanged: (state, value, store) => 
+			({ value: value, valueHasChanged: state.value!=value }),
 	}
 }
 ```

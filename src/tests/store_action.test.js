@@ -60,7 +60,7 @@ const setupMyStore = {
 
 function TestView() {
 
-	const { state, setValue } = useStore("myStore")
+	const { state, fetch } = useStore("myStore")
 
 	return (<div>
 		<button onClick={() => fetch()}>click</button>

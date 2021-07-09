@@ -24,9 +24,9 @@ let stores
  * all REDUCERS, are inside the CONTEXT
  */
 const reducers = {}
-const reducer = (state, action) => {
-	return action(state);
-};
+// const reducer = (state, action) => {
+// 	return action(state);
+// };
 
 
 
@@ -96,6 +96,7 @@ export const MultiStoreProvider = ({ providers, children }) => {
 	const provider = prvs_c.shift();
 
 	const redux = useState(setups[provider].state);
+	//const redux = useReducer(reducer, setups[provider].state);
 	reducers[provider] = redux
 	const context = contexts[provider]
 

@@ -1,6 +1,6 @@
 {
 	"name": "@priolo/jon",
-	"version": "0.2.2",
+	"version": "0.2.4",
 	"private": false,
 	"keywords": [
 		"react",
@@ -29,7 +29,7 @@
 	},
 	"//dependencies": {
 		"@priolo/jon-utils#local": "file:C://Users//iorio//Documents//jon-utils",
-		"@priolo/jon-utils": "^0.2.2"
+		"@priolo/jon-utils": "^0.2.3"
 	},
 	"dependencies": {
 		"@priolo/jon-utils": "file:C://Users//iorio//Documents//jon-utils",

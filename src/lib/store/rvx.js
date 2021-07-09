@@ -91,7 +91,10 @@ export function createStore(setup) {
 	 */
 	if (setup.getters) {
 		store = Object.keys(setup.getters).reduce((acc, key) => {
-			acc[key] = payload => setup.getters[key](store.state, payload, store)
+			acc[key] = (payload, newState) => {
+				if (newState == undefined) newState = store.state
+				return setup.getters[key](newState, payload, store)
+			}
 			return acc
 		}, store)
 	}

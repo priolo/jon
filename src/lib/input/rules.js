@@ -1,36 +1,40 @@
 /* eslint eqeqeq: "off" */
+import { Validator } from "@priolo/jon-utils"
 
 
 // regole da applicare ai "validator"
 export const rules = {
 
 	obligatory: v => {
-		if (v != null && v.trim().length > 0) return
-		return "string.obligatory"
+		if ( !Validator.obligatory(v) ) return "string.obligatory"
+		// if (v != null && v.trim().length > 0) return
+		// return "string.obligatory"
 	},
 
 	// https://www.w3resource.com/javascript/form/email-validation.php
 	email: v => {
-		
-		if (/^[^\s@]+@[^\s@]+$/.test(v)) return
-		return "email.syntax"
+		if ( !Validator.email(v) ) return "email.syntax"
+		// if (/^[^\s@]+@[^\s@]+$/.test(v)) return
+		// return "email.syntax"
 	},
 
 	// https://stackoverflow.com/a/5717133/5224029
 	url: v => {
-		var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
-			'((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
-			'((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
-			'(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
-			'(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
-			'(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
-		if (!!pattern.test(v)) return
-		return "url.syntax"
+		if ( !Validator.url(v) ) return "url.syntax"
+		// var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
+		// 	'((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+		// 	'((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+		// 	'(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+		// 	'(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+		// 	'(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
+		// if (!!pattern.test(v)) return
+		// return "url.syntax"
 	},
 
 	obligatoryArray: v => {
-		if (Array.isArray(v) && v.length > 0) return
-		return "array.obligatory"
+		if ( !Validator.obligatoryArray(v) ) return "array.obligatory"
+		// if (Array.isArray(v) && v.length > 0) return
+		// return "array.obligatory"
 	},
 
 	// // non va piu' bene
