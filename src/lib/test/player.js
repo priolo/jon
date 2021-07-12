@@ -1,25 +1,22 @@
 
-import { getStore } from "./rvxProviders";
-import { getAllStates, setAllState } from "./rvxUtils"
+import { getStore } from "../store/rvxProviders";
+import { getAllStates, setAllState } from "../store/rvxUtils"
 import { RECORDER_ACTIONS } from "./recorder";
 import utils from "@priolo/jon-utils";
 
-// export const PLAY_STATE = {
-// 	STOP: 0,
-// 	PAUSE: 1,
-// 	PLAY: 2
-// }
 
 const PLAY_LOG_TYPE = {
 	CHECK_DIFF_FAIL: 0,
 	CHECK_HASH_FAIL: 1,
 }
 
-//let state = PLAY_STATE.STOP
 let lastState = null
 let options = {}
 
-
+/**
+ * Esegue un array di ACTIONS una dopo l'altra per ogni richiamo di questa funzione
+ * @param {*} actions 
+ */
 async function* stepByStep(actions) {
 	for (let i = 0; i < actions.length; i++) {
 		const action = actions[i]
@@ -27,6 +24,11 @@ async function* stepByStep(actions) {
 	}
 }
 
+/**
+ * esegue le ACTIONS tutte in una volta
+ * @param {*} actions 
+ * @returns 
+ */
 async function all(actions) {
 	const log = []
 	for (let i = 0; i < actions.length; i++) {
@@ -36,13 +38,18 @@ async function all(actions) {
 	return log
 }
 
-
+/**
+ * esegue una ACTION
+ * @param {*} action 
+ * @returns 
+ */
 async function exe(action) {
 	const { type, storeName, propName, payload } = action
 	const log = []
 
 	switch (type) {
 
+		// memorizza le opzioni da utilizzare
 		case RECORDER_ACTIONS.OPTIONS:
 			options = payload
 			break
@@ -79,7 +86,7 @@ async function exe(action) {
 			}
 			break
 
-
+		// controlla se ci sono differenze con l'ultimo stato memorizzato
 		case RECORDER_ACTIONS.CHECK_DIFF:
 			{
 				const currentState = getAllStates(options)
@@ -94,6 +101,7 @@ async function exe(action) {
 			}
 			break
 
+		// controlla se ci sono differenze con l'ultimo stato memorizzato (metodo HASH)
 		case RECORDER_ACTIONS.CHECK_HASH:
 			{
 				const currentState = getAllStates(options)

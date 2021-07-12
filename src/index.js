@@ -8,7 +8,7 @@ import { useValidator, validateAll, resetAll } from './lib/input/validator'
 import { rules } from './lib/input/rules'
 
 import recorder, {RECORDER_ACTIONS, RECORDER_STATE} from "./lib/store/recorder"
-import player from "./lib/store/player"
+import player from "./lib/test/player"
 
 
 

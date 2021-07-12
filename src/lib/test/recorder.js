@@ -31,8 +31,8 @@ let callbacks = {}
 
 /** Le OPTIONS di defualt del RECORDER */
 const optionsDefault = {
-	include: [],			// gli 
-	exclude: [],
+	include: [],		// le propietà dello STORE che devono essere incluese (e quindi le altre saranno escluse)
+	exclude: [],		// le proprietà dello store che dovranno essere escluse (e quindi le altre saranno incluse)
 	initState: true,	// all'inizio della REC c'e' uno snapshot dello STATE
 }
 /** le OPTIONS attuali del RECORDER */
