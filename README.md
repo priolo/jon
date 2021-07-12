@@ -197,16 +197,16 @@ In this case use the `_syncAct` function
 			store.update(1)
 		},
 		// WORK: value = 2
-		notWork: (state, value, store ) => {
+		work: (state, value, store ) => {
 			store.update(1)
 			store._syncAct(update, 1)
-		}
+		},
 		// WORK 3 TIME: value = 3
-		notWork3: async (state, value, store ) => {
+		work3: async (state, value, store ) => {
 			store.update(1)
 			await store._syncAct(update, 1)
 			await store._syncAct(update, 1)
-		}
+		},
 
 		update: (state, step, store) => {
 			store.setValue(state.value + step)
