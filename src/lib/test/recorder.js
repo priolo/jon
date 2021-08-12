@@ -1,5 +1,5 @@
-import { getAllStores } from "./rvxProviders"
-import { getAllStates, STORE_EVENTS } from "./rvxUtils"
+import { getAllStores } from "../store/rvxProviders"
+import { getAllStates, STORE_EVENTS } from "../store/rvxUtils"
 import utils from "@priolo/jon-utils";
 
 

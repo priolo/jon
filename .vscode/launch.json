@@ -74,13 +74,13 @@
 		},
 
 		{
-			"name": "record",
+			"name": "single store",
 			"type": "node",
 			"request": "launch",
 			"program": "${workspaceRoot}/node_modules/react-scripts/bin/react-scripts.js",
 			"args": [
 				"test",
-				"src/tests/record.test.js",
+				"src/tests/store_single.test.js",
 				"--watchAll=false",
 				"--verbose",
 				"-i",

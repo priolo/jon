@@ -1,32 +1,30 @@
-import React, { useEffect, useReducer, useState } from 'react';
+import React, { useContext, useEffect, useReducer, useState } from 'react';
 import { getApplyStore, createStore, useApplyStore } from './rvx';
 import { STORE_EVENTS } from './rvxUtils';
 
 
 /**
  * Create in "setupStore"
- * All the SETUP used to create the STORE
+ * DICTIONARY with All the SETUP used to create the STORE
  */
-let setups
+let setups = {}		// [store name] 
 /**
  * Create in "setupStore"
- * All the CONTEXT contain the REDUCER of a STORE
+ * DICTIONARY with All the CONTEXT contain the REDUCER of a STORE
  * are taken from the REACT components through a PROVIDER
  */
-let contexts
+let contexts = {}	// [store name] 
 /**
  * Create in "setupStore"
- * All the STORES
+ * DICTIONARY with All the STORES
  */
-let stores
+let stores = {}	// [store name] 
 /**
  * Create in "MultiStoreProvider"
- * all REDUCERS, are inside the CONTEXT
+ * DICTIONARY with all REDUCERS, are inside the CONTEXT
  */
 const reducers = {}
-// const reducer = (state, action) => {
-// 	return action(state);
-// };
+
 
 
 
@@ -43,9 +41,9 @@ export function setupStore(stp) {
 
 	setups = stp
 
-	contexts = Object.keys(setups).reduce((acc, p) => {
-		acc[p] = React.createContext();
-		acc[p].displayName = p
+	contexts = Object.keys(setups).reduce((acc, storeName) => {
+		acc[storeName] = React.createContext();
+		acc[storeName].displayName = storeName
 		return acc
 	}, {})
 
@@ -92,21 +90,13 @@ export const MultiStoreProvider = ({ providers, children }) => {
 
 	if (providers == null) providers = Object.keys(setups)
 
-	const prvs_c = [...providers]
-	const provider = prvs_c.shift();
+	const providersChild = [...providers]
+	const provider = providersChild.shift();
 
 	const redux = useState(setups[provider].state);
-	//const redux = useReducer(reducer, setups[provider].state);
 	reducers[provider] = redux
 	const context = contexts[provider]
 
-	// return (<context.Provider value={redux}>
-	// 	{prvs_c.length > 0 ? (
-	// 		<MultiStoreProvider providers={prvs_c} children={children} />
-	// 	) : (
-	// 		children
-	// 	)}
-	// </context.Provider>)
 
 	// call init
 	useEffect(() => {
@@ -117,14 +107,16 @@ export const MultiStoreProvider = ({ providers, children }) => {
 	return React.createElement(
 		context.Provider,
 		{ value: redux },
-		prvs_c.length > 0 ?
+		providersChild.length > 0 ?
 			React.createElement(MultiStoreProvider, {
-				providers: prvs_c,
+				providers: providersChild,
 				children: children
 			})
 			: children
 	)
 }
+
+
 
 
 
@@ -153,3 +145,72 @@ export function getAllStores() {
 export function useStore(storeName) {
 	return useApplyStore(stores[storeName], contexts[storeName])
 }
+
+
+/**
+ * **************************************************************
+ */
+
+/**
+ * REACT PROVIDER that contains SPECIFIC REDUCERS
+ */
+
+/**
+ * Memorizza tutti gli store creati dynamicamente
+ * [id]: { context, store }
+ */
+let storesDynamic = {}
+
+
+/**
+ * Componente REACT crea il CONTEXT e il PROVIDER del DYNAMIC-STORE
+ */
+export function StoreProvider({ setup, storeId, children }) {
+
+	const [local, setLocal] = useState(null)
+	const redux = useState(setup.state);
+
+	useEffect(() => {
+		const context = React.createContext(redux)
+		setLocal(context)
+
+		const store = createStore(setup)
+		store._reducer = redux
+		store._init()
+
+		storesDynamic[storeId] = { store, context }
+
+		return () => {
+			delete storesDynamic[storeId]
+		}
+	}, [])
+
+	return local && <local.Provider value={redux}>
+		{children}
+	</local.Provider>
+}
+
+/**
+ * Restituisce lo STORE in un contensto HOOK
+ * @param {*} id identificativo dello STORE
+ * @returns STORE restituito
+ */
+export function useDynamicStore(id) {
+	const { context, store } = storesDynamic[id]
+	const reducer = useContext(context)
+	store._reducer = reducer
+	return store
+}
+
+/**
+ * Restituisce lo store in un contesto fuori da REACT
+ * @param {*} id identificativo dello STORE
+ * @returns STORE restituito
+ */
+export function getDynamicStore(id) {
+	const { store } = storesDynamic[id]
+	return store
+}
+
+
+

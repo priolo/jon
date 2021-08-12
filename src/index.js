@@ -1,5 +1,8 @@
 
-import { setupStore, MultiStoreProvider, getStore, useStore } from './lib/store/rvxProviders'
+import { 
+	setupStore, MultiStoreProvider, getStore, useStore,
+	StoreProvider, useDynamicStore, getDynamicStore,
+} from './lib/store/rvxProviders'
 import { getAllStates, setAllState } from './lib/store/rvxUtils'
 
 import mixStores from './lib/store/mixStores'
@@ -19,6 +22,10 @@ export {
 	getStore,
 	useStore,
 	mixStores,
+
+	StoreProvider,
+	useDynamicStore,
+	getDynamicStore,
 
 	getAllStates,
 	setAllState,
