@@ -1,17 +1,17 @@
 import React from 'react'
 import { render, fireEvent, waitFor, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
-import { getStore, MultiStoreProvider, setupStore, useStore } from '../lib/store/rvxProviders'
+import { getStore, MultiStoreProvider, useStore } from '../lib/store/rvxProviders'
 
 
-beforeEach(() => {
-	// create CONTEXT and STORE
-	setupStore({ myStore: setupMyStore })
-})
+test('events main', async () => {
 
-test('getters/mutators', async () => {
-
-	render(<MultiStoreProvider><TestView /><TestCommand /></MultiStoreProvider>)
+	render(
+		<MultiStoreProvider setups={{ myStore: setupMyStore }}>
+			<TestView />
+			<TestCommand />
+		</MultiStoreProvider>
+	)
 
 	const results = []
 	const myStore = getStore("myStore")
@@ -38,6 +38,15 @@ test('getters/mutators', async () => {
 			payload: {
 				key: "setValue",
 				payload: "reducer:mutator",
+				subcall: false,
+			},
+		},
+		{
+			event: "mutation",
+			payload: {
+				key: "setValue",
+				payload: "reducer:action... from action!",
+				subcall: true,
 			},
 		},
 		{
@@ -46,6 +55,15 @@ test('getters/mutators', async () => {
 				key: "changeValue",
 				payload: "reducer:action",
 				result: undefined,
+				subcall: false,
+			},
+		},
+		{
+			event: "mutation",
+			payload: {
+				key: "setValue",
+				payload: "hook:action... from action!",
+				subcall: true,
 			},
 		},
 		{
@@ -54,6 +72,7 @@ test('getters/mutators', async () => {
 				key: "changeValue",
 				payload: "hook:action",
 				result: undefined,
+				subcall: false,
 			},
 		},
 		{
@@ -61,6 +80,7 @@ test('getters/mutators', async () => {
 			payload: {
 				key: "setValue",
 				payload: "hook:mutator",
+				subcall: false,
 			},
 		},
 	])

@@ -1,20 +1,20 @@
 import React from 'react'
 import { render, fireEvent, waitFor, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
-import { getStore, MultiStoreProvider, setupStore, useStore } from '../lib/store/rvxProviders'
-import rec from '../lib/store/recorder'
-import player from '../lib/store/player'
+import { getStore, MultiStoreProvider, useStore } from '../lib/store/rvxProviders'
+import rec from '../lib/test/recorder'
+import player from '../lib/test/player'
 
 
-
-beforeEach(() => {
-	
-})
 
 it('autotest simple', async () => {
 
-	setupStore({ myStore: setupMyStore })
-	const { unmount } = render(<MultiStoreProvider><TestView /><TestCommand /></MultiStoreProvider>)
+	const { unmount } = render(
+		<MultiStoreProvider setups={{ myStore: setupMyStore }}>
+			<TestView />
+			<TestCommand />
+		</MultiStoreProvider>
+	)
 	const myStore = getStore("myStore")
 
 	// rec start
@@ -31,8 +31,12 @@ it('autotest simple', async () => {
 
 	//reset
 	unmount()
-	setupStore({ myStore: setupMyStore })
-	render(<MultiStoreProvider><TestView /><TestCommand /></MultiStoreProvider>)
+	render(
+		<MultiStoreProvider setups={{ myStore: setupMyStore }}>
+			<TestView />
+			<TestCommand />
+		</MultiStoreProvider>
+	)
 
 
 	// player start
@@ -47,39 +51,47 @@ it('autotest simple', async () => {
 
 it('autotest exclude play stepBystep', async () => {
 
-	setupStore({ myStore: setupMyStore })
-	const { unmount } = render(<MultiStoreProvider><TestView /><TestCommand /></MultiStoreProvider>)
+	const { unmount } = render(
+		<MultiStoreProvider setups={{ myStore: setupMyStore }}>
+			<TestView />
+			<TestCommand />
+		</MultiStoreProvider>
+	)
 	const myStore = getStore("myStore")
 
 	// rec start
 	rec.start({
-		exclude: [ "myStore.users.id" ]
+		exclude: ["myStore.users.id"]
 	})
 	// change state value with JON
 	await act(() => {
 		myStore.setValue("new value by store")
 	})
 	// change state value with event
- 	await fireEvent.click(screen.getByText('set value'))
+	await fireEvent.click(screen.getByText('set value'))
 	await fireEvent.click(screen.getByText('load users'))
 
 
-	
+
 	// rec stop
 	const actions = rec.stop()
 
 
 	//reset
 	unmount()
-	setupStore({ myStore: setupMyStore })
-	render(<MultiStoreProvider><TestView /><TestCommand /></MultiStoreProvider>)
-	
+	render(
+		<MultiStoreProvider setups={{ myStore: setupMyStore }}>
+			<TestView />
+			<TestCommand />
+		</MultiStoreProvider>
+	)
+
 
 	// player start step by step
 	let problems = []
 	await act(async () => {
 		for await (let log of player.stepByStep(actions)) {
-			problems = problems.concat (log)
+			problems = problems.concat(log)
 		}
 	})
 
@@ -88,9 +100,6 @@ it('autotest exclude play stepBystep', async () => {
 })
 
 
-
-
-// -------------------------------------------
 
 const setupMyStore = {
 	state: {
@@ -104,7 +113,7 @@ const setupMyStore = {
 		changeValue: (state, value, store) => {
 			store.setValue(`${value}... from action!`)
 		},
-		featchUsers:  (state, value, store) => {
+		featchUsers: (state, value, store) => {
 			store.setUsers([
 				{ id: randomId(), name: "Ivano" },
 				{ id: randomId(), name: "Marina", desc: "l'amore mio!" },

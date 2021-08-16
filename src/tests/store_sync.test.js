@@ -7,13 +7,14 @@ import { getStore, MultiStoreProvider, setupStore, useStore } from '../lib/store
  * TEST riguardanti le ACTION dello STORE
  */
 
-beforeEach(() => {
-	setupStore({ myStore: setupMyStore })
-})
 
 test('increment tree time', async () => {
 
-	render(<MultiStoreProvider><TestView /></MultiStoreProvider>)
+	render(
+		<MultiStoreProvider setups={{ myStore: setupMyStore }}>
+			<TestView />
+		</MultiStoreProvider>
+	)
 
 	const store = getStore("myStore")
 	expect(store.state.value).toBe(10)
@@ -25,13 +26,17 @@ test('increment tree time', async () => {
 
 test('await next state', async () => {
 
-	render(<MultiStoreProvider><TestView /></MultiStoreProvider>)
+	render(
+		<MultiStoreProvider setups={{ myStore: setupMyStore }}>
+			<TestView />
+		</MultiStoreProvider>
+	)
 
 	const store = getStore("myStore")
 	expect(store.state.value).toBe(10)
 
 	store.setValue(11)
-	store.setValue(store.state.value+1)
+	store.setValue(store.state.value + 1)
 
 	expect(store.state.value).toBe(12)
 })
@@ -47,7 +52,7 @@ const setupMyStore = {
 			store._syncAct(store.increment, step)
 
 		},
-		increment:  async (state, step, store) => {
+		increment: async (state, step, store) => {
 			store.setValue(state.value + step)
 		}
 	},

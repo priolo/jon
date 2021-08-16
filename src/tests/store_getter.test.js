@@ -1,20 +1,19 @@
 import React from 'react'
 import { render, fireEvent, waitFor, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
-import { getStore, MultiStoreProvider, setupStore, useStore } from '../lib/store/rvxProviders'
+import { getStore, MultiStoreProvider, useStore } from '../lib/store/rvxProviders'
 
 /**
  * TEST riguardanti le ACTION dello STORE
  */
 
-beforeEach(() => {
-	// create CONTEXT and STORE
-	setupStore({ myStore: setupMyStore })
-})
-
 test('simply getStore', async () => {
 
-	render(<MultiStoreProvider><TestView /></MultiStoreProvider>)
+	render(
+		<MultiStoreProvider setups={{ myStore: setupMyStore }}>
+			<TestView />
+		</MultiStoreProvider>
+	)
 
 	const myStore = getStore("myStore")
 	expect(myStore.state.value).toBe("init value")
@@ -29,7 +28,11 @@ test('simply getStore', async () => {
 
 test('simply useStore', async () => {
 
-	render(<MultiStoreProvider><TestView /></MultiStoreProvider>)
+	render(
+		<MultiStoreProvider setups={{ myStore: setupMyStore }}>
+			<TestView />
+		</MultiStoreProvider>
+	)
 
 	const myStore = getStore("myStore")
 	expect(myStore.state.value).toBe("init value")
@@ -38,7 +41,9 @@ test('simply useStore', async () => {
 	// change state value with event
 	fireEvent.click(screen.getByText('click'))
 
-	waitFor(()=>expect(screen.getByTestId('view')).toHaveTextContent("NEW-VALUE FROM ACTION"))
+	await waitFor(() => {
+		expect(screen.getByTestId('view')).toHaveTextContent("NEW-VALUE FROM ACTION")
+	})
 })
 
 const setupMyStore = {

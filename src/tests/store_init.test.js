@@ -4,18 +4,19 @@ import '@testing-library/jest-dom/extend-expect'
 import { getStore, MultiStoreProvider, setupStore, useStore } from '../lib/store/rvxProviders'
 
 
-beforeEach(() => {
-	// create CONTEXT and STORE
-	setupStore({ myStore1: mySetup1, myStore2: mySetup2 })
-})
 
 test('getters/mutators', async () => {
-	render(<MultiStoreProvider><TestView /><TestCommand /></MultiStoreProvider>)
+	render(
+		<MultiStoreProvider setups={{ myStore1: mySetup1, myStore2: mySetup2 }}>
+			<TestView />
+			<TestCommand />
+		</MultiStoreProvider>
+	)
 
 	const myStore1 = getStore("myStore1")
 	const myStore2 = getStore("myStore2")
 
-	waitFor(()=>{
+	await waitFor(() => {
 		expect(screen.getByTestId('view')).toHaveTextContent("init value2")
 	})
 })
@@ -24,8 +25,8 @@ const mySetup1 = {
 	state: {
 		value: "init value1",
 	},
-	init: (store)=>{
-		const { state:s2 } = getStore("myStore2")
+	init: (store) => {
+		const { state: s2 } = getStore("myStore2")
 		store.setValue(s2.value)
 	},
 	actions: {

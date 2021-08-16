@@ -1,10 +1,7 @@
 import React from 'react'
 import { render, fireEvent, waitFor, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
-import { getDynamicStore, StoreProvider, useDynamicStore } from '../lib/store/rvxProviders'
-
-
-
+import { getStore, MultiStoreProvider, useStore } from '../lib/store/rvxProviders'
 
 
 
@@ -26,33 +23,34 @@ const setupMyStore = {
 	},
 }
 
-
 test('simply getStore', async () => {
 
 	render(<>
-		<StoreProvider setup={setupMyStore} storeId="pippo">
-			<TestView storeId="pippo"/>
-		</StoreProvider>
-		<StoreProvider setup={setupMyStore} storeId="topolino">
-			<TestView storeId="topolino"/>
-		</StoreProvider>
+		<MultiStoreProvider setups={{ pippo: setupMyStore }}>
+			<TestView storeName="pippo" />
+		</MultiStoreProvider>
+		<MultiStoreProvider setups={{ topolino: setupMyStore }}>
+			<TestView storeName="topolino" />
+		</MultiStoreProvider>
 	</>)
 
 	// change state value with reducer
-	const store = getDynamicStore("pippo")
-	await act(async () => store.fetch())
+	const { fetch } = getStore("pippo")
+	await act(async () => fetch())
+
+	//screen.debug()
 
 	expect(screen.getByTestId('view_pippo')).toHaveTextContent("new value")
 	expect(screen.getByTestId('view_topolino')).toHaveTextContent("init value")
 })
 
-function TestView( {storeId} ) {
+function TestView({ storeName }) {
 
-	const { state, fetch } = useDynamicStore(storeId)
+	const { state, fetch } = useStore(storeName)
 
 	return (<div>
 		<button onClick={() => fetch()}>click</button>
-		<div data-testid={`view_${storeId}`}>{state.value}</div>
+		<div data-testid={`view_${storeName}`}>{state.value}</div>
 	</div>)
 }
 

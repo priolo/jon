@@ -1,16 +1,17 @@
 import React from 'react'
 import { render, fireEvent, waitFor, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
-import { getStore, MultiStoreProvider, setupStore, useStore } from '../lib/store/rvxProviders'
+import { getStore, MultiStoreProvider, useStore } from '../lib/store/rvxProviders'
 
 
-beforeEach(() => {
-	// create CONTEXT and STORE
-	setupStore({ myStore1: mySetup1, myStore2: mySetup2 })
-})
+test('main watch', async () => {
 
-test('watch', async () => {
-	render(<MultiStoreProvider><TestView /><TestCommand /></MultiStoreProvider>)
+	render(
+		<MultiStoreProvider setups={{ myStore1: mySetup1, myStore2: mySetup2 }}>
+			<TestView />
+			<TestCommand />
+		</MultiStoreProvider>
+	)
 
 	const myStore1 = getStore("myStore1")
 	const myStore2 = getStore("myStore2")
@@ -57,7 +58,7 @@ const mySetup2 = {
 	},
 	watch: {
 		"myStore1": {
-			"setValue1": ( store, value ) => {
+			"setValue1": (store, value) => {
 				store.changeValue(value)
 			}
 		}

@@ -10,7 +10,6 @@
 - [Why](#why)
 - [Examples](#examples)
 - [API](#api)
-	- [setupStore( setup:JSON ):void](#setupstore-setupjson-void)
 	- [MultiStoreProvider](#multistoreprovider)
 	- [getStore( storeName:string ):store](#getstore-storenamestring-store)
 	- [useStore( storeName:string ):store](#usestore-storenamestring-store)
@@ -47,13 +46,12 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 
-import { MultiStoreProvider, setupStore } from '@priolo/jon';
+import { MultiStoreProvider } from '@priolo/jon';
 import myStore from "./myStore"
-setupStore({ myStore })
 
 const rootElement = document.getElementById("root");
 ReactDOM.render(
-	<MultiStoreProvider>
+	<MultiStoreProvider setups={{ myStore }}>
 		<App />
 	</MultiStoreProvider>,
 	rootElement
@@ -104,10 +102,6 @@ this utility is REALLY VERY VERY VERY LIGHT
 
 
 # API
-
-## setupStore( setup:JSON ):void
-Initialization!
-Create CONTEXTS and STORES from a SETUP-STORE dictionary
 
 ## MultiStoreProvider
 REACT PROVIDER that contains all REDUCERS

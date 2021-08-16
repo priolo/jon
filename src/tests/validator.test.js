@@ -1,15 +1,6 @@
-import React from 'react'
-import { render, fireEvent, waitFor, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
-import { getStore, MultiStoreProvider, setupStore, useStore } from '../lib/store/rvxProviders'
-import { useValidator, validateAll } from '../lib/input/validator'
 import { rules } from '../lib/input/rules'
 
-
-// beforeEach(() => {
-// 	// create CONTEXT and STORE
-// 	setupStore({ myStore: setupMyStore })
-// })
 
 test('rule obbligatory', async () => { 
 	let resp = rules.obligatory ( "" )
@@ -61,31 +52,3 @@ test('rule obbligatory', async () => {
 // })
 
 
-const setupMyStore = {
-	state: {
-		value: "",
-	},
-	actions: {
-		fetch: async (state, payload, store) => {
-			// simulate http response
-			await new Promise((res)=>setTimeout(res,1000))
-			store.setValue("new value")
-		}
-	},
-	mutators: {
-		setValue: (state, value) => {
-			return { value }
-		},
-	},
-}
-
-function TestView() {
-
-	const { state, setValue } = useStore("myStore")
-	const props = useValidator(state.value, [rules.obligatory])
-
-	return (<div>
-		<button onClick={() => fetch()}>click</button>
-		<div data-testid="view">{state.value}</div>
-	</div>)
-}

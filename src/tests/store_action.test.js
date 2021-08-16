@@ -9,12 +9,16 @@ import { getStore, MultiStoreProvider, setupStore, useStore } from '../lib/store
 
 beforeEach(() => {
 	// create CONTEXT and STORE
-	setupStore({ myStore: setupMyStore })
+	//setupStore({ myStore: setupMyStore })
 })
 
 test('simply getStore', async () => {
 
-	render(<MultiStoreProvider><TestView /></MultiStoreProvider>)
+	render(
+		<MultiStoreProvider setups={{ myStore: setupMyStore }}>
+			<TestView />
+		</MultiStoreProvider>
+	)
 
 	// get myStore with reducer
 	const myStoreWithReducer = getStore("myStore")
@@ -28,7 +32,11 @@ test('simply getStore', async () => {
 
 test('simply useStore', async () => {
 
-	render(<MultiStoreProvider><TestView /></MultiStoreProvider>)
+	render(
+		<MultiStoreProvider setups={{ myStore: setupMyStore }}>
+			<TestView />
+		</MultiStoreProvider>
+	)
 
 	// get myStore with reducer
 	const myStoreWithReducer = getStore("myStore")
@@ -37,7 +45,7 @@ test('simply useStore', async () => {
 	// change state value with event
 	fireEvent.click(screen.getByText('click'))
 
-	waitFor(()=>expect(screen.getByTestId('view')).toHaveTextContent("new value"))
+	waitFor(() => expect(screen.getByTestId('view')).toHaveTextContent("new value"))
 })
 
 const setupMyStore = {
@@ -47,7 +55,7 @@ const setupMyStore = {
 	actions: {
 		fetch: async (state, payload, store) => {
 			// simulate http response
-			await new Promise((res)=>setTimeout(res,1000))
+			await new Promise((res) => setTimeout(res, 1000))
 			store.setValue("new value")
 		}
 	},

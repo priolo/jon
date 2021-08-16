@@ -1,42 +1,9 @@
-import { useContext } from "react";
 import { EventEmitter } from "@priolo/jon-utils"
 import { STORE_EVENTS } from "./rvxUtils";
 
 
 
-
-
 let _block_subcall = false
-
-
-
-/**
- * simply put REDUCER in a STORE and returns the instance. This is to optimize.
- * So we always use the same STORE instance but with a different REDUCER
- * Use this instance synchronously!
- */
-export function getApplyStore(store, reducer) {
-	store._reducer = reducer
-	return store
-}
-
-/**
- * Apply context REDUCEER to a STORE
- * and returns it
- * @param {*} store 
- * @param {*} context 
- * @param {*} bundle 
- */
-export function useApplyStore(store, context) {
-	const reducer = useContext(context)
-	store._reducer = reducer
-	return store
-}
-
-
-
-
-
 
 /**
  * create a STORE with a SETUP-STORE
@@ -157,6 +124,23 @@ export function createStore(setup) {
 			})
 			return acc
 		}, store)
+	}
+
+	/**
+	 * WATCH
+	 */
+	if (setup.watch) {
+		store._watch = Object.keys(setup.watch).reduce((storesInWatch, storeName) => {
+			const setupWatch = setup.watch[storeName]
+			storesInWatch[storeName] = Object.keys(setupWatch).reduce((callbacks, propName) => {
+				callbacks[propName] = (event) => {
+					if (event.payload.key != propName) return
+					setupWatch[propName](store, event.payload.payload)
+				}
+				return callbacks
+			},{})
+			return storesInWatch
+		}, {})
 	}
 
 	/**

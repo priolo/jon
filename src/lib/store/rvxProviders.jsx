@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useReducer, useState } from 'react';
-import { getApplyStore, createStore, useApplyStore } from './rvx';
+import React, { useContext, useEffect, useState } from 'react';
+import { createStore } from './rvx';
 import { STORE_EVENTS } from './rvxUtils';
 
 
@@ -7,18 +7,18 @@ import { STORE_EVENTS } from './rvxUtils';
  * Create in "setupStore"
  * DICTIONARY with All the SETUP used to create the STORE
  */
-let setups = {}		// [store name] 
+const setups = {}	// [store name] 
 /**
  * Create in "setupStore"
  * DICTIONARY with All the CONTEXT contain the REDUCER of a STORE
  * are taken from the REACT components through a PROVIDER
  */
-let contexts = {}	// [store name] 
+const contexts = {}	// [store name] 
 /**
  * Create in "setupStore"
  * DICTIONARY with All the STORES
  */
-let stores = {}	// [store name] 
+const stores = {}	// [store name] 
 /**
  * Create in "MultiStoreProvider"
  * DICTIONARY with all REDUCERS, are inside the CONTEXT
@@ -27,106 +27,86 @@ const reducers = {}
 
 
 
+/**
+ * Aggiunge uno STORE in JON 
+ * @param {*} name nome dello STORE da creare
+ * @param {*} setup il suo SETUP
+ * @param {*} reducer il suo REDUCER (deve essere un "useState" interno al componente REACT cosi' il componente è aggiornato quando cambia il valore)
+ * @returns il context, accessibile, che contiene il "reducer" 
+ */
+function addStore(name, setup, reducer) {
+	if (setups[name]) console.error(`ERROR:store:add:duplicate_name:${name}`)
 
+	setups[name] = setup
 
+	const context = React.createContext(reducer)
+	context.displayName = name
+	contexts[name] = context
 
+	const store = createStore(setup)
+	stores[name] = store
+	store._reducer = reducer
 
+	reducers[name] = reducer
+
+	updateWatch(name)
+
+	return context
+}
 
 /**
- * Initialization!
- * Create CONTEXTS and STORES from a SETUP-STORE dictionary
- * @param {*} stp SETUP-STORE dictionary
+ * Rimuove uno STORE da JON
+ * Questo è utile per gli STORE "dinamici"
+ * @param {*} name 
  */
-export function setupStore(stp) {
-
-	setups = stp
-
-	contexts = Object.keys(setups).reduce((acc, storeName) => {
-		acc[storeName] = React.createContext();
-		acc[storeName].displayName = storeName
-		return acc
-	}, {})
-
-	stores = Object.keys(setups).reduce((acc, storeName) => {
-		acc[storeName] = createStore(setups[storeName]);
-		return acc
-	}, {})
-
-	for (const storeName of Object.keys(setups)) {
-		const store = stores[storeName]
-		const setup = setups[storeName]
-		createWatch(setup, store)
-	}
+function removeStore(name) {
+	updateWatch(name, true)
+	delete setups[name]
+	delete contexts[name]
+	delete stores[name]
 }
 
 /**
  * in base al parametro "watch" del SETUP
- * creo nello STORE gli eventi per intercettare una modifica e gestirla
- * @param {*} setup 
- * @param {*} store 
+ * creo o elimino nello STORE gli eventi per intercettare la modifica ad una specifica mutation
+ * @param {*} name Nome dello STORE da cui creare/rimuovere i "watch" 
+ * @param {boolean} remove se true indica che l'intento è di rimuovere i watch altrimenti è di aggiungere
  */
-function createWatch(setup, store) {
-	if (!setup || !setup.watch || !store) return
-	for (const storeName of Object.keys(setup.watch)) {
-		const storeWatch = setup.watch[storeName]
-		if (!storeWatch) continue
+function updateWatch(name, remove=false) {
+	const store = stores[name]
+	if (!store || !store._watch) return
+
+	// ciclo tutti gli STORE presenti nella sezione "_watch"
+	for (const storeName of Object.keys(store._watch)) {
+		const storeWatch = store._watch[storeName]
+		const storeEmit = stores[storeName]
+		if (!storeWatch || !storeEmit) continue
+		// di questo STORE ciclo tutte le "props" dello "state" che devono essere "osservate"
 		for (const propName of Object.keys(storeWatch)) {
+			// funzione da chiamare quando si verifica l'evento
 			const callbackWatch = storeWatch[propName]
-			const storeEmitter = stores[storeName].emitter
-			storeEmitter.on(STORE_EVENTS.MUTATION, e => {
-				if (e.payload.key != propName) return
-				callbackWatch(store, e.payload.payload)
-			})
+			// inserirsco/emino l'evento da chiamare quando la props viene modificata
+			const emitter = storeEmit.emitter
+			if ( remove ) {
+				emitter.off(STORE_EVENTS.MUTATION, callbackWatch)
+			} else {
+				emitter.on(STORE_EVENTS.MUTATION, callbackWatch)
+			}
+			
 		}
 	}
 }
 
-
-
-/**
- * REACT PROVIDER that contains all REDUCERS
- */
-export const MultiStoreProvider = ({ providers, children }) => {
-
-	if (providers == null) providers = Object.keys(setups)
-
-	const providersChild = [...providers]
-	const provider = providersChild.shift();
-
-	const redux = useState(setups[provider].state);
-	reducers[provider] = redux
-	const context = contexts[provider]
-
-
-	// call init
-	useEffect(() => {
-		stores[provider]._reducer = reducers[provider]
-		stores[provider]._init()
-	}, [])
-
-	return React.createElement(
-		context.Provider,
-		{ value: redux },
-		providersChild.length > 0 ?
-			React.createElement(MultiStoreProvider, {
-				providers: providersChild,
-				children: children
-			})
-			: children
-	)
-}
-
-
-
-
-
 /**
  * Returns a STORE by its name
  * It is useful for using a STORE outside a REACT COMPONENT
- * @param {string} storeName 
+ * @param {string} name 
 */
-export function getStore(storeName) {
-	return getApplyStore(stores[storeName], reducers[storeName])
+export function getStore(name) {
+	const store = stores[name]
+	// const reducer = reducers[name]
+	// store._reducer = reducer
+	return store
 }
 
 /**
@@ -140,77 +120,47 @@ export function getAllStores() {
 /**
  * Use a STORE by its name
  * It is useful for using a STORE in a REACT COMPONENT
- * @param {*} storeName 
+ * @param {*} name 
 */
-export function useStore(storeName) {
-	return useApplyStore(stores[storeName], contexts[storeName])
-}
-
-
-/**
- * **************************************************************
- */
-
-/**
- * REACT PROVIDER that contains SPECIFIC REDUCERS
- */
-
-/**
- * Memorizza tutti gli store creati dynamicamente
- * [id]: { context, store }
- */
-let storesDynamic = {}
-
-
-/**
- * Componente REACT crea il CONTEXT e il PROVIDER del DYNAMIC-STORE
- */
-export function StoreProvider({ setup, storeId, children }) {
-
-	const [local, setLocal] = useState(null)
-	const redux = useState(setup.state);
-
-	useEffect(() => {
-		const context = React.createContext(redux)
-		setLocal(context)
-
-		const store = createStore(setup)
-		store._reducer = redux
-		store._init()
-
-		storesDynamic[storeId] = { store, context }
-
-		return () => {
-			delete storesDynamic[storeId]
-		}
-	}, [])
-
-	return local && <local.Provider value={redux}>
-		{children}
-	</local.Provider>
-}
-
-/**
- * Restituisce lo STORE in un contensto HOOK
- * @param {*} id identificativo dello STORE
- * @returns STORE restituito
- */
-export function useDynamicStore(id) {
-	const { context, store } = storesDynamic[id]
+export function useStore(name) {
+	const store = stores[name]
+	const context = contexts[name]
 	const reducer = useContext(context)
 	store._reducer = reducer
 	return store
 }
 
 /**
- * Restituisce lo store in un contesto fuori da REACT
- * @param {*} id identificativo dello STORE
- * @returns STORE restituito
+ * REACT PROVIDER that contains all REDUCERS
  */
-export function getDynamicStore(id) {
-	const { store } = storesDynamic[id]
-	return store
+export const MultiStoreProvider = ({ setups, children }) => {
+
+	const names = Object.keys(setups)
+	const name = names[0]
+	const isNotLast = names.length > 1
+	const setup = setups[name]
+	const setupsChild = { ...setups }
+	delete setupsChild[name]
+
+	const reducer = useState(setup.state)
+	const [context, setContext] = useState(() => addStore(name, setup, reducer))
+
+	useEffect(() => {
+		stores[name]._reducer = reducers[name]
+		stores[name]._init()
+		return () => {
+			removeStore(name)
+		}
+	}, [])
+
+	return React.createElement(
+		context.Provider,
+		{ value: reducer },
+		isNotLast ?
+			React.createElement(MultiStoreProvider, {
+				setups: setupsChild,
+				children: children
+			})
+			: children
+	)
 }
-
-
-

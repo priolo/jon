@@ -1,17 +1,17 @@
 import React from 'react'
 import { render, fireEvent, waitFor, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
-import { getStore, MultiStoreProvider, setupStore, useStore } from '../lib/store/rvxProviders'
+import { getStore, MultiStoreProvider, useStore } from '../lib/store/rvxProviders'
 
-
-beforeEach(() => {
-	// create CONTEXT and STORE
-	setupStore({ myStore: setupMyStore })
-})
 
 test('getters/mutators', async () => {
 
-	render(<MultiStoreProvider><TestView /><TestCommand/></MultiStoreProvider>)
+	render(
+		<MultiStoreProvider setups={{ myStore: setupMyStore }}>
+			<TestView />
+			<TestCommand />
+		</MultiStoreProvider>
+	)
 
 	// get myStore with reducer
 	const myStore = getStore("myStore")
@@ -30,7 +30,12 @@ test('getters/mutators', async () => {
 
 test('call action', async () => {
 
-	render(<MultiStoreProvider><TestView /><TestCommand/></MultiStoreProvider>)
+	render(
+		<MultiStoreProvider setups={{ myStore: setupMyStore }}>
+			<TestView />
+			<TestCommand />
+		</MultiStoreProvider>
+	)
 
 	// get myStore with reducer
 	const myStore = getStore("myStore")

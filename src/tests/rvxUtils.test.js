@@ -2,38 +2,34 @@ import React from 'react'
 import { render } from '@testing-library/react'
 
 import { getAllStates, getStructureStoreFromPaths } from "../lib/store/rvxUtils"
-import { MultiStoreProvider, setupStore } from '../lib/store/rvxProviders'
+import { MultiStoreProvider } from '../lib/store/rvxProviders'
 
 
 
-beforeEach(() => {
-	// create CONTEXT and STORE
-	setupStore({
-		store1: {
-			state: {
-				users: [
-					{ id: 1, name: "ivano" },
-					{ id: 2, name: "marina" },
-					{ id: 3, name: "mattia" }
-				],
-				par1: "item1",
-			}
-		},
-		store2: {
-			state: {
-				par1: { par1_1: "item1.1", par1_2: "item1.2" },
-				par2: { par2_1: "item2.1", par2_2: "item2.2" },
-				par3: "item3",
-			}
-		},
-		store3: {
-			state: {
-				par1: "item1"
-			}
+const setups = {
+	store1: {
+		state: {
+			users: [
+				{ id: 1, name: "ivano" },
+				{ id: 2, name: "marina" },
+				{ id: 3, name: "mattia" }
+			],
+			par1: "item1",
 		}
-	})
-})
-
+	},
+	store2: {
+		state: {
+			par1: { par1_1: "item1.1", par1_2: "item1.2" },
+			par2: { par2_1: "item2.1", par2_2: "item2.2" },
+			par3: "item3",
+		}
+	},
+	store3: {
+		state: {
+			par1: "item1"
+		}
+	}
+}
 
 test('getStructureStoreFromPaths', async () => {
 	const paths = [
@@ -55,7 +51,7 @@ test('getStructureStoreFromPaths', async () => {
 })
 
 test('getAllStates exclude', async () => {
-	render(<MultiStoreProvider />)
+	render(<MultiStoreProvider setups={setups}/>)
 
 	const states = getAllStates({
 		exclude: [
@@ -80,7 +76,7 @@ test('getAllStates exclude', async () => {
 })
 
 test('getAllStates include', async () => {
-	render(<MultiStoreProvider />)
+	render(<MultiStoreProvider setups={setups}/>)
 
 	const states = getAllStates({
 		include: [
