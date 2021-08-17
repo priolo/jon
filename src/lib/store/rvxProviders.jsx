@@ -5,7 +5,7 @@ import { STORE_EVENTS } from './rvxUtils';
 
 /**
  * Create in "setupStore"
- * DICTIONARY with All the SETUP used to create the STORE
+ * DICTIONARY with All the SETUPS used to create the STORE
  */
 const setups = {}	// [store name] 
 /**
@@ -28,14 +28,14 @@ const reducers = {}
 
 
 /**
- * Aggiunge uno STORE in JON 
- * @param {*} name nome dello STORE da creare
- * @param {*} setup il suo SETUP
- * @param {*} reducer il suo REDUCER (deve essere un "useState" interno al componente REACT cosi' il componente è aggiornato quando cambia il valore)
- * @returns il context, accessibile, che contiene il "reducer" 
+ * Adds a STORE in JON
+ * @param {*} name name of the STORE to create
+ * @param {*} setup his SETUP
+ * @param {*} reducer its REDUCER (it must be a "useState" of the REACT component so it updates when it changes value)
+ * @returns the context, accessible externally, which contains the "reducer"
  */
 function addStore(name, setup, reducer) {
-	if (setups[name]) console.error(`ERROR:store:add:duplicate_name:${name}`)
+	//if (setups[name]) console.error(`ERROR:store:add:duplicate_name:${name}`)
 
 	setups[name] = setup
 
@@ -55,37 +55,37 @@ function addStore(name, setup, reducer) {
 }
 
 /**
- * Rimuove uno STORE da JON
- * Questo è utile per gli STORE "dinamici"
+ * Removes a STORE from JON
+ *Useful for "dynamic" STORE
  * @param {*} name 
  */
 function removeStore(name) {
 	updateWatch(name, true)
-	delete setups[name]
-	delete contexts[name]
-	delete stores[name]
+	//delete setups[name]
+	//delete contexts[name]
+	//delete stores[name]
+	delete reducers[name]
 }
 
 /**
- * in base al parametro "watch" del SETUP
- * creo o elimino nello STORE gli eventi per intercettare la modifica ad una specifica mutation
- * @param {*} name Nome dello STORE da cui creare/rimuovere i "watch" 
- * @param {boolean} remove se true indica che l'intento è di rimuovere i watch altrimenti è di aggiungere
+ * Creates/deletes the events defined in the SETUP "watch" in the STORE
+ * @param {*} name Name of the STORE from which to create/remove the "watches"
+ * @param {boolean} remove removes events if "true" otherwise creates them
  */
 function updateWatch(name, remove=false) {
 	const store = stores[name]
 	if (!store || !store._watch) return
 
-	// ciclo tutti gli STORE presenti nella sezione "_watch"
+	// cycle all the STORE present in the "_watch" section
 	for (const storeName of Object.keys(store._watch)) {
 		const storeWatch = store._watch[storeName]
 		const storeEmit = stores[storeName]
 		if (!storeWatch || !storeEmit) continue
-		// di questo STORE ciclo tutte le "props" dello "state" che devono essere "osservate"
+		// all the "mutators" of the STORE that must be "observed"
 		for (const propName of Object.keys(storeWatch)) {
-			// funzione da chiamare quando si verifica l'evento
+			// function to call when the event occurs
 			const callbackWatch = storeWatch[propName]
-			// inserirsco/emino l'evento da chiamare quando la props viene modificata
+			// create/delete the event
 			const emitter = storeEmit.emitter
 			if ( remove ) {
 				emitter.off(STORE_EVENTS.MUTATION, callbackWatch)

@@ -20,11 +20,12 @@ export function createStore(setup) {
 			return store._reducer[0]
 		},
 
+		// returns the "reducer" to make a change to the STATE
 		get d() {
 			return store._reducer[1]
 		},
 
-		// permette di aggiornare lo "state"
+		// allows you to update the "state"
 		_update: payload => {
 			store.d(state => {
 				if (payload == null) payload = { ...state }
@@ -32,7 +33,7 @@ export function createStore(setup) {
 			})
 		},
 
-		// permette di chiamare un "action" in maniera da essere sincronizzato con le "mutation"
+		// allows you to call an "action" in order to be synchronized with the "mutations"
 		_syncAct: async (action, payload) => {
 			return new Promise((res, rej) => {
 				store.d(state => {
@@ -48,7 +49,7 @@ export function createStore(setup) {
 			if (setup.init) setup.init(store)
 		},
 
-		// emitter per gestire gli eventi 
+		// emitter to handle events
 		emitter: new EventEmitter(Object.values(STORE_EVENTS))
 
 	}
@@ -113,9 +114,9 @@ export function createStore(setup) {
 		store = Object.keys(setup.mutators).reduce((acc, key) => {
 			acc[key] = payload => store.d(state => {
 				const stub = setup.mutators[key](state, payload, store)
-				// se il "mutator" restituisce "null"  allora non faccio nulla
+				// if the "mutator" returns "null" then I do nothing
 				if (stub == null) return state
-				// per ottimizzare controllo se c'e' qualche cambiamento
+				// to optimize check if there is any change
 				if (Object.keys(stub).some(key => stub[key] != state[key])) {
 					state = { ...state, ...stub }
 					store.emitter.emit(STORE_EVENTS.MUTATION, { key, payload, subcall: _block_subcall })
@@ -133,6 +134,8 @@ export function createStore(setup) {
 		store._watch = Object.keys(setup.watch).reduce((storesInWatch, storeName) => {
 			const setupWatch = setup.watch[storeName]
 			storesInWatch[storeName] = Object.keys(setupWatch).reduce((callbacks, propName) => {
+				// I create callbacks to pass to events
+				// for the "watch section" for each STORE for each "mutator"
 				callbacks[propName] = (event) => {
 					if (event.payload.key != propName) return
 					setupWatch[propName](store, event.payload.payload)
@@ -147,6 +150,7 @@ export function createStore(setup) {
 	 * MEMO
 	 * restituiscono il valore memorizzato se lo store e il payload sono gli stessi
 	 * altrimenti eseguono la funzione
+	 * TO DO
 	 */
 	// if (setup.memo) {
 	// 	store = Object.keys(setup.memo).reduce((acc, key) => {
