@@ -23,25 +23,25 @@ const setupMyStore = {
 	},
 }
 
-test('due diversi STORE con lo stesso SETUP in due diverse VIEW', async () => {
+test('same STORE in two different VIEW', async () => {
 
 	render(<>
 		<MultiStoreProvider setups={{ pippo: setupMyStore }}>
 			<TestView storeName="pippo" />
 		</MultiStoreProvider>
-		<MultiStoreProvider setups={{ topolino: setupMyStore }}>
-			<TestView storeName="topolino" />
+		<MultiStoreProvider setups={{ pippo: setupMyStore }}>
+			<TestView storeName="pippo" />
 		</MultiStoreProvider>
 	</>)
 
 	// change state value with reducer
 	const { fetch } = getStore("pippo")
-	await act(async () => fetch())
+	await act(async () => await fetch())
 
-	//screen.debug()
+	screen.debug()
 
-	expect(screen.getByTestId('view_pippo')).toHaveTextContent("new value")
-	expect(screen.getByTestId('view_topolino')).toHaveTextContent("init value")
+	//expect(screen.getByTestId('view_pippo')).toHaveTextContent("new value")
+	//expect(screen.getByTestId('view_topolino')).toHaveTextContent("init value")
 })
 
 function TestView({ storeName }) {

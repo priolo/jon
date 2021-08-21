@@ -133,20 +133,20 @@ export function useStore(name) {
 /**
  * REACT PROVIDER that contains all REDUCERS
  */
-export const MultiStoreProvider = ({ setups, children }) => {
+export const MultiStoreProvider = ({ setups: setupsCurr, children }) => {
 
-	const names = Object.keys(setups)
+	const names = Object.keys(setupsCurr)
 	const name = names[0]
 	const isNotLast = names.length > 1
-	const setup = setups[name]
-	const setupsChild = { ...setups }
+	const setup = setupsCurr[name]
+	const setupsChild = { ...setupsCurr }
 	delete setupsChild[name]
 
 	const reducer = useState(setup.state)
 	const [context, setContext] = useState(() => addStore(name, setup, reducer))
 
 	useEffect(() => {
-		stores[name]._reducer = reducers[name]
+		stores[name]._reducer = reducer
 		stores[name]._init()
 		return () => {
 			removeStore(name)
