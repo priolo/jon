@@ -5,15 +5,49 @@ import { getStore, MultiStoreProvider, useStore } from '../lib/store/rvxProvider
 
 
 
+test('same STORE in two different VIEW', async () => {
+
+	render(<>
+		<MultiStoreProvider setups={{ pippo: setupMyStore }} index={0}>
+			<TestView storeName="pippo" index={0}/>
+		</MultiStoreProvider>
+		<MultiStoreProvider setups={{ pippo: setupMyStore }} index={1}>
+			<TestView storeName="pippo" index={1}/>
+		</MultiStoreProvider>
+	</>)
+
+	const { fetch } = getStore("pippo")
+	await act(async () => await fetch("(get0)"))
+	await waitFor(() => expect(screen.getByTestId('view_pippo_0')).toHaveTextContent("new value (get0)"))
+	await waitFor(() => expect(screen.getByTestId('view_pippo_1')).toHaveTextContent("new value (get0)"))
+	
+	const { fetch:fetch1 } = getStore("pippo", 1)
+	await act(async () => await fetch1("(get1)"))
+	await waitFor(() => expect(screen.getByTestId('view_pippo_0')).toHaveTextContent("new value (get1)"))
+	await waitFor(() => expect(screen.getByTestId('view_pippo_1')).toHaveTextContent("new value (get1)"))
+
+	fireEvent.click(screen.getByText('click1'))
+	await waitFor(() => expect(screen.getByTestId('view_pippo_0')).toHaveTextContent("new value (use1)"))
+	await waitFor(() => expect(screen.getByTestId('view_pippo_1')).toHaveTextContent("new value (use1)"))
+})
+
+function TestView({ storeName, index }) {
+
+	const { state, fetch } = useStore(storeName, index)
+
+	return (<div>
+		<button onClick={() => fetch(`(use${index})`)}>click{index}</button>
+		<div data-testid={`view_${storeName}_${index}`}>{state.value}</div>
+	</div>)
+}
+
 const setupMyStore = {
 	state: {
 		value: "init value",
 	},
 	actions: {
-		fetch: async (state, payload, store) => {
-			// simulate http response
-			await new Promise((res) => setTimeout(res, 1000))
-			store.setValue("new value")
+		fetch: async (state, post, store) => {
+			store.setValue(`new value ${post}`)
 		}
 	},
 	mutators: {
@@ -22,36 +56,3 @@ const setupMyStore = {
 		},
 	},
 }
-
-test('same STORE in two different VIEW', async () => {
-
-	render(<>
-		<MultiStoreProvider setups={{ pippo: setupMyStore }}>
-			<TestView storeName="pippo" />
-		</MultiStoreProvider>
-		<MultiStoreProvider setups={{ pippo: setupMyStore }}>
-			<TestView storeName="pippo" />
-		</MultiStoreProvider>
-	</>)
-
-	// change state value with reducer
-	const { fetch } = getStore("pippo")
-	await act(async () => await fetch())
-
-	screen.debug()
-
-	//expect(screen.getByTestId('view_pippo')).toHaveTextContent("new value")
-	//expect(screen.getByTestId('view_topolino')).toHaveTextContent("init value")
-})
-
-function TestView({ storeName }) {
-
-	const { state, fetch } = useStore(storeName)
-
-	return (<div>
-		<button onClick={() => fetch()}>click</button>
-		<div data-testid={`view_${storeName}`}>{state.value}</div>
-	</div>)
-}
-
-

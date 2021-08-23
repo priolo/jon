@@ -5,11 +5,6 @@ import { STORE_EVENTS } from './rvxUtils';
 
 /**
  * Create in "setupStore"
- * DICTIONARY with All the SETUPS used to create the STORE
- */
-const setups = {}	// [store name] 
-/**
- * Create in "setupStore"
  * DICTIONARY with All the CONTEXT contain the REDUCER of a STORE
  * are taken from the REACT components through a PROVIDER
  */
@@ -19,13 +14,6 @@ const contexts = {}	// [store name]
  * DICTIONARY with All the STORES
  */
 const stores = {}	// [store name] 
-/**
- * Create in "MultiStoreProvider"
- * DICTIONARY with all REDUCERS, are inside the CONTEXT
- */
-const reducers = {}
-
-
 
 /**
  * Adds a STORE in JON
@@ -34,23 +22,18 @@ const reducers = {}
  * @param {*} reducer its REDUCER (it must be a "useState" of the REACT component so it updates when it changes value)
  * @returns the context, accessible externally, which contains the "reducer"
  */
-function addStore(name, setup, reducer) {
-	//if (setups[name]) console.error(`ERROR:store:add:duplicate_name:${name}`)
+function addStore(name, setup, reducer, index = 0) {
 
-	setups[name] = setup
+	if (!contexts[name]) contexts[name] = []
+	const context = React.createContext()
+	context.displayName = index == 0 ? name : `${name}[${index}]`
+	contexts[name][index] = context
 
-	const context = React.createContext(reducer)
-	context.displayName = name
-	contexts[name] = context
-
-	const store = createStore(setup)
+	const store = stores[name] ?? createStore(setup)
 	stores[name] = store
-	store._reducer = reducer
-
-	reducers[name] = reducer
+	store._reducers[index] = reducer
 
 	updateWatch(name)
-
 	return context
 }
 
@@ -59,12 +42,10 @@ function addStore(name, setup, reducer) {
  *Useful for "dynamic" STORE
  * @param {*} name 
  */
-function removeStore(name) {
+function removeStore(name, index = 0) {
 	updateWatch(name, true)
-	//delete setups[name]
-	//delete contexts[name]
-	//delete stores[name]
-	delete reducers[name]
+	delete contexts[name][index]
+	delete stores[name][index]
 }
 
 /**
@@ -72,7 +53,7 @@ function removeStore(name) {
  * @param {*} name Name of the STORE from which to create/remove the "watches"
  * @param {boolean} remove removes events if "true" otherwise creates them
  */
-function updateWatch(name, remove=false) {
+function updateWatch(name, remove = false) {
 	const store = stores[name]
 	if (!store || !store._watch) return
 
@@ -87,12 +68,12 @@ function updateWatch(name, remove=false) {
 			const callbackWatch = storeWatch[propName]
 			// create/delete the event
 			const emitter = storeEmit.emitter
-			if ( remove ) {
+			if (remove) {
 				emitter.off(STORE_EVENTS.MUTATION, callbackWatch)
 			} else {
 				emitter.on(STORE_EVENTS.MUTATION, callbackWatch)
 			}
-			
+
 		}
 	}
 }
@@ -104,8 +85,6 @@ function updateWatch(name, remove=false) {
 */
 export function getStore(name) {
 	const store = stores[name]
-	// const reducer = reducers[name]
-	// store._reducer = reducer
 	return store
 }
 
@@ -122,18 +101,18 @@ export function getAllStores() {
  * It is useful for using a STORE in a REACT COMPONENT
  * @param {*} name 
 */
-export function useStore(name) {
+export function useStore(name, index = 0) {
 	const store = stores[name]
-	const context = contexts[name]
+	const context = contexts[name][index]
 	const reducer = useContext(context)
-	store._reducer = reducer
+	store._reducers[index] = reducer
 	return store
 }
 
 /**
  * REACT PROVIDER that contains all REDUCERS
  */
-export const MultiStoreProvider = ({ setups: setupsCurr, children }) => {
+export const MultiStoreProvider = ({ setups: setupsCurr, children, index = 0 }) => {
 
 	const names = Object.keys(setupsCurr)
 	const name = names[0]
@@ -143,13 +122,13 @@ export const MultiStoreProvider = ({ setups: setupsCurr, children }) => {
 	delete setupsChild[name]
 
 	const reducer = useState(setup.state)
-	const [context, setContext] = useState(() => addStore(name, setup, reducer))
+	const [context, setContext] = useState(() => addStore(name, setup, reducer, index))
 
 	useEffect(() => {
-		stores[name]._reducer = reducer
+		//stores[name]._reducers[index] = reducer
 		stores[name]._init()
 		return () => {
-			removeStore(name)
+			removeStore(name, index)
 		}
 	}, [])
 
