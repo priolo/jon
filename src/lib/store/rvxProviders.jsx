@@ -44,8 +44,10 @@ function addStore(name, setup, reducer, index = 0) {
  */
 function removeStore(name, index = 0) {
 	updateWatch(name, true)
-	delete contexts[name][index]
-	delete stores[name][index]
+	// TODO: trovare una soluzione perche' questi non funzionano se siamo dentro NEXT
+	// probabilmente perche' NEXT crea STORE e li distrugge in maniera non "coerente"
+	//delete contexts[name][index]
+	//delete stores[name][index]
 }
 
 /**
