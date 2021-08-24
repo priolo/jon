@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, fireEvent, waitFor, screen, act } from '@testing-library/react'
+import { render, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import { getStore, MultiStoreProvider, useStore } from '../lib/store/rvxProviders'
 
@@ -23,7 +23,7 @@ const setupMyStore = {
 	},
 }
 
-test('simply getStore', async () => {
+test('due diversi STORE con lo stesso SETUP in due diverse VIEW', async () => {
 
 	render(<>
 		<MultiStoreProvider setups={{ pippo: setupMyStore }}>

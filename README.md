@@ -8,6 +8,7 @@
 		- [Create PROVIDER](#create-provider)  
 		- [Use STORE](#use-store)  
 - [Why](#why)
+- [Production ready?](#production-ready)
 - [Examples](#examples)
 - [API](#api)
 	- [MultiStoreProvider](#multistoreprovider)
@@ -85,11 +86,21 @@ export default function App() {
 # Why
 How why??!  
 You want to pass component data to component  
-until what complexity will be unmanageable? He ??? NO!  
-And then you will have to use the [PROVIDERS](https://it.reactjs.org/docs/hooks-reference.html#usecontext)  
-this utility is REALLY VERY VERY VERY LIGHT  
-[Take a look!](https://github.com/priolo/store/tree/master/src/lib/store) It is basically like using native [useReducer](https://it.reactjs.org/docs/hooks-reference.html#usereducer)   
+until what complexity will be unmanageable??? NO!  
+JON is designed to be VERY LIGHT and integrated with React.  
+Basically it is a utility to use native [PROVIDERS](https://it.reactjs.org/docs/hooks-reference.html#usecontext), [Take a look!](https://github.com/priolo/jon/blob/develop/src/lib/store/rvxProviders.jsx)... and this is all
 
+![logo](./res/schema1.png)
+
+# Production-ready? {#production-ready}
+"JON" is not a used library.  
+I don't know a lot of use cases!  
+I can tell you that I use it in three medium-sized professional projects.  
+Furthermore JON is a VERY LIGHT lib.  
+You can always replace it on the fly with React's "native" PROVIDERS.   
+This is an example: [sandbox](https://codesandbox.io/s/react-template-ln4gh?file=/index.js)
+>You can use a series of "Providers" instead of "MultiStoreProvider"  
+>and share the "reducer"
 
 
 # Examples
@@ -104,15 +115,18 @@ this utility is REALLY VERY VERY VERY LIGHT
 # API
 
 ## MultiStoreProvider
-REACT PROVIDER that contains all REDUCERS
+REACT PROVIDER that contains all REDUCERS  
+[code](https://codesandbox.io/s/example-4-0jeqi?file=/index.js:305-351)
 
 ## getStore( storeName:string ):store
 Returns a STORE by its name
-It is useful for using a STORE outside a REACT COMPONENT
+It is useful for using a STORE outside a REACT COMPONENT  
+[code](https://codesandbox.io/s/example-4-0jeqi?file=/stores/user.js:159-197)
 
 ## useStore( storeName:string ):store
 Use a STORE by its name
-It is useful for using a STORE in a REACT COMPONENT
+It is useful for using a STORE in a REACT COMPONENT  
+[code](https://codesandbox.io/s/example-4-0jeqi?file=/components/Body.jsx:191-233)
 
 ## STORE SETUP JSON
 ```js
@@ -213,8 +227,9 @@ In this case use the `_syncAct` function
 ```
 
 
+# TIPS
 
-# Improve performance (with MEMO)
+## Improve performance (with MEMO)
 
 This library offers the bare minimum  
 For the rest, use the official "react" systems  
@@ -231,23 +246,19 @@ export default function Cmp () {
 
 	return useMemo( ()=>(<div>
 
-			<h1>{state.value}</h1>
-		
-			<input 
-				value={state.value}
-				onChange={(e)=>setValue(e.target.value)} 
-			/>
+		<h1>{state.value}</h1>
+	
+		<input 
+			value={state.value}
+			onChange={(e)=>setValue(e.target.value)} 
+		/>
 		
 	</div>)
 	,[state.value])
 }
 ```
 
-
-
-# TIPS
-
-### Use the "**store**" parameter as if it were "**this**"
+## Use the "**store**" parameter as if it were "**this**"
 You can use the "store" parameter
 as the object that contains the getters / action / mutators
 in order to refer to them
@@ -266,7 +277,7 @@ in order to refer to them
 }
 ```
 
-### Mutate multiple variable
+## Mutate multiple variable
 ```js
 {
 	...
@@ -286,7 +297,10 @@ in order to refer to them
 }
 ```
 
-### Break a "**store**" into several files
+## Break a "**store**" into several files
+You can use the "mixStores" tool to merge multiple setup-stores.  
+To be able to distribute the code on more files  
+
 `/stores/index.js`
 ```js
 import mixStores from "@priolo/jon"
@@ -313,7 +327,7 @@ const store2 = {
 export default store2
 ```
 
-### Using a "**store**" inside another "**store**"
+## Using a "**store**" inside another "**store**"
 `/stores/layout.js`
 ```js
 export default {
@@ -340,7 +354,7 @@ export default {
 }
 ```
 
-### Using a "**store**" in an external function
+## Using a "**store**" in an external function
 `/stores/store2.js`
 ```js
 import { getStore } from "@priolo/jon"
@@ -354,6 +368,6 @@ export function async apiIndex () {
 }
 ```
 
-### Check a "**store**" from the inspector
+## Check a "**store**" from the inspector
 
 ![chrome inspector](res/screenshot1.png)

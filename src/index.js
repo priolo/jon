@@ -14,15 +14,10 @@ import player from "./lib/test/player"
 
 // store
 export {
-	setupStore,
 	MultiStoreProvider,
 	getStore,
 	useStore,
 	mixStores,
-
-	StoreProvider,
-	useDynamicStore,
-	getDynamicStore,
 
 	getAllStates,
 	setAllState,

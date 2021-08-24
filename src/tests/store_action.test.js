@@ -45,7 +45,7 @@ test('simply useStore', async () => {
 	// change state value with event
 	fireEvent.click(screen.getByText('click'))
 
-	waitFor(() => expect(screen.getByTestId('view')).toHaveTextContent("new value"))
+	await waitFor(() => expect(screen.getByTestId('view')).toHaveTextContent("new value"))
 })
 
 const setupMyStore = {

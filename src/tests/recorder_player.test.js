@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, fireEvent, waitFor, screen, act } from '@testing-library/react'
+import { render, fireEvent, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import { getStore, MultiStoreProvider, useStore } from '../lib/store/rvxProviders'
 import rec from '../lib/test/recorder'
