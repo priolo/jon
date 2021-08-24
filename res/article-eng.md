@@ -13,7 +13,7 @@ but, in my opinion, they are too basic to use them directly.
 So I wrote a "utility" (NOT a "library") served in several projects
 very very light.
 
-https://gitlab.com/priolo22/jon
+https://github.com/priolo/jon
 
 Basic example:
 
@@ -46,13 +46,13 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 
-import { MultiStoreProvider, setupStore } from '@priolo/jon';
+import { MultiStoreProvider } from '@priolo/jon';
 import myStore from "./myStore"
-setupStore({ myStore })
+
 
 const rootElement = document.getElementById("root");
 ReactDOM.render(
-  <MultiStoreProvider>
+  <MultiStoreProvider setups={{ myStore }}>
     <App />
   </MultiStoreProvider>,
   rootElement
@@ -76,7 +76,7 @@ export default function App() {
 }
 ```
 
-[online](https://codesandbox.io/s/react-store-example-1-ct8r4)
+[online](https://codesandbox.io/s/react-store-example-1-forked-y2ygx)
 
 Hope it's useful, I'm a huge fan of VUEX which I got my inspiration from
 Bye!
