@@ -8,7 +8,7 @@
 		- [Create PROVIDER](#create-provider)  
 		- [Use STORE](#use-store)  
 - [Why](#why)
-- [Production ready?](#production-ready)
+- [Production](#production)
 - [Examples](#examples)
 - [API](#api)
 	- [MultiStoreProvider](#multistoreprovider)
@@ -92,8 +92,8 @@ Basically it is a utility to use native [PROVIDERS](https://it.reactjs.org/docs/
 
 ![logo](./res/schema1.png)
 
-# Production-ready? {#production-ready}
-"JON" is not a used library.  
+# Production
+PRODUCTION READY ??? mmm... "JON" is not a used library.  
 I don't know a lot of use cases!  
 I can tell you that I use it in three medium-sized professional projects.  
 Furthermore JON is a VERY LIGHT lib.  
