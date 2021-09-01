@@ -8,13 +8,17 @@
 		- [Create PROVIDER](#create-provider)  
 		- [Use STORE](#use-store)  
 - [Why](#why)
-- [Production](#production)
+- [Production ready?](#production-ready)
 - [Examples](#examples)
 - [API](#api)
 	- [MultiStoreProvider](#multistoreprovider)
 	- [getStore( storeName:string ):store](#getstore-storenamestring-store)
 	- [useStore( storeName:string ):store](#usestore-storenamestring-store)
 	- [STORE SETUP JSON](#store-setup-json)
+	- [state](#state)
+	- [getters](#getters)
+	- [mutators](#mutators)
+	- [actions](#actions)
 - [TIPS](#tips)
 
 
@@ -92,10 +96,10 @@ Basically it is a utility to use native [PROVIDERS](https://it.reactjs.org/docs/
 
 ![logo](./res/schema1.png)
 
-# Production
-PRODUCTION READY ??? mmm... "JON" is not a used library.  
+# Production Ready?
+mmm... "JON" is not a used library.  
 I don't know a lot of use cases!  
-I can tell you that I use it in three medium-sized professional projects.  
+I can tell you that I use it in three medium-sized professional projects (CRA and NEXT).  
 Furthermore JON is a VERY LIGHT lib.  
 You can always replace it on the fly with React's "native" PROVIDERS.   
 This is an example: [sandbox](https://codesandbox.io/s/react-template-ln4gh?file=/index.js)
@@ -175,6 +179,162 @@ It is useful for using a STORE in a REACT COMPONENT
 }
 ```
 
+---
+
+## state 
+
+*The initial STATE of the STORE. "Single Source of Truth"*  
+The STATE is connected to the VIEW (via React):  
+When the STATE changes then the VIEW updates automatically.
+  
+To access the STATE of a STORE:
+
+```js
+const { state } = useStore("MyStore")
+```
+
+Avoid conflicts:
+```js
+const { state:mystore1 } = useStore("MyStore1")
+const { state:mystore2 } = useStore("MyStore2")
+```
+
+Outside the "React Hooks":
+```js
+const { state:mystore } = getStore("MyStore")
+```
+
+Then:
+```html
+<div>{mystore.value}</div>
+```
+
+---
+
+## getters
+
+*Returns a value of the STATE.*  
+Although you can access the STATE directly  
+in many cases you will want some processed data.   
+
+For example: a filtered list:  
+
+```js
+const myStore = {
+   state: { 
+	   users:[...] 
+	   }, 
+   getters: {
+      getUsers: ( state, payload, store ) 
+         => state.users.filter(user=>user.name.includes(payload)),
+   }
+}
+```
+
+```jsx
+function MyComponent() {
+   const { getUsers } = useStore("myStore")
+   return getUsers("pi").map ( user => <div>{user.name}</div>)
+}
+```
+
+The signature of a **getter** is:
+- **state**: the current value of the STATE
+- **payload**: (optional) the parameter passed to the getter when it is called
+- **store**: the STORE object itself. You can use it as if it were "this"
+
+> GETTERS should ONLY "contain" STATE and GETTERS
+
+---
+
+## mutators
+
+*The only way to change the STATE.*  
+It accepts a parameter and returns the "part" of STORE to be modified.
+
+For example:
+
+```js
+const myStore = {
+   state: { 
+	   value1: 10,
+	   value2: "topolino",
+	}, 
+   mutators: {
+      setValue1: ( state, value1, store ) => ({ value1 }),
+	  // ! verbose !
+	  setValue2: ( state, value, store ) => { 
+		  const newValue = value.toUpperCase()
+		  return {
+			  value2: newValue
+		  }
+	  },
+   }
+}
+```
+
+```jsx
+function MyComponent() {
+    const { state, setValue1 } = useStore("myStore")
+    return <button onClick={e=>setValue1(state.value1+1)}>
+        value1: {state.value1}
+    </button>
+}
+```
+
+the signature of a **mutator** is:
+- **state**: the current value of the STATE
+- **payload**: (optional) the parameter passed to the mutator when it is called
+- **store**: the STORE object itself. You can use it as if it were "this"
+
+> Inside MUTATORS you should use ONLY the STATE.
+
+---
+
+## actions
+
+*Contains the business logic*  
+ACTIONS can be connected to SERVICEs and APIs  
+They can call STATE values, MUTATORS and GETTERS  
+They can be connected to other STOREs  
+They can be async  
+
+A typical use:
+
+```js
+const myStore = {
+    state: { 
+	    value: null,
+	}, 
+    actions: {
+        fetch: async ( state, _, store ) => {
+            const { data } = await fetch ( "http://myapi.com" )
+            store.setValue ( data )
+        }
+    },
+    mutators: {
+        setValue: ( state, value, store ) => ({ value }),
+    }
+}
+```
+
+```jsx
+function MyComponent() {
+    const { state, fetch } = useStore("myStore")
+    return <button onClick={e=>fetch()}>
+        value1: {state.value}
+    </button>
+}
+```
+
+the signature of a **action** is:
+- **state**: the current value of the STATE
+- **payload**: (optional) the parameter passed to the action when it is called
+- **store**: the STORE object itself. You can use it as if it were "this"
+
+---
+
+
 As you may have noticed: the functions always have the same signature:  
 **fn (state, payload, store) => {}**  
 parameters:  
@@ -185,7 +345,7 @@ parameters:
 - **store**:  
   it's the same STORE where the function is (a kind of *this*)
 
-
+---
 
 # _syncAct
 
@@ -207,13 +367,13 @@ In this case use the `_syncAct` function
 		// WORK: value = 2
 		work: (state, value, store ) => {
 			store.update(1)
-			store._syncAct(update, 1)
+			store._syncAct(store.update, 1)
 		},
 		// WORK 3 TIME: value = 3
 		work3: async (state, value, store ) => {
 			store.update(1)
-			await store._syncAct(update, 1)
-			await store._syncAct(update, 1)
+			await store._syncAct(store.update, 1)
+			await store._syncAct(store.update, 1)
 		},
 
 		update: (state, step, store) => {
@@ -371,3 +531,13 @@ export function async apiIndex () {
 ## Check a "**store**" from the inspector
 
 ![chrome inspector](res/screenshot1.png)
+
+
+## ROADMAP
+
+Al momento questo è un progetto l'ho usato per molti progetti personali.   
+E' la libreria estremamente leggera che mi serve per usare React!  
+Nell'immediato futuro vorrei realizzare:
+- Coinvolgimento della community React
+- Possibilità di inserire dei PLUGIN
+- Strumenti di debug che permettono test creati automaticamente
