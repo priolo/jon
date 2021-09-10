@@ -28,38 +28,40 @@
 
 `npm install @priolo/jon`
 
-### Create STORE
-`my_app/myStore.js`
-```jsx
-export default {
-	state: {
-		value: "init value",
-	},
-	getters: {
-		getUppercase: (state) => state.value.toUpperCase(),
-	},
-	mutators: {
-		setValue: (state, value) => ({ value }),
-	},
-}
-```
-
-### Create PROVIDER
+### Create STORE and PROVIDER
 `my_app/index.js`
-```js
-import React from "react";
+```jsx
 import ReactDOM from "react-dom";
 import App from "./App";
 
-import { MultiStoreProvider } from '@priolo/jon';
-import myStore from "./myStore"
 
-const rootElement = document.getElementById("root");
+import { MultiStoreProvider } from '@priolo/jon';
+
+// SETUP of STORE
+const mySetup = {
+	state: {
+		value: "init value"
+	},
+	getters: {
+		getUppercase: (state) => state.value.toUpperCase()
+	},
+	actions: {
+		addAtEnd: (state, char, store) => {
+			store.setValue(state.value + char)
+		}
+	},
+	mutators: {
+		setValue: (state, value) => ({value})
+	}
+}
+
+
+// APP creation with PROVIDER
 ReactDOM.render(
-	<MultiStoreProvider setups={{ myStore }}>
+	<MultiStoreProvider setups={{myStore:mySetup}}>
 		<App />
 	</MultiStoreProvider>,
-	rootElement
+	document.getElementById("root")
 );
 ```
 

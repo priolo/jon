@@ -107,7 +107,8 @@ export function useStore(name, index = 0) {
 	const store = stores[name]
 	const context = contexts[name][index]
 	const reducer = useContext(context)
-	store._reducers[index] = reducer
+	// connect reducer
+	if (reducer) store._reducers[index] = reducer
 	return store
 }
 
