@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { createStore } from './rvx';
 import { STORE_EVENTS } from './rvxUtils';
 
@@ -105,7 +105,9 @@ export function getAllStores() {
 */
 export function useStore(name, index = 0) {
 	const store = stores[name]
+	if ( !store ) return null
 	const context = contexts[name][index]
+	if ( !context ) return null
 	const reducer = useContext(context)
 	// connect reducer
 	if (reducer) store._reducers[index] = reducer
@@ -128,12 +130,14 @@ export const MultiStoreProvider = ({ setups: setupsCurr, children, index = 0 }) 
 	const [context, setContext] = useState(() => addStore(name, setup, reducer, index))
 
 	useEffect(() => {
-		//stores[name]._reducers[index] = reducer
-		stores[name]._init()
+		////stores[name]._reducers[index] = reducer
+		//stores[name]._init()
 		return () => {
 			removeStore(name, index)
 		}
 	}, [])
+
+	useMemo(() => stores[name]._init(), [])
 
 	return React.createElement(
 		context.Provider,
