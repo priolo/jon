@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { createStore } from './rvx';
-import { STORE_EVENTS } from './rvxUtils';
-
+import { STORE_EVENTS, options } from './rvxUtils';
 
 /**
  * Create in "setupStore"
@@ -9,6 +8,7 @@ import { STORE_EVENTS } from './rvxUtils';
  * are taken from the REACT components through a PROVIDER
  */
 const contexts = {}	// [store name] 
+
 /**
  * Create in "setupStore"
  * DICTIONARY with All the STORES
@@ -43,11 +43,17 @@ function addStore(name, setup, reducer, index = 0) {
  * @param {*} name 
  */
 function removeStore(name, index = 0) {
-	updateWatch(name, true)
 	// TODO: trovare una soluzione perche' questi non funzionano se siamo dentro NEXT
 	// probabilmente perche' NEXT crea STORE e li distrugge in maniera non "coerente"
-	//delete contexts[name][index]
-	//delete stores[name][index]
+	if ( options.disableCheckNext==false && window.next ) return
+	//if ( options.env == ENVIROMENTS.NEXT ) return
+
+	contexts[name][index] = null
+	if ( contexts[name].every ( ci => ci == null ) ) {
+		updateWatch(name, true)
+		delete contexts[name]
+		delete stores[name]
+	}
 }
 
 /**

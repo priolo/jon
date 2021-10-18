@@ -18,7 +18,7 @@ export function createStore(setup) {
 
 		// return STATE of the STORE
 		get state() {
-			return store._reducers[0][0]
+			return store._reducers[0]?.[0]
 		},
 
 		// "reducers" to make a change to the STATE

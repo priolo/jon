@@ -70,3 +70,14 @@ export function getStructureStoreFromPaths(struct) {
 		return acc
 	}, {})
 }
+
+
+// export const ENVIROMENTS = {
+// 	UNKNOW: 0,
+// 	NEXT: 1,
+// }
+
+export const options = {
+//	env: ENVIROMENTS.UNKNOW,
+	disableCheckNext : false,
+}

@@ -1,6 +1,6 @@
 
 import { MultiStoreProvider, getStore, useStore } from './lib/store/rvxProviders'
-import { getAllStates, setAllState } from './lib/store/rvxUtils'
+import { getAllStates, setAllState, options, ENVIROMENTS } from './lib/store/rvxUtils'
 
 import mixStores from './lib/store/mixStores'
 
@@ -21,6 +21,8 @@ export {
 
 	getAllStates,
 	setAllState,
+	options,
+	ENVIROMENTS,
 }
 
 // recrder, player
