@@ -33,7 +33,7 @@ function addStore(name, setup, reducer, index = 0) {
 	stores[name] = store
 	store._reducers[index] = reducer
 
-	updateWatch(name)
+	addWatch(name)
 	return context
 }
 
@@ -45,46 +45,78 @@ function addStore(name, setup, reducer, index = 0) {
 function removeStore(name, index = 0) {
 	// TODO: trovare una soluzione perche' questi non funzionano se siamo dentro NEXT
 	// probabilmente perche' NEXT crea STORE e li distrugge in maniera non "coerente"
-	if ( options.disableCheckNext==false && window.next ) return
+	if (options.disableCheckNext == false && window.next) return
 	//if ( options.env == ENVIROMENTS.NEXT ) return
 
 	contexts[name][index] = null
-	if ( contexts[name].every ( ci => ci == null ) ) {
-		updateWatch(name, true)
+	if (contexts[name].every(ci => ci == null)) {
+		//stores[name].emitter.off()
+		removeWatch(name)
 		delete contexts[name]
 		delete stores[name]
 	}
 }
 
 /**
- * Creates/deletes the events defined in the SETUP "watch" in the STORE
- * @param {*} name Name of the STORE from which to create/remove the "watches"
- * @param {boolean} remove removes events if "true" otherwise creates them
+ * [ { listener:<string>, source:<string> } ...]
  */
-function updateWatch(name, remove = false) {
-	const store = stores[name]
-	if (!store || !store._watch) return
+let watchLinks = []
 
-	// cycle all the STORE present in the "_watch" section
-	for (const storeName of Object.keys(store._watch)) {
-		const storeWatch = store._watch[storeName]
-		const storeEmit = stores[storeName]
-		if (!storeWatch || !storeEmit) continue
-		// all the "mutators" of the STORE that must be "observed"
-		for (const propName of Object.keys(storeWatch)) {
-			// function to call when the event occurs
-			const callbackWatch = storeWatch[propName]
-			// create/delete the event
-			const emitter = storeEmit.emitter
-			if (remove) {
-				emitter.off(STORE_EVENTS.MUTATION, callbackWatch)
-			} else {
-				emitter.on(STORE_EVENTS.MUTATION, callbackWatch)
-			}
+function addWatch(listener) {
+	const storeListener = stores[listener]
+	if (!storeListener) return
+	if (storeListener._watch) {
+		for (const source in storeListener._watch) {
+			watchLinks.push({ listener, source })
+		}
+	}
+	watchLinksUpdate()
+}
 
+function removeWatch(listener) {
+	const storeListener = stores[listener]
+	if (!storeListener) return
+	// tolgo dai temporanei
+	watchLinks = watchLinks.filter(l => l.source != listener && l.listener != listener)
+	// elimino gli eventi se ci sono
+	if (!storeListener._watch) return
+	for (const source in storeListener._watch) {
+		const storeSource = stores[source]
+		if (!storeSource) continue
+		const callbacks = storeListener._watch[source]
+		for (const callback of Object.values(callbacks)) {
+			storeSource.emitter.off(STORE_EVENTS.MUTATION, callback)
 		}
 	}
 }
+
+function watchLinksUpdate() {
+	const tmpLinks = []
+	for (const link of watchLinks) {
+		if (!watchLinkCreate(link)) tmpLinks.push(link)
+	}
+	watchLinks = tmpLinks
+}
+
+function watchLinkCreate(link) {
+	const { source, listener } = link
+
+	const storeListener = stores[listener]
+	if (!storeListener || !storeListener._watch) return false
+	const callbacks = storeListener._watch[source]
+	if (!callbacks) return null
+
+	const storeSource = stores[source]
+	if (!storeSource) return false
+	const emitter = storeSource.emitter
+
+	for (const propName in callbacks) {
+		const callback = callbacks[propName]
+		emitter.on(STORE_EVENTS.MUTATION, callback)
+	}
+	return true
+}
+
 
 /**
  * Returns a STORE by its name
@@ -111,9 +143,9 @@ export function getAllStores() {
 */
 export function useStore(name, index = 0) {
 	const store = stores[name]
-	if ( !store ) return null
+	if (!store) return null
 	const context = contexts[name][index]
-	if ( !context ) return null
+	if (!context) return null
 	const reducer = useContext(context)
 	// connect reducer
 	if (reducer) store._reducers[index] = reducer

@@ -54,6 +54,18 @@ export function createStore(setup) {
 			})
 		},
 
+		/**
+		 * MEMO
+		 * restituiscono il valore memorizzato se il payload non è cambiato dal precedente esecuzione
+		 * altrimenti eseguono la funzione e memorizza il risultato
+		 * TO DO
+		 */
+		_memo: async ( action, payload) => {
+			
+		},
+
+
+
 		// initialization
 		_init: () => {
 			if (setup.init) setup.init(store)
@@ -150,7 +162,7 @@ export function createStore(setup) {
 				// for the "watch section" for each STORE for each "mutator"
 				callbacks[propName] = (event) => {
 					if (event.payload.key != propName) return
-					setupWatch[propName](store, event.payload.payload)
+					setupWatch[propName](store, event.payload.payload, event.oldState)
 				}
 				return callbacks
 			}, {})
@@ -160,8 +172,8 @@ export function createStore(setup) {
 
 	/**
 	 * MEMO
-	 * restituiscono il valore memorizzato se lo store e il payload sono gli stessi
-	 * altrimenti eseguono la funzione
+	 * restituiscono il valore memorizzato se il payload non è cambiato dal precedente esecuzione
+	 * altrimenti eseguono la funzione e memorizza il risultato
 	 * TO DO
 	 */
 	// if (setup.memo) {
