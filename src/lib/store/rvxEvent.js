@@ -8,6 +8,8 @@ import { getStore } from "./rvxProviders"
 
 /**
  * Tipi di eventi generati da un WATCH di uno STORE
+ * @readonly
+ * @enum {string}
  */
 export const STORE_EVENTS = {
 	ACTION: "action",

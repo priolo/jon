@@ -1,11 +1,15 @@
-import { EventEmitter } from "@priolo/jon-utils"
-import { STORE_EVENTS } from "./rvxEvent";
+import { addWatch, EVENTS_TYPES, pluginEmit, removeWatch } from "./rvxPlugin";
 
 //#region TYPEDEF
 
 /**
+ * @typedef {import("./rvxPlugin").Listener} Listener
+ */
+
+/**
  * @typedef {(state:Object, props:Object, store:Store)=>Object} CallStoreSetup
  * @typedef {(props:Object)=>Object} CallStore
+ * @typedef {Object.<string,Object.<string,(store:Store,value:*)=>void>>} Watch
  */
 
 /**
@@ -15,19 +19,22 @@ import { STORE_EVENTS } from "./rvxEvent";
  * @property  {Object.<string,CallStoreSetup>} actions
  * @property  {Object.<string,CallStoreSetup>} actionsSync
  * @property  {Object.<string,CallStoreSetup>} mutators
- * @property  {Object.<string,CallStoreSetup>} watch
+ * @property  {Watch} watch
  */
 
 /**
- * @typedef {Object.<string, CallStore>} Store
+ * @typedef {Object} Store
+ * @property {string} _name
  * @property {Object} state
+ * @property {Listener[]} _watch
+ * @property {...Object.<string, CallStore>}
  */
 
 //#endregion
 
 
 
-
+/**@type {boolean} Indica se l'ultimo blocco di codice è stato chiamato internamente allo store oppure no */
 let _block_subcall = false
 
 /**
@@ -35,14 +42,26 @@ let _block_subcall = false
  * @param {StoreSetup} setup 
  * @returns {Store}
  */
-export function createStore(setup) {
+export function createStore(setup, name) {
 
-	// default
+	/**@type {Store} */
 	let store = {
 
+		/**
+		 * Il nome di registrazione dello STORE in JON
+		 */
+		_name: name,
+
+		/**
+		 * useState di React che contengono lo state "reattivo"
+		 * è un array perce' potrebbe essere spalmato su piu' Components 
+		 */
 		_reducers: [],
 
-		// return STATE of the STORE
+		/**
+		 * get STATE of the STORE
+		 * @returns {Object}
+		 */
 		get state() {
 			return store._reducers[0]?.[0]
 		},
@@ -53,14 +72,22 @@ export function createStore(setup) {
 				reducer[1](state)
 			})
 		},
+
+		/**
+		 * Chiamato dai MUTATOR per effettare una modifica allo STATE
+		 * @param {(state:Object)=>Object} fn reducer (oldState) => newState 
+		 */
 		_dispatchReducer: (fn) => {
 			store._reducers.forEach(reducer => {
 				reducer[1](fn)
 			})
 		},
 
-
-		// allows you to update the "state"
+		/**
+		 * called to replace and update the STATE
+		 * @param {Object} payload se è null aggiorna lo STORE con lo stesso STATE di prima
+		 * @returns {Object}
+		 */
 		_update: payload => {
 			const state = payload ?? { ...store.state }
 			return store._dispatchState(state)
@@ -81,28 +108,39 @@ export function createStore(setup) {
 		},
 
 		/**
-		 * MEMO
+		 * [TODO] MEMO
 		 * restituiscono il valore memorizzato se il payload non è cambiato dal precedente esecuzione
 		 * altrimenti eseguono la funzione e memorizza il risultato
-		 * TO DO
 		 */
-		_memo: async ( action, payload) => {
-			
+		_memo: async (action, payload) => {
 		},
 
-
-
-		// initialization
+		/**
+		 * chiamato su inizializzazione dello store
+		 * prima che TUTTI gli store siano inizializzati
+		 */
 		_init: () => {
 			if (setup.init) setup.init(store)
 		},
+
+		/**
+		 * chiamato su inizializzazione dello store
+		 * quando tutti gli store sono stati inizializzati
+		 */
 		_initAfter: () => {
 			if (setup.initAfter) setup.initAfter(store)
 		},
 
-		// emitter to handle events
-		emitter: new EventEmitter(Object.values(STORE_EVENTS))
+		/**
+		 * chiamato quando lo STORE è stato rimosso
+		 */
+		_remove: () => {
+			for (const listener of store._watch) {
+				removeWatch(listener)
+			}
+		},
 
+		_watch: [],
 	}
 
 	/**
@@ -130,7 +168,7 @@ export function createStore(setup) {
 				if (newState == undefined) newState = store.state
 				const result = await setup.actions[key](newState, payload, store)
 
-				store.emitter.emit(STORE_EVENTS.ACTION, { key, payload, result, subcall: tmp })
+				pluginEmit(EVENTS_TYPES.ACTION, store._name, key, payload, result, tmp)
 				if (tmp == false) _block_subcall = false
 				return result
 			}
@@ -150,7 +188,7 @@ export function createStore(setup) {
 				if (newState == undefined) newState = store.state
 				const result = setup.actionsSync[key](store.state, payload, store)
 
-				store.emitter.emit(STORE_EVENTS.ACTION_SYNC, { key, payload, result, subcall: tmp })
+				pluginEmit(EVENTS_TYPES.ACTION_SYNC, store._name, key, payload, result, tmp)
 				if (tmp == false) _block_subcall = false
 				return result
 			}
@@ -172,7 +210,7 @@ export function createStore(setup) {
 					state = { ...state, ...stub }
 					// TODO: Questo evento va portato su "_dispatchReducer" perche' deve essere eseguito solo una volta.
 					// ora invece è eseguito per tutti i provider con lo stesso nome
-					store.emitter.emit(STORE_EVENTS.MUTATION, { key, payload, subcall: _block_subcall })
+					pluginEmit(EVENTS_TYPES.MUTATION, store._name, key, payload, null, _block_subcall)
 				}
 				return state
 			})
@@ -184,19 +222,20 @@ export function createStore(setup) {
 	 * WATCH
 	 */
 	if (setup.watch) {
-		store._watch = Object.keys(setup.watch).reduce((storesInWatch, storeName) => {
-			const setupWatch = setup.watch[storeName]
-			storesInWatch[storeName] = Object.keys(setupWatch).reduce((callbacks, propName) => {
-				// I create callbacks to pass to events
-				// for the "watch section" for each STORE for each "mutator"
-				callbacks[propName] = (event) => {
-					if (event.payload.key != propName) return
-					setupWatch[propName](store, event.payload.payload, event.oldState)
+		for (const storeName in setup.watch) {
+			const storeWatch = setup.watch[storeName]
+
+			for (const actionName in storeWatch) {
+				const callbackStore = storeWatch[actionName]
+
+				const callbackPlugin = (type, payload, result, subcall) => {
+					callbackStore(store, payload)
 				}
-				return callbacks
-			}, {})
-			return storesInWatch
-		}, {})
+				const listener = { storeName, actionName, callback: callbackPlugin }
+				addWatch(listener)
+				store._watch.push(listener)
+			}
+		}
 	}
 
 	/**

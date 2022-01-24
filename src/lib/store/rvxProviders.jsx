@@ -1,12 +1,10 @@
 import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { createStore } from './rvx';
-import { addWatch, removeWatch } from './rvxEvent';
 import { options } from './rvxUtils';
 
 /**
  * @typedef {import("./rvx").StoreSetup} StoreSetup
  * @typedef {import("./rvx").Store} Store
- * @typedef {import("./rvxEvent").Listener} Listener
  */
 
 
@@ -38,11 +36,11 @@ function addStore(name, setup, reducer, index = 0) {
 	context.displayName = index == 0 ? name : `${name}[${index}]`
 	contexts[name][index] = context
 
-	const store = stores[name] ?? createStore(setup)
+	const store = stores[name] ?? createStore(setup, name)
 	stores[name] = store
 	store._reducers[index] = reducer
+	store._init()
 
-	addWatch(name)
 	return context
 }
 
@@ -58,10 +56,12 @@ function removeStore(name, index = 0) {
 	if (options.disableCheckNext == false && window.next) return
 	//if ( options.env == ENVIROMENTS.NEXT ) return
 
+	// elimono il CONTEXT con il nome-indice indicato
 	contexts[name][index] = null
+	// se non ci sono piu' CONTEXT allora elimino tutto
 	if (contexts[name].every(ci => ci == null)) {
-		//stores[name].emitter.off()
-		removeWatch(name)
+		const store = getStore(name)
+		store._remove()
 		delete contexts[name]
 		delete stores[name]
 	}
@@ -120,6 +120,8 @@ export const MultiStoreProvider = ({ setups: setupsCurr, children, index = 0 }) 
 	const reducer = useState(setup.state)
 	const [context, setContext] = useState(() => addStore(name, setup, reducer, index))
 
+	//useMemo(() => stores[name]._init(), [])
+
 	useEffect(() => {
 		////stores[name]._reducers[index] = reducer
 		stores[name]._initAfter()
@@ -128,7 +130,7 @@ export const MultiStoreProvider = ({ setups: setupsCurr, children, index = 0 }) 
 		}
 	}, [])
 
-	useMemo(() => stores[name]._init(), [])
+	
 
 	return React.createElement(
 		context.Provider,
