@@ -25,7 +25,7 @@ const mySetup1 = {
 	state: {
 		value: "init value1",
 	},
-	init: (store) => {
+	initAfter: (store) => {
 		const { state: s2 } = getStore("myStore2")
 		store.setValue(s2.value)
 	},

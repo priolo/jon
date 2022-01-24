@@ -1,6 +1,14 @@
 import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { createStore } from './rvx';
-import { STORE_EVENTS, options } from './rvxUtils';
+import { addWatch, removeWatch } from './rvxEvent';
+import { options } from './rvxUtils';
+
+/**
+ * @typedef {import("./rvx").StoreSetup} StoreSetup
+ * @typedef {import("./rvx").Store} Store
+ * @typedef {import("./rvxEvent").Listener} Listener
+ */
+
 
 /**
  * Create in "setupStore"
@@ -12,13 +20,14 @@ const contexts = {}	// [store name]
 /**
  * Create in "setupStore"
  * DICTIONARY with All the STORES
+ * @type {Object.<string, Store>}
  */
 const stores = {}	// [store name] 
 
 /**
  * Adds a STORE in JON
- * @param {*} name name of the STORE to create
- * @param {*} setup his SETUP
+ * @param {string} name name of the STORE to create
+ * @param {StoreSetup} setup his SETUP
  * @param {*} reducer its REDUCER (it must be a "useState" of the REACT component so it updates when it changes value)
  * @returns the context, accessible externally, which contains the "reducer"
  */
@@ -39,8 +48,9 @@ function addStore(name, setup, reducer, index = 0) {
 
 /**
  * Removes a STORE from JON
- *Useful for "dynamic" STORE
- * @param {*} name 
+ * Useful for "dynamic" STORE
+ * @param {string} name 
+ * @returns {void}
  */
 function removeStore(name, index = 0) {
 	// TODO: trovare una soluzione perche' questi non funzionano se siamo dentro NEXT
@@ -58,70 +68,10 @@ function removeStore(name, index = 0) {
 }
 
 /**
- * [ { listener:<string>, source:<string> } ...]
- */
-let watchLinks = []
-
-function addWatch(listener) {
-	const storeListener = stores[listener]
-	if (!storeListener) return
-	if (storeListener._watch) {
-		for (const source in storeListener._watch) {
-			watchLinks.push({ listener, source })
-		}
-	}
-	watchLinksUpdate()
-}
-
-function removeWatch(listener) {
-	const storeListener = stores[listener]
-	if (!storeListener) return
-	// tolgo dai temporanei
-	watchLinks = watchLinks.filter(l => l.source != listener && l.listener != listener)
-	// elimino gli eventi se ci sono
-	if (!storeListener._watch) return
-	for (const source in storeListener._watch) {
-		const storeSource = stores[source]
-		if (!storeSource) continue
-		const callbacks = storeListener._watch[source]
-		for (const callback of Object.values(callbacks)) {
-			storeSource.emitter.off(STORE_EVENTS.MUTATION, callback)
-		}
-	}
-}
-
-function watchLinksUpdate() {
-	const tmpLinks = []
-	for (const link of watchLinks) {
-		if (!watchLinkCreate(link)) tmpLinks.push(link)
-	}
-	watchLinks = tmpLinks
-}
-
-function watchLinkCreate(link) {
-	const { source, listener } = link
-
-	const storeListener = stores[listener]
-	if (!storeListener || !storeListener._watch) return false
-	const callbacks = storeListener._watch[source]
-	if (!callbacks) return null
-
-	const storeSource = stores[source]
-	if (!storeSource) return false
-	const emitter = storeSource.emitter
-
-	for (const propName in callbacks) {
-		const callback = callbacks[propName]
-		emitter.on(STORE_EVENTS.MUTATION, callback)
-	}
-	return true
-}
-
-
-/**
  * Returns a STORE by its name
  * It is useful for using a STORE outside a REACT COMPONENT
  * @param {string} name 
+ * @returns {Store}
 */
 export function getStore(name) {
 	const store = stores[name]
@@ -130,7 +80,7 @@ export function getStore(name) {
 
 /**
  * Si insomma... restituisce tutti gli store
- * @returns 
+ * @returns {Store}
  */
 export function getAllStores() {
 	return stores
@@ -139,7 +89,9 @@ export function getAllStores() {
 /**
  * Use a STORE by its name
  * It is useful for using a STORE in a REACT COMPONENT
- * @param {*} name 
+ * @param {string} name 
+ * @param {number} index
+ * @returns {Store}
 */
 export function useStore(name, index = 0) {
 	const store = stores[name]
@@ -154,6 +106,7 @@ export function useStore(name, index = 0) {
 
 /**
  * REACT PROVIDER that contains all REDUCERS
+ * @param { {setups: StoreSetup, children:any, index:number} } param0
  */
 export const MultiStoreProvider = ({ setups: setupsCurr, children, index = 0 }) => {
 
@@ -169,7 +122,7 @@ export const MultiStoreProvider = ({ setups: setupsCurr, children, index = 0 }) 
 
 	useEffect(() => {
 		////stores[name]._reducers[index] = reducer
-		//stores[name]._init()
+		stores[name]._initAfter()
 		return () => {
 			removeStore(name, index)
 		}

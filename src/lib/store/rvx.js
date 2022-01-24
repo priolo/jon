@@ -1,5 +1,30 @@
 import { EventEmitter } from "@priolo/jon-utils"
-import { STORE_EVENTS } from "./rvxUtils";
+import { STORE_EVENTS } from "./rvxEvent";
+
+//#region TYPEDEF
+
+/**
+ * @typedef {(state:Object, props:Object, store:Store)=>Object} CallStoreSetup
+ * @typedef {(props:Object)=>Object} CallStore
+ */
+
+/**
+ * @typedef {Object} StoreSetup 
+ * @property  {Object} state
+ * @property  {Object.<string,CallStoreSetup>} getters
+ * @property  {Object.<string,CallStoreSetup>} actions
+ * @property  {Object.<string,CallStoreSetup>} actionsSync
+ * @property  {Object.<string,CallStoreSetup>} mutators
+ * @property  {Object.<string,CallStoreSetup>} watch
+ */
+
+/**
+ * @typedef {Object.<string, CallStore>} Store
+ * @property {Object} state
+ */
+
+//#endregion
+
 
 
 
@@ -7,7 +32,8 @@ let _block_subcall = false
 
 /**
  * create a STORE with a SETUP-STORE
- * @param {JSON} setup 
+ * @param {StoreSetup} setup 
+ * @returns {Store}
  */
 export function createStore(setup) {
 
@@ -69,6 +95,9 @@ export function createStore(setup) {
 		// initialization
 		_init: () => {
 			if (setup.init) setup.init(store)
+		},
+		_initAfter: () => {
+			if (setup.initAfter) setup.initAfter(store)
 		},
 
 		// emitter to handle events

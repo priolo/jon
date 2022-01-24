@@ -1,8 +1,15 @@
 
 /**
- * Permette di ottenere uno STORE derivandolo dagli STORES passati come parametro
- * @param  {...any} stores 
- * @returns 
+ * @typedef {import("./rvx").StoreSetup} StoreSetup
+ * @typedef {import("./rvx").Store} Store
+ */
+
+
+
+/**
+ * Permette di ottenere uno {StoreSetup} derivandolo dagli STORES passati come parametro
+ * @param  {...StoreSetup} stores 
+ * @returns {StoreSetup}
  */
 export default function mixStores ( ...stores ) {
 	return stores.reduce ( (acc, store) => {
@@ -11,7 +18,12 @@ export default function mixStores ( ...stores ) {
 	},null);
 }
 
-
+/**
+ * Usato da "mixStore" serve a mixare due StoreSetup
+ * @param {StoreSetup} store1 
+ * @param {StoreSetup} store2 
+ * @returns {StoreSetup}
+ */
 function mix ( store1, store2 ) {
 	if ( !store1 && !store2 ) return {};
 	if ( !store1 ) return store2;
@@ -47,6 +59,11 @@ function mix ( store1, store2 ) {
 		init: (s)=> {
 			if (store1.init) store1.init(s)
 			if (store2.init) store2.init(s)
+		},
+		initAfter: (s)=> {
+			if (store1.initAfter) store1.initAfter(s)
+			if (store2.initAfter) store2.initAfter(s)
 		}
+
 	}
 }

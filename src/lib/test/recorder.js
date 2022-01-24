@@ -1,6 +1,7 @@
 import { getAllStores } from "../store/rvxProviders"
-import { getAllStates, STORE_EVENTS } from "../store/rvxUtils"
+import { getAllStates } from "../store/rvxUtils"
 import utils from "@priolo/jon-utils";
+import { STORE_EVENTS } from "../store/rvxEvent";
 
 
 
