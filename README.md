@@ -31,10 +31,7 @@
 ### Create STORE and PROVIDER
 `my_app/index.js`
 ```jsx
-import ReactDOM from "react-dom";
 import App from "./App";
-
-
 import { MultiStoreProvider } from '@priolo/jon';
 
 // SETUP of STORE
@@ -55,7 +52,6 @@ const mySetup = {
 	}
 }
 
-
 // APP creation with PROVIDER
 ReactDOM.render(
 	<MultiStoreProvider setups={{myStore:mySetup}}>
@@ -69,7 +65,6 @@ ReactDOM.render(
 `my_app/App.js`
 ```jsx
 import { useStore } from "@priolo/jon";
-import React from "react";
 
 export default function App() {
 
@@ -90,9 +85,6 @@ export default function App() {
 
 
 # Why
-How why??!  
-You want to pass component data to component  
-until what complexity will be unmanageable??? NO!  
 JON is designed to be VERY LIGHT and integrated with React.  
 Basically it is a utility to use native [PROVIDERS](https://it.reactjs.org/docs/hooks-reference.html#usecontext), [Take a look!](https://github.com/priolo/jon/blob/develop/src/lib/store/rvxProviders.jsx)... and this is all
 
@@ -537,8 +529,8 @@ export function async apiIndex () {
 
 ## ROADMAP
 
-Al momento questo è un progetto l'ho usato per molti progetti personali.   
-E' la libreria estremamente leggera che mi serve per usare React!  
+Al momento questo è un progetto l'ho usato praticamente su tutti i miei progetti in REACT.   
+E' la libreria estremamente leggera!  
 Nell'immediato futuro vorrei realizzare:
 - Coinvolgimento della community React
 - Possibilità di inserire dei PLUGIN

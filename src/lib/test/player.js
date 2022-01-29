@@ -5,17 +5,51 @@ import { RECORDER_ACTIONS } from "./recorder";
 import utils from "@priolo/jon-utils";
 
 
+
+//#region TYPEDEF
+
+/**
+ * @typedef {import("./recorder").Action} Action
+ * @typedef {import("./recorder").RecOption} RecOption
+ * @typedef {type:PLAY_LOG_TYPE, diff:Object} Log
+ */
+
+/**
+ * Indica se usare il DIFF o HASH per il check
+ * @readonly
+ * @enum {number}
+ */
 const PLAY_LOG_TYPE = {
 	CHECK_DIFF_FAIL: 0,
 	CHECK_HASH_FAIL: 1,
 }
 
+//#endregion
+
+
+
+//#region PROPS
+
+/**
+ * La situazione dell'ultimo STATE di JON
+ * @type {Object}
+ */
 let lastState = null
+
+/**
+ * Le opzioni attivate
+ * @type {RecOption}
+ */
 let options = {}
+
+//#endregion
+
+
 
 /**
  * Esegue un array di ACTIONS una dopo l'altra per ogni richiamo di questa funzione
- * @param {*} actions 
+ * @param {Action[]} actions 
+ * @returns {Log}
  */
 async function* stepByStep(actions) {
 	for (let i = 0; i < actions.length; i++) {
@@ -25,9 +59,9 @@ async function* stepByStep(actions) {
 }
 
 /**
- * esegue le ACTIONS tutte in una volta
- * @param {*} actions 
- * @returns 
+ * Esegue le ACTIONS tutte in una BOTTA
+ * @param {Action[]} actions 
+ * @returns {Log[]}
  */
 async function all(actions) {
 	const log = []
@@ -40,8 +74,8 @@ async function all(actions) {
 
 /**
  * esegue una ACTION
- * @param {*} action 
- * @returns 
+ * @param {Action} action 
+ * @returns {Log}
  */
 async function exe(action) {
 	const { type, storeName, propName, payload } = action

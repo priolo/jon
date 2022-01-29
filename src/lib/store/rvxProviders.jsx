@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { createStore } from './rvx';
+import { EVENTS_TYPES, pluginEmit } from './rvxPlugin';
 import { options } from './rvxUtils';
 
 /**
@@ -41,6 +42,7 @@ function addStore(name, setup, reducer, index = 0) {
 	store._reducers[index] = reducer
 	store._init()
 
+	pluginEmit(EVENTS_TYPES.STORE_ADD, name, null, index, null, false)
 	return context
 }
 
@@ -64,6 +66,7 @@ function removeStore(name, index = 0) {
 		store._remove()
 		delete contexts[name]
 		delete stores[name]
+		pluginEmit(EVENTS_TYPES.STORE_REMOVE, name, null, index, null, false)
 	}
 }
 
@@ -87,7 +90,7 @@ export function getAllStores() {
 }
 
 /**
- * Use a STORE by its name
+ * Use a STORE HOOK by its name
  * It is useful for using a STORE in a REACT COMPONENT
  * @param {string} name 
  * @param {number} index
@@ -106,7 +109,9 @@ export function useStore(name, index = 0) {
 
 /**
  * REACT PROVIDER that contains all REDUCERS
- * @param { {setups: StoreSetup, children:any, index:number} } param0
+ * @param { {setups: Object.<string,StoreSetup>, children:any, index:number} } param0
+ * @example 
+ * <MultiStoreProvider setups={{ myStore1: setupMyStore1, myStore2: setupMyStore2 }}>...</MultiStoreProvider>
  */
 export const MultiStoreProvider = ({ setups: setupsCurr, children, index = 0 }) => {
 
@@ -130,7 +135,7 @@ export const MultiStoreProvider = ({ setups: setupsCurr, children, index = 0 }) 
 		}
 	}, [])
 
-	
+
 
 	return React.createElement(
 		context.Provider,

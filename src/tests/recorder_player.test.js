@@ -49,7 +49,7 @@ it('autotest simple', async () => {
 	expect(problems).toHaveLength(0)
 })
 
-it('autotest exclude play stepBystep', async () => {
+it('autotest exclude play stepByStep', async () => {
 
 	const { unmount } = render(
 		<MultiStoreProvider setups={{ myStore: setupMyStore }}>

@@ -228,8 +228,8 @@ export function createStore(setup, name) {
 			for (const actionName in storeWatch) {
 				const callbackStore = storeWatch[actionName]
 
-				const callbackPlugin = (type, payload, result, subcall) => {
-					callbackStore(store, payload)
+				const callbackPlugin = (msg) => {
+					callbackStore(store, msg.payload)
 				}
 				const listener = { storeName, actionName, callback: callbackPlugin }
 				addWatch(listener)

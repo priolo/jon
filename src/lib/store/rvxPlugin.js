@@ -1,6 +1,7 @@
 /**
  * @typedef {import("./rvx").Store} Store
- * @typedef {(type:EVENTS_TYPES, payload:Object, result:Object, subcall:boolean)=>void} WatchCallback
+ * @typedef { {type:EVENTS_TYPES, storeName:string, key:string, payload:Object, result:Object, subcall:boolean} } WatchMessage
+ * @typedef { (msg:WatchMessage)=>void } WatchCallback
  * @typedef { {storeName:string, actionName:string, callback:WatchCallback} } Listener
  */
 
@@ -13,6 +14,8 @@ export const EVENTS_TYPES = {
 	ACTION: "action",
 	ACTION_SYNC: "action-sync",
 	MUTATION: "mutation",
+	STORE_ADD: "store-add",
+	STORE_REMOVE: "store-remove",
 }
 
 /**
@@ -22,7 +25,7 @@ const listeners = {}
 
 
 /**
- * 
+ * Consegna l'evento a tutti i listener registrati
  * @param {EVENTS_TYPES} type 
  * @param {string} storeName 
  * @param {string} key 
@@ -31,11 +34,26 @@ const listeners = {}
  * @param {boolean} subcall 
  */
 export function pluginEmit(type, storeName, key, payload, result, subcall) {
-	const callbacks = listeners[storeName]?.[key]
-	if (!callbacks) return
-	for (const callback of callbacks) {
-		callback(type, payload, result, subcall)
+
+	const msg = { type, storeName, key, payload, result, subcall }
+
+	const callbacksJON = listeners["*"]?.["*"]
+	if ( callbacksJON ) {
+		for (const callback of callbacksJON) callback(msg)
 	}
+
+	const callbacksStore = listeners[storeName]
+	if ( !callbacksStore ) return
+
+	const callbacksStoreJolly = callbacksStore["*"]
+	if ( callbacksStoreJolly ) {
+		for (const callback of callbacksStoreJolly) callback(msg)
+	}
+
+	const callbacks = listeners[storeName][key]
+	if (!callbacks) return
+
+	for (const callback of callbacks) callback(msg)
 }
 
 

@@ -1,15 +1,20 @@
 import utils from "@priolo/jon-utils"
 import { getAllStores } from "./rvxProviders"
 
-
+/**
+ * @typedef {import("../test/recorder").RecOption} RecOption
+ */
 
 /**
- * restituisce lo stato di tutti gli STORES
- * @param {object} options  
- * **include**: string[] verranno presi SOLO i dati relativi a queste path  
- * **exclude**: string[] i dati relativi a queste path sono eliminati
- * @returns 
- * JSON copia dei valori presenti in *STATE* di tutti gli *STORE*
+ * Restituisce lo stato di tutti gli STORES
+ * @param {RecOption} options  
+ * @example
+ * // in questo caso saranno inclusi SOLO Store1 e Store2 e solo le proprietà indicate
+ * { include: ["Store1.value.prop", "Store2.value"] }
+ * // TUTTI gli STATE di TUTTI gli STORE ECCETTO per 
+ * // "Store2" e la proprietà "id" dell'oggetto "user" dello "Store3"
+ * { exclude: ["Store2", "Store3.user.id"]}
+ * @returns {JSON} copia degli *STATE* di tutti gli *STORE*
  */
 export function getAllStates(options) {
 	const excludes = getStructureStoreFromPaths(options?.exclude)
@@ -34,10 +39,11 @@ export function getAllStates(options) {
 
 /**
  * Setto lo STATE a tutti gli STORE
- * @param {*} states   
+ * @param {Object.<string,Object>} states   
  * un DICTIONARY con KEY il nome dello store e come VALUE il valore dello STATE  
- * e.s.:  
+ * @example  
  * `{ "storename1": { value: 4 }, "storename2": { value: 13 } }`
+ * @returns {void}
  */
 export function setAllState(states) {
 	const stores = getAllStores()
@@ -50,7 +56,7 @@ export function setAllState(states) {
 /**
  * trasforma una serie di path in un DICTIONARY utile per quando devo prelevare lo STATE
  * @param {string[]} struct 
- * @returns {object} 
+ * @returns {Object.<string,string[]>} 
  */
 export function getStructureStoreFromPaths(struct) {
 	if (!struct) return {}
