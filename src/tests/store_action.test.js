@@ -51,14 +51,14 @@ test('simply useStore', async () => {
 test('sync motator -> action', async () => {
 
 	function TestView() {
-		const { state, setValue, processesValue } = useStore("myStore")
+		const { state, setValue, processesValue, _syncAct } = useStore("myStore")
 		const handleClick1 = () => {
 			setValue("pippo")
 			processesValue()
 		}
 		const handleClick2 = async () => {
 			setValue("topolino")
-			processesValue(null, state)
+			_syncAct(processesValue)
 		}
 		return <div>
 			<button onClick={handleClick1}>click1</button>

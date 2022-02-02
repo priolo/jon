@@ -98,8 +98,8 @@ export function createStore(setup, name) {
 			// TO DO: dovrebbe attendere tutti i reducers e non solo il primo
 			return new Promise((res, rej) => {
 				store._reducers.forEach(red => {
-					red[1](state => {
-						const ret = action(payload, state)
+					red[1](async (state) => {
+						const ret = await action(payload, state)
 						res(ret)
 						return state
 					})
