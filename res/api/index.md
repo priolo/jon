@@ -11,7 +11,7 @@
 	- [actions](#actions)
 	- [_syncAct](#_syncact)
 	- [init](#init)
-- [mixStores](#mixStores)
+- [mixStores](#mixstores)
 
 ## MultiStoreProvider
 
@@ -429,7 +429,7 @@ the STORE-log function in `watch` will also be called
 
 ## mixStores
 
-It allows you to combine two STORE-SETUPs.
+It allows you to combine two STORE-SETUPs.  
 Useful for splitting a STORE over several files or for deriving a STORE from a STORE-BASE
 
 [codesandbox](https://codesandbox.io/s/example-mixstores-zopru?file=/src/index.js:445-496)
