@@ -34,7 +34,7 @@ import { addWatch, EVENTS_TYPES, pluginEmit, removeWatch } from "./rvxPlugin";
 
 
 
-/**@type {boolean} Indica se l'ultimo blocco di codice è stato chiamato internamente allo store oppure no */
+/**@type {boolean} Indicates whether the last block of code was called internally at the store or not */
 let _block_subcall = false
 
 /**
@@ -48,13 +48,13 @@ export function createStore(setup, name) {
 	let store = {
 
 		/**
-		 * Il nome di registrazione dello STORE in JON
+		 * The registration name of the STORE in JON
 		 */
 		_name: name,
 
 		/**
-		 * useState di React che contengono lo state "reattivo"
-		 * è un array perce' potrebbe essere spalmato su piu' Components 
+		 * React useStates containing the "reactive" state
+		 * is an array perce 'it could be spread on more components
 		 */
 		_reducers: [],
 
@@ -74,7 +74,7 @@ export function createStore(setup, name) {
 		},
 
 		/**
-		 * Chiamato dai MUTATOR per effettare una modifica allo STATE
+		 * Called by the MUTATOR to make a change to the STATE
 		 * @param {(state:Object)=>Object} fn reducer (oldState) => newState 
 		 */
 		_dispatchReducer: (fn) => {
@@ -116,23 +116,23 @@ export function createStore(setup, name) {
 		},
 
 		/**
-		 * chiamato su inizializzazione dello store
-		 * prima che TUTTI gli store siano inizializzati
+		 * called upon store initialization
+		 * before ALL stores are initialized
 		 */
 		_init: () => {
 			if (setup.init) setup.init(store)
 		},
 
 		/**
-		 * chiamato su inizializzazione dello store
-		 * quando tutti gli store sono stati inizializzati
+		 * called upon store initialization
+		 * when all the stores have been initialized
 		 */
 		_initAfter: () => {
 			if (setup.initAfter) setup.initAfter(store)
 		},
 
 		/**
-		 * chiamato quando lo STORE è stato rimosso
+		 * called when the STORE was removed
 		 */
 		_remove: () => {
 			for (const listener of store._watch) {

@@ -15,7 +15,7 @@ import utils from "@priolo/jon-utils";
  */
 
 /**
- * Indica se usare il DIFF o HASH per il check
+ * Indicates whether to use DIFF or HASH for the check
  * @readonly
  * @enum {number}
  */
@@ -31,13 +31,13 @@ const PLAY_LOG_TYPE = {
 //#region PROPS
 
 /**
- * La situazione dell'ultimo STATE di JON
+ * the last STATE stored in JON
  * @type {Object}
  */
 let lastState = null
 
 /**
- * Le opzioni attivate
+ * The current activated options
  * @type {RecOption}
  */
 let options = {}
@@ -47,7 +47,7 @@ let options = {}
 
 
 /**
- * Esegue un array di ACTIONS una dopo l'altra per ogni richiamo di questa funzione
+ * Executes an array of ACTIONS one after the other for each call of this function
  * @param {Action[]} actions 
  * @returns {Log}
  */
@@ -59,7 +59,7 @@ async function* stepByStep(actions) {
 }
 
 /**
- * Esegue le ACTIONS tutte in una BOTTA
+ * Performs the ACTIONS all in one SHOT
  * @param {Action[]} actions 
  * @returns {Log[]}
  */
@@ -73,8 +73,7 @@ async function all(actions) {
 }
 
 /**
- * esegue una ACTION
- * @param {Action} action 
+ * performs an ACTION
  * @returns {Log}
  */
 async function exe(action) {
@@ -83,12 +82,12 @@ async function exe(action) {
 
 	switch (type) {
 
-		// memorizza le opzioni da utilizzare
+		// stores the options to use
 		case RECORDER_ACTIONS.OPTIONS:
 			options = payload
 			break
 
-		// setta lo stato
+		// set the state
 		case RECORDER_ACTIONS.SET_STATE:
 			{
 				setAllState(action.payload)
@@ -96,7 +95,7 @@ async function exe(action) {
 			}
 			break
 
-		// esegui un action (promise)
+		// perform an action (promise)
 		case RECORDER_ACTIONS.ACTION:
 			{
 				const store = getStore(storeName)
@@ -104,7 +103,7 @@ async function exe(action) {
 			}
 			break
 
-		// esegui un action sync
+		// perform an action sync
 		case RECORDER_ACTIONS.ACTION_SYNC:
 			{
 				const store = getStore(storeName)
@@ -112,7 +111,7 @@ async function exe(action) {
 			}
 			break
 
-		// esegui una mutation
+		// perform an mutation
 		case RECORDER_ACTIONS.MUTATION:
 			{
 				const store = getStore(storeName)
@@ -120,7 +119,7 @@ async function exe(action) {
 			}
 			break
 
-		// controlla se ci sono differenze con l'ultimo stato memorizzato
+		// check if there are any differences with the last stored state
 		case RECORDER_ACTIONS.CHECK_DIFF:
 			{
 				const currentState = getAllStates(options)
@@ -135,7 +134,7 @@ async function exe(action) {
 			}
 			break
 
-		// controlla se ci sono differenze con l'ultimo stato memorizzato (metodo HASH)
+		// check if there are any differences with the last stored state (metodo HASH)
 		case RECORDER_ACTIONS.CHECK_HASH:
 			{
 				const currentState = getAllStates(options)

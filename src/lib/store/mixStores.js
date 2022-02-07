@@ -7,7 +7,7 @@
 
 
 /**
- * Permette di ottenere uno {StoreSetup} derivandolo dagli STORES passati come parametro
+ * Merges the parameters and returns a derived store
  * @param  {...StoreSetup} stores 
  * @returns {StoreSetup}
  */
@@ -19,7 +19,7 @@ export default function mixStores ( ...stores ) {
 }
 
 /**
- * Usato da "mixStore" serve a mixare due StoreSetup
+ * combines two stores
  * @param {StoreSetup} store1 
  * @param {StoreSetup} store2 
  * @returns {StoreSetup}

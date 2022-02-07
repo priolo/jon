@@ -135,8 +135,6 @@ export const MultiStoreProvider = ({ setups: setupsCurr, children, index = 0 }) 
 		}
 	}, [])
 
-
-
 	return React.createElement(
 		context.Provider,
 		{ value: reducer },

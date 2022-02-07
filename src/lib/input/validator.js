@@ -58,7 +58,7 @@ export function resetAll() {
  */
 export function useValidator(value, rules, refName="inputRef") {
 
-	// string containing the error
+	/** @type {[string,(error:string)=>void]} string containing the error */
 	const [error, setError] = useState(null)
 	// component ref (optional)
 	const ref = useRef(null)

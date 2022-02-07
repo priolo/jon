@@ -1,13 +1,12 @@
 
 import { MultiStoreProvider, getStore, useStore } from './lib/store/rvxProviders'
 import { getAllStates, setAllState, options, ENVIROMENTS } from './lib/store/rvxUtils'
-
 import mixStores from './lib/store/mixStores'
 
 import { useValidator, validateAll, resetAll } from './lib/input/validator'
 import { rules } from './lib/input/rules'
 
-import recorder, { RECORDER_ACTIONS, RECORDER_STATE } from "./lib/store/recorder"
+import recorder, { RECORDER_ACTIONS, RECORDER_STATE } from "./lib/test/recorder"
 import player from "./lib/test/player"
 
 

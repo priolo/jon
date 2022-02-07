@@ -6,15 +6,15 @@ import { getAllStores } from "./rvxProviders"
  */
 
 /**
- * Restituisce lo stato di tutti gli STORES
+ * Returns the status of all STORES
  * @param {RecOption} options  
  * @example
- * // in questo caso saranno inclusi SOLO Store1 e Store2 e solo le proprietà indicate
+ * // in this case, ONLY Store1 and Store2 will be included and only the properties indicated
  * { include: ["Store1.value.prop", "Store2.value"] }
- * // TUTTI gli STATE di TUTTI gli STORE ECCETTO per 
- * // "Store2" e la proprietà "id" dell'oggetto "user" dello "Store3"
+ * // ALL STATES of ALL STORES EXCEPT for
+ * // "Store2" and the "id" property of the "user" object of "Store3"
  * { exclude: ["Store2", "Store3.user.id"]}
- * @returns {JSON} copia degli *STATE* di tutti gli *STORE*
+ * @returns {JSON} copy of the * STATE * of all * STORE *
  */
 export function getAllStates(options) {
 	const excludes = getStructureStoreFromPaths(options?.exclude)
@@ -38,9 +38,9 @@ export function getAllStates(options) {
 }
 
 /**
- * Setto lo STATE a tutti gli STORE
+ * I set the STATE to all the STORES
  * @param {Object.<string,Object>} states   
- * un DICTIONARY con KEY il nome dello store e come VALUE il valore dello STATE  
+ * a DICTIONARY with KEY the name of the store and as VALUE the value of the STATE
  * @example  
  * `{ "storename1": { value: 4 }, "storename2": { value: 13 } }`
  * @returns {void}
@@ -54,7 +54,7 @@ export function setAllState(states) {
 }
 
 /**
- * trasforma una serie di path in un DICTIONARY utile per quando devo prelevare lo STATE
+ * transforms a series of paths into a DICTIONARY useful for when I have to get the STATE
  * @param {string[]} struct 
  * @returns {Object.<string,string[]>} 
  */

@@ -9,13 +9,13 @@ import { EVENTS_TYPES, addWatch, removeWatch } from "../store/rvxPlugin";
 /**
  * @typedef { import("../store/rvxPlugin").Listener } Listener
  * @typedef { {include:?string[], exclude:?string[], initState:?boolean} } RecOption
- * **include**: string[] verranno presi SOLO i dati relativi a queste path  
- * **exclude**: string[] i dati relativi a queste path sono eliminati
+ * **include**: string[] ONLY the data relating to these paths will be taken
+ * **exclude**: string[] the data relating to these paths are eliminated
   * @typedef { {type:RECORDER_ACTIONS, payload:Obect} } Action
  */
 
 /**
- * Possibili stati del RECORDER
+ * Possible states of the RECORDER
  * @readonly
  * @enum {number}
  */
@@ -26,7 +26,7 @@ export const RECORDER_STATE = {
 }
 
 /**
- * Il tipo di ACTION
+ * The type of ACTION
  * @readonly
  * @enum {number}
  */
@@ -44,13 +44,13 @@ export const RECORDER_ACTIONS = {
 }
 
 /**
- * Le OPTIONS di defualt del RECORDER
+ * The default OPTIONS of the RECORDER
  * @type {RecOption} 
  */
 const optionsDefault = {
-	include: [],		// le propietà dello STORE che devono essere incluese (e quindi le altre saranno escluse)
-	exclude: [],		// le proprietà dello store che dovranno essere escluse (e quindi le altre saranno incluse)
-	initState: true,	// all'inizio della REC c'e' uno snapshot dello STATE
+	include: [],		// the properties of the STORE that must be included (and therefore the others will be excluded)
+	exclude: [],		// the properties of the store that will have to be excluded (and therefore the others will be included)
+	initState: true,	// at the beginning of the REC there is a snapshot of the STATE
 }
 
 //#endregion
@@ -59,32 +59,32 @@ const optionsDefault = {
 //#region PROPS
 
 /**
- * le action che sto registrando ora
+ * the actions I'm recording now
  * @type {Action[]} 
  */
 let actions = []
 
 /**
- * L'ultimo STATE analizzato usato per fare il DIFF
+ * The last analyzed STATE used to make the DIFF
  * @type {Object}
  */
 let lastStoreState = null
 
-// sono tutte le subscription eseguite
+// are all subscriptions performed
 /**
- * Tutti i listener inseriti in JON (...poverino!)
+ * All the listeners inserted in JON (... poor thing!)
  * @type {Listener}
  */
 let listener
 
 /** 
- * le OPTIONS attuali del RECORDER 
+ * the current OPTIONS of the RECORDER
  * @type {RecOption}
  */
 let options = optionsDefault
 
 /**
- * stato del "recorder"
+ * status of the "recorder"
  * @type {RECORDER_STATE}
  */
 let state = RECORDER_STATE.STOP
@@ -102,8 +102,8 @@ function getState() {
 
 
 /**
- * Avvia l'ascolto dello store e la registrazione in actions
- * @param {RecOption} opt vedi optionsDefault
+ * Start listening to the store and recording in actions
+ * @param {RecOption} opt see optionsDefault
  */
 function start(opt) {
 	if (state == RECORDER_STATE.PLAY) return
@@ -117,8 +117,8 @@ function start(opt) {
 }
 
 /**
- * Termina la registrazione
- * restituisce le actions registrate
+ * Finish the registration
+ * returns the registered actions
  * @returns {Action[]}
  */
 function stop() {
@@ -131,8 +131,8 @@ function stop() {
 }
 
 /**
- * aggiunge alle action un CHECK con payload la differenza con l'ultimo stato memorizzato (lastStoreState)
- * @param {boolean} shot se true ricattura lo stato dello store per il prossimo CHECK
+ * adds to the actions a CHECK with payload the difference with the last stored state (lastStoreState)
+ * @param {boolean} shot if true it recaptures the state of the store for the next CHECK
  */
 function checkDiff() {
 	const current = getAllStates(options)
@@ -154,7 +154,7 @@ function checkHash() {
 }
 
 /**
- * Aggiungo un action alle actions registrate
+ * I add an action to the registered actions
  * @param {object} action 
  */
 function add(action) {
@@ -163,9 +163,9 @@ function add(action) {
 }
 
 /**
- * Setta lo stato corrente. 
- * Effettuato all'inizio della registrazione 
- * per inizializzare lo store quando andrà in play
+ * Set the current state.
+ * Done at the beginning of the recording
+ * to initialize the store when it goes into play
  */
 function addCurrentState() {
 	lastStoreState = getAllStates(options)
@@ -176,7 +176,7 @@ function addCurrentState() {
 }
 
 /**
- * Attiva i subscribe per monitorare action e mutation dello store
+ * Activate subscribers to monitor the store's action and mutation
  */
 function startStoreSubscribe() {
 	const recAction = {
@@ -207,7 +207,7 @@ function startStoreSubscribe() {
 }
 
 /**
- * Elimina tutti i subscribe creati (se ci sono)
+ * Delete all subscribers created (if any)
  */
 function stopStoreSubscribe() {
 	removeWatch(listener)
