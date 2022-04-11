@@ -142,13 +142,13 @@ export function createStore(setup, name) {
 		/**
 		 * called when the STORE was removed
 		 */
-		_remove: () => {
-			for (const listener of store._watch) {
-				removeWatch(listener)
-			}
-		},
+		// _remove: () => {
+		// 	for (const listener of store._watch) {
+		// 		removeWatch(listener)
+		// 	}
+		// },
 
-		_watch: [],
+		//_watch: [],
 	}
 
 	/**
@@ -176,7 +176,7 @@ export function createStore(setup, name) {
 				if (newState == undefined) newState = store.state
 				const result = await setup.actions[key](newState, payload, store)
 
-				pluginEmit(EVENTS_TYPES.ACTION, store._name, key, payload, result, tmp)
+				pluginEmit(EVENTS_TYPES.ACTION, store, key, payload, result, tmp)
 				if (tmp == false) _block_subcall = false
 				return result
 			}
@@ -196,7 +196,7 @@ export function createStore(setup, name) {
 				if (newState == undefined) newState = store.state
 				const result = setup.actionsSync[key](store.state, payload, store)
 
-				pluginEmit(EVENTS_TYPES.ACTION_SYNC, store._name, key, payload, result, tmp)
+				pluginEmit(EVENTS_TYPES.ACTION_SYNC, store, key, payload, result, tmp)
 				if (tmp == false) _block_subcall = false
 				return result
 			}
@@ -218,7 +218,7 @@ export function createStore(setup, name) {
 					state = { ...state, ...stub }
 					// TODO: Questo evento va portato su "_dispatchReducer" perche' deve essere eseguito solo una volta.
 					// ora invece è eseguito per tutti i provider con lo stesso nome
-					pluginEmit(EVENTS_TYPES.MUTATION, store._name, key, payload, null, _block_subcall)
+					pluginEmit(EVENTS_TYPES.MUTATION, store, key, payload, null, _block_subcall)
 				}
 				return state
 			})
@@ -229,22 +229,22 @@ export function createStore(setup, name) {
 	/**
 	 * WATCH
 	 */
-	if (setup.watch) {
-		for (const storeName in setup.watch) {
-			const storeWatch = setup.watch[storeName]
+	// if (setup.watch) {
+	// 	for (const storeName in setup.watch) {
+	// 		const storeWatch = setup.watch[storeName]
 
-			for (const actionName in storeWatch) {
-				const callbackStore = storeWatch[actionName]
+	// 		for (const actionName in storeWatch) {
+	// 			const callbackStore = storeWatch[actionName]
 
-				const callbackPlugin = (msg) => {
-					callbackStore(store, msg.payload)
-				}
-				const listener = { storeName, actionName, callback: callbackPlugin }
-				addWatch(listener)
-				store._watch.push(listener)
-			}
-		}
-	}
+	// 			const callbackPlugin = (msg) => {
+	// 				callbackStore(store, msg.payload)
+	// 			}
+	// 			const listener = { storeName, actionName, callback: callbackPlugin }
+	// 			addWatch(listener)
+	// 			store._watch.push(listener)
+	// 		}
+	// 	}
+	// }
 
 	/**
 	 * MEMO

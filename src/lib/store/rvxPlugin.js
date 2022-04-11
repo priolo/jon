@@ -1,8 +1,8 @@
 /**
  * @typedef {import("./rvx").Store} Store
- * @typedef { {type:EVENTS_TYPES, storeName:string, key:string, payload:Object, result:Object, subcall:boolean} } WatchMessage
+ * @typedef { {type:EVENTS_TYPES, store:Store, key:string, payload:Object, result:Object, subcall:boolean} } WatchMessage
  * @typedef { (msg:WatchMessage)=>void } WatchCallback
- * @typedef { {storeName:string, actionName:string, callback:WatchCallback} } Listener
+ * @typedef { {store:Store, actionName:string, callback:WatchCallback} } Listener
  */
 
 /**
@@ -13,46 +13,48 @@ export const EVENTS_TYPES = {
 	ACTION: "action",
 	ACTION_SYNC: "action-sync",
 	MUTATION: "mutation",
-	STORE_ADD: "store-add",
-	STORE_REMOVE: "store-remove",
+	// STORE_ADD: "store-add",
+	// STORE_REMOVE: "store-remove",
 }
 
 /**
  * the registered LISTENERS
- * @type {Object.<string, Object.<string, Set.<WatchCallback> > >}
+ * @type {Map<Store,Object.<string, Set<WatchCallback>>>}
  */
-const listeners = {}
+const listeners = new Map()
 
 
 /**
  * Deliver the event to all registered LISTENERS
  * @param {EVENTS_TYPES} type 
- * @param {string} storeName 
- * @param {string} key 
- * @param {Object} payload 
+ * @param {Store} store 
+ * @param {string} key name of actionmutation
+ * @param {Object} payload of action/mutator
  * @param {Object} result 
  * @param {boolean} subcall 
  */
-export function pluginEmit(type, storeName, key, payload, result, subcall) {
+export function pluginEmit(type, store, key, payload, result, subcall) {
 
-	const msg = { type, storeName, key, payload, result, subcall }
+	const msg = { type, store, key, payload, result, subcall }
 
-	const callbacksJON = listeners["*"]?.["*"]
-	if ( callbacksJON ) {
-		for (const callback of callbacksJON) callback(msg)
-	}
+	// const callbacksJON = listeners["*"]?.["*"]
+	// if (callbacksJON) {
+	// 	for (const callback of callbacksJON) callback(msg)
+	// }
 
-	const callbacksStore = listeners[storeName]
-	if ( !callbacksStore ) return
+	if ( !listeners.has(store) ) return
 
-	const callbacksStoreJolly = callbacksStore["*"]
-	if ( callbacksStoreJolly ) {
+	const storeActions = listeners.get(store)
+	if (!storeActions) return
+
+	const callbacksStoreJolly = storeActions["*"]
+	if (callbacksStoreJolly) {
 		for (const callback of callbacksStoreJolly) callback(msg)
 	}
 
-	const callbacks = listeners[storeName][key]
+	// get all callbacks for the store and execute them
+	const callbacks = storeActions[key]
 	if (!callbacks) return
-
 	for (const callback of callbacks) callback(msg)
 }
 
@@ -61,26 +63,48 @@ export function pluginEmit(type, storeName, key, payload, result, subcall) {
  * Inserts a listener into JON
  * @param {Listener} param0 
  */
-export function addWatch({ storeName, actionName, callback }) {
-	let storeActions = listeners[storeName]
-	if (!storeActions) {
+export function addWatch({ store, actionName, callback }) {
+
+	let storeActions
+
+	// get or create storeActions
+	if (!listeners.has(store)) {
 		storeActions = {}
-		listeners[storeName] = storeActions
+		listeners.set(store, storeActions)
+	} else {
+		storeActions = listeners.get(store)
 	}
-	let action = storeActions[actionName]
-	if (!action) {
-		action = new Set()
-		storeActions[actionName] = action
+
+	// get or create action
+	let callbacks = storeActions[actionName]
+	if (!callbacks) {
+		callbacks = new Set()
+		storeActions[actionName] = callbacks
 	}
-	action.add(callback)
+
+	callbacks.add(callback)
 }
 
 /**
  * removes a listener from JON
  * @param {Listener} param0 
  */
-export function removeWatch({ storeName, actionName, callback }) {
-	const action = listeners[storeName]?.[actionName]
-	if (!action) return
-	action.delete(callback)
+export function removeWatch({ store, actionName, callback }) {
+
+	// if exist get storeActions
+	if ( !listeners.has(store) ) return
+	const storeActions = listeners.get(store)
+
+	// delete callback from storeActions
+	const callbacks = storeActions[actionName]
+	if ( callbacks ) callbacks.delete(callback)
+
+	// if there are no more callbacks for the store, delete the storeActions
+	if ( !callbacks || callbacks.size === 0) {
+		delete storeActions[actionName]
+	}
+	if (Object.keys(storeActions).length === 0) {
+		listeners.delete(store)
+	}
+
 }

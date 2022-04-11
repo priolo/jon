@@ -51,19 +51,19 @@ function mix ( store1, store2 ) {
 			...store1.actionsSync,
 			...store2.actionsSync,
 		},
-		watch: {
-			...store1.watch,
-			...store2.watch,
-		},
+		// watch: {
+		// 	...store1.watch,
+		// 	...store2.watch,
+		// },
 		// DA CONTROLLARE
-		init: (s)=> {
-			if (store1.init) store1.init(s)
-			if (store2.init) store2.init(s)
-		},
-		initAfter: (s)=> {
-			if (store1.initAfter) store1.initAfter(s)
-			if (store2.initAfter) store2.initAfter(s)
-		}
+		// init: (s)=> {
+		// 	if (store1.init) store1.init(s)
+		// 	if (store2.init) store2.init(s)
+		// },
+		// initAfter: (s)=> {
+		// 	if (store1.initAfter) store1.initAfter(s)
+		// 	if (store2.initAfter) store2.initAfter(s)
+		// }
 
 	}
 }
