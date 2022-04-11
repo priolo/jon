@@ -1,20 +1,39 @@
 import React from 'react'
-import { render, fireEvent, screen, act } from '@testing-library/react'
+import { render, fireEvent, waitFor, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
-import { getStore, MultiStoreProvider, useStore } from '../lib/store/rvxProviders'
+import { createStore, useStore} from '../lib/store/rvx'
+
+
+let myStore
+
+beforeEach(() => {
+	myStore = createStore({
+		state: {
+			value: "init value",
+		},
+		getters: {
+			getUppercase: (state) => state.value.toUpperCase(),
+		},
+		actions: {
+			changeValue: (state, value, store) => {
+				store.setValue(`${value}... from action!`)
+			}
+		},
+		mutators: {
+			setValue: (state, value) => ({ value }),
+		},
+	})
+})
 
 
 test('getters/mutators', async () => {
 
-	render(
-		<MultiStoreProvider setups={{ myStore: setupMyStore }}>
-			<TestView />
-			<TestCommand />
-		</MultiStoreProvider>
-	)
+	render(<>
+		<TestView />
+		<TestCommand />
+	</>)
 
-	// get myStore with reducer
-	const myStore = getStore("myStore")
+	// ha il valore iniziale?
 	expect(myStore.state.value).toBe("init value")
 
 	// change state value with reducer
@@ -30,15 +49,10 @@ test('getters/mutators', async () => {
 
 test('call action', async () => {
 
-	render(
-		<MultiStoreProvider setups={{ myStore: setupMyStore }}>
-			<TestView />
-			<TestCommand />
-		</MultiStoreProvider>
-	)
-
-	// get myStore with reducer
-	const myStore = getStore("myStore")
+	render(<>
+		<TestView />
+		<TestCommand />
+	</>)
 
 	// change state value with event (call action)
 	await fireEvent.click(screen.getByText('click'))
@@ -50,33 +64,12 @@ test('call action', async () => {
 
 })
 
-const setupMyStore = {
-	state: {
-		value: "init value",
-	},
-	getters: {
-		getUppercase: (state) => state.value.toUpperCase(),
-	},
-	actions: {
-		changeValue: (state, value, store) => {
-			store.setValue(`${value}... from action!`)
-		}
-	},
-	mutators: {
-		setValue: (state, value) => ({ value }),
-	},
-}
 
 function TestView() {
-
-	const { state } = useStore("myStore")
-
+	const state = useStore(myStore)
 	return <div data-testid="view">{state.value}</div>
 }
 
 function TestCommand() {
-
-	const { changeValue } = useStore("myStore")
-
-	return <button onClick={() => changeValue("new value")}>click</button>
+	return <button onClick={() => myStore.changeValue("new value")}>click</button>
 }

@@ -1,64 +1,79 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { render, fireEvent, waitFor, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
-import { getStore, MultiStoreProvider, setupStore, useStore } from '../lib/store/rvxProviders'
+import { createStore, useStore} from '../lib/store/rvx'
 
 /**
  * TEST riguardanti le ACTION dello STORE
  */
 
+let myStore
+
 beforeEach(() => {
-	// create CONTEXT and STORE
-	//setupStore({ myStore: setupMyStore })
+	myStore = createStore({
+		state: {
+			value: "init value",
+			responseValue: "",
+		},
+		actions: {
+			fetch: async (state, _, store) => {
+				// simulate http response
+				await new Promise((res) => setTimeout(res, 100))
+				store.setValue("new value")
+			},
+			processesValue: (state, _, store) => {
+				const valueTmp = state.value.toUpperCase()
+				store.setResponseValue(valueTmp)
+			},
+		},
+		mutators: {
+			setValue: (state, value) => ({ value }),
+			setResponseValue: (state, responseValue) => ({ responseValue }),
+		},
+	})
 })
 
 test('simply getStore', async () => {
 
-	render(
-		<MultiStoreProvider setups={{ myStore: setupMyStore }}>
-			<TestView />
-		</MultiStoreProvider>
-	)
+	render(<TestView />)
 
-	// get myStore with reducer
-	const myStoreWithReducer = getStore("myStore")
-	expect(myStoreWithReducer.state.value).toBe("init value")
+	expect(myStore.state.value).toBe("init value")
 
 	// change state value with reducer
-	await act(async () => myStoreWithReducer.fetch())
+	await act(async () => myStore.fetch())
 
 	expect(screen.getByTestId('view')).toHaveTextContent("new value")
 })
 
 test('simply useStore', async () => {
 
-	render(
-		<MultiStoreProvider setups={{ myStore: setupMyStore }}>
-			<TestView />
-		</MultiStoreProvider>
-	)
+	render(<TestView />)
 
-	// get myStore with reducer
-	const myStoreWithReducer = getStore("myStore")
-	expect(myStoreWithReducer.state.value).toBe("init value")
+	// verify if the value is initialized 
+	expect(myStore.state.value).toBe("init value")
 
 	// change state value with event
 	fireEvent.click(screen.getByText('click'))
 
+	// wait for the state to be updated
+	await new Promise( (res) => setTimeout(res, 200) )
+
+	// verify if the value is updated
 	await waitFor(() => expect(screen.getByTestId('view')).toHaveTextContent("new value"))
 })
 
+/*
 test('sync motator -> action', async () => {
 
 	function TestView() {
-		const { state, setValue, processesValue, _syncAct } = useStore("myStore")
+		const state = useStore(myStore)
 		const handleClick1 = () => {
-			setValue("pippo")
-			processesValue()
+			myStore.setValue("pippo")
+			myStore.processesValue()
 		}
 		const handleClick2 = async () => {
-			setValue("topolino")
-			_syncAct(processesValue)
+			myStore.setValue("topolino")
+			myStore._syncAct(myStore.processesValue)
 		}
 		return <div>
 			<button onClick={handleClick1}>click1</button>
@@ -67,11 +82,7 @@ test('sync motator -> action', async () => {
 		</div>
 	}
 
-	render(
-		<MultiStoreProvider setups={{ myStore: setupMyStore }}>
-			<TestView />
-		</MultiStoreProvider>
-	)
+	render(<TestView />)
 
 	// mi aspetto questo valore perche' "setValue" e "processValue" non sono sincronizzati
 	fireEvent.click(screen.getByText('click1'))	
@@ -81,35 +92,14 @@ test('sync motator -> action', async () => {
 	await waitFor(() => expect(screen.getByTestId('view')).toHaveTextContent("TOPOLINO"))
 
 })
-
-const setupMyStore = {
-	state: {
-		value: "init value",
-		responseValue: "",
-	},
-	actions: {
-		fetch: async (state, _, store) => {
-			// simulate http response
-			await new Promise((res) => setTimeout(res, 1000))
-			store.setValue("new value")
-		},
-		processesValue: (state, _, store) => {
-			const valueTmp = state.value.toUpperCase()
-			store.setResponseValue(valueTmp)
-		},
-	},
-	mutators: {
-		setValue: (state, value) => ({ value }),
-		setResponseValue: (state, responseValue) => ({ responseValue }),
-	},
-}
+*/
 
 function TestView() {
 
-	const { state, fetch } = useStore("myStore")
+	const state = useStore(myStore)
 
 	return (<div>
-		<button onClick={() => fetch()}>click</button>
+		<button onClick={() => myStore.fetch()}>click</button>
 		<div data-testid="view">{state.value}</div>
 	</div>)
 }

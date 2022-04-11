@@ -1,53 +1,25 @@
 import React from 'react'
 import { render, fireEvent, waitFor, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
-import { getStore, MultiStoreProvider, useStore } from '../lib/store/rvxProviders'
+import { createStore, useStore} from '../lib/store/rvx'
 
 
-
-test('same STORE in two different VIEW', async () => {
-
-	render(<>
-		<MultiStoreProvider setups={{ pippo: setupMyStore }} index={0}>
-			<TestView storeName="pippo" index={0}/>
-		</MultiStoreProvider>
-		<MultiStoreProvider setups={{ pippo: setupMyStore }} index={1}>
-			<TestView storeName="pippo" index={1}/>
-		</MultiStoreProvider>
-	</>)
-
-	const { fetch } = getStore("pippo")
-	await act(async () => await fetch("(get0)"))
-	await waitFor(() => expect(screen.getByTestId('view_pippo_0')).toHaveTextContent("new value (get0)"))
-	await waitFor(() => expect(screen.getByTestId('view_pippo_1')).toHaveTextContent("new value (get0)"))
-	
-	const { fetch:fetch1 } = getStore("pippo", 1)
-	await act(async () => await fetch1("(get1)"))
-	await waitFor(() => expect(screen.getByTestId('view_pippo_0')).toHaveTextContent("new value (get1)"))
-	await waitFor(() => expect(screen.getByTestId('view_pippo_1')).toHaveTextContent("new value (get1)"))
-
-	fireEvent.click(screen.getByText('click1'))
-	await waitFor(() => expect(screen.getByTestId('view_pippo_0')).toHaveTextContent("new value (use1)"))
-	await waitFor(() => expect(screen.getByTestId('view_pippo_1')).toHaveTextContent("new value (use1)"))
-})
-
-function TestView({ storeName, index }) {
-
-	const { state, fetch } = useStore(storeName, index)
-
-	return (<div>
-		<button onClick={() => fetch(`(use${index})`)}>click{index}</button>
-		<div data-testid={`view_${storeName}_${index}`}>{state.value}</div>
-	</div>)
-}
-
-const setupMyStore = {
+const store = {
 	state: {
 		value: "init value",
 	},
 	actions: {
-		fetch: async (state, post, store) => {
-			store.setValue(`new value ${post}`)
+		act: async (state, value, store) => {
+			store.setValue(`value: ${value}`)
+		},
+		actMulti: async (state, { value, index }, store) => {
+			store.setValue(`multi_value: ${value}`)
+			myStores[index].act(`multi-${value}`)
+		},
+		actFromAnotherStore: async (state, index, store) => {
+			const anotherStore = myStores[index]
+			const { state:anotherState} = anotherStore
+			store.act(anotherState.value)
 		}
 	},
 	mutators: {
@@ -55,4 +27,46 @@ const setupMyStore = {
 			return { value }
 		},
 	},
+}
+let myStores
+
+beforeEach(() => {
+	myStores = [
+		createStore(store),
+		createStore(store),
+	]
+})
+
+
+test('two different STORE in two VIEW', async () => {
+
+	render(<>
+		<TestView index={0}/>
+		<TestView index={1}/>
+	</>)
+
+	await act(async () => await myStores[0].act("code-0"))
+	fireEvent.click(screen.getByText('click1'))
+	await waitFor(() => expect(screen.getByTestId('view_0')).toHaveTextContent("value: code-0"))
+	await waitFor(() => expect(screen.getByTestId('view_1')).toHaveTextContent("value: click-1"))
+
+	await act(async () => await myStores[0].actMulti({value: "code-0", index: 1}))
+	await waitFor(() => expect(screen.getByTestId('view_0')).toHaveTextContent("multi_value: code-0"))
+	await waitFor(() => expect(screen.getByTestId('view_1')).toHaveTextContent("value: multi-code-0"))
+
+	await act(async () => await myStores[1].actFromAnotherStore(0))
+	await waitFor(() => expect(screen.getByTestId('view_1')).toHaveTextContent("value: multi_value: code-0"))
+
+	//screen.debug()
+})
+
+function TestView({ index }) {
+
+	const state = useStore(myStores[index])
+	const store = myStores[index]
+
+	return (<div>
+		<button onClick={() => store.act(`click-${index}`)}>click{index}</button>
+		<div data-testid={`view_${index}`}>{state.value}</div>
+	</div>)
 }

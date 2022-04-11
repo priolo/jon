@@ -1,21 +1,41 @@
 import React from 'react'
 import { render, fireEvent, waitFor, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
-import { getStore, MultiStoreProvider, useStore } from '../lib/store/rvxProviders'
+import { createStore, useStore} from '../lib/store/rvx'
 
 /**
  * TEST riguardanti le ACTION dello STORE
  */
 
+ let myStore
+
+ beforeEach(() => {
+	 myStore = createStore({
+		state: {
+			value: "init value",
+		},
+		getters: {
+			getValue: (state, _, store) => {
+				return state.value.toUpperCase()
+			}
+		},
+		actions: {
+			changeValue: async (state, value, store) => {
+				store.setValue(`${value} from action`)
+			}
+		},
+		mutators: {
+			setValue: (state, value) => {
+				return { value }
+			},
+		},
+	 })
+ })
+
 test('simply getStore', async () => {
 
-	render(
-		<MultiStoreProvider setups={{ myStore: setupMyStore }}>
-			<TestView />
-		</MultiStoreProvider>
-	)
+	render(<TestView />)
 
-	const myStore = getStore("myStore")
 	expect(myStore.state.value).toBe("init value")
 	expect(myStore.getValue()).toBe("INIT VALUE")
 
@@ -28,13 +48,8 @@ test('simply getStore', async () => {
 
 test('simply useStore', async () => {
 
-	render(
-		<MultiStoreProvider setups={{ myStore: setupMyStore }}>
-			<TestView />
-		</MultiStoreProvider>
-	)
+	render(<TestView />)
 
-	const myStore = getStore("myStore")
 	expect(myStore.state.value).toBe("init value")
 	expect(myStore.getValue()).toBe("INIT VALUE")
 
@@ -46,33 +61,12 @@ test('simply useStore', async () => {
 	})
 })
 
-const setupMyStore = {
-	state: {
-		value: "init value",
-	},
-	getters: {
-		getValue: (state, _, store) => {
-			return state.value.toUpperCase()
-		}
-	},
-	actions: {
-		changeValue: async (state, value, store) => {
-			store.setValue(`${value} from action`)
-		}
-	},
-	mutators: {
-		setValue: (state, value) => {
-			return { value }
-		},
-	},
-}
-
 function TestView() {
 
-	const { state, changeValue, getValue } = useStore("myStore")
+	useStore(myStore)
 
 	return (<div>
-		<button onClick={() => changeValue("new-value")}>click</button>
-		<div data-testid="view">{getValue()}</div>
+		<button onClick={() => myStore.changeValue("new-value")}>click</button>
+		<div data-testid="view">{myStore.getValue()}</div>
 	</div>)
 }

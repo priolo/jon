@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { addWatch, EVENTS_TYPES, pluginEmit, removeWatch } from "./rvxPlugin";
 
 //#region TYPEDEF
@@ -33,6 +34,26 @@ import { addWatch, EVENTS_TYPES, pluginEmit, removeWatch } from "./rvxPlugin";
 //#endregion
 
 
+// export function useStore(store) {
+// 	return useSyncExternalStore(
+// 		store._subscribe,
+// 		() => store.state
+// 	)
+// }
+
+export function useStore(store) {
+	const [state, setState] = useState(() => store.state)
+
+	useEffect(() => {
+		const callback = () => setState(store.state)
+		const unsubscribe = store._subscribe(callback)
+		callback()
+		return unsubscribe
+	}, [store])
+
+	return state
+}
+
 
 /**@type {boolean} Indicates whether the last block of code was called internally at the store or not */
 let _block_subcall = false
@@ -47,40 +68,35 @@ export function createStore(setup, name) {
 	/**@type {Store} */
 	let store = {
 
+		// [II] clonare
+		state: setup.state,
+
 		/**
 		 * The registration name of the STORE in JON
 		 */
-		_name: name,
+		//_name: name,
 
-		/**
-		 * React useStates containing the "reactive" state
-		 * is an array perce 'it could be spread on more components
-		 */
-		_reducers: [],
+		_listeners: new Set(),
 
-		/**
-		 * get STATE of the STORE
-		 * @returns {Object}
-		 */
-		get state() {
-			return store._reducers[0]?.[0]
+		_subscribe: (listener) => {
+			store._listeners.add(listener)
+			return () => store._listeners.delete(listener)
 		},
 
-		// "reducers" to make a change to the STATE
-		_dispatchState: (state) => {
-			return store._reducers.forEach(reducer => {
-				reducer[1](state)
-			})
-		},
+		// // "reducers" to make a change to the STATE
+		// _dispatchState: (state) => {
+		// 	return store._reducers.forEach(reducer => {
+		// 		reducer[1](state)
+		// 	})
+		// },
 
 		/**
 		 * Called by the MUTATOR to make a change to the STATE
 		 * @param {(state:Object)=>Object} fn reducer (oldState) => newState 
 		 */
 		_dispatchReducer: (fn) => {
-			store._reducers.forEach(reducer => {
-				reducer[1](fn)
-			})
+			store.state = fn(store.state)
+			store._listeners.forEach(listener => listener())
 		},
 
 		/**
@@ -88,48 +104,40 @@ export function createStore(setup, name) {
 		 * @param {Object} payload se è null aggiorna lo STORE con lo stesso STATE di prima
 		 * @returns {Object}
 		 */
-		_update: payload => {
-			const state = payload ?? { ...store.state }
-			return store._dispatchState(state)
-		},
+		// _update: payload => {
+		// 	const state = payload ?? { ...store.state }
+		// 	return store._dispatchState(state)
+		// },
 
-		// allows you to call an "action" in order to be synchronized with the "mutations"
-		_syncAct: async (action, payload) => {
-			// TO DO: dovrebbe attendere tutti i reducers e non solo il primo
-			return new Promise((res, rej) => {
-				store._reducers.forEach(red => {
-					red[1](async (state) => {
-						const ret = await action(payload, state)
-						res(ret)
-						return state
-					})
-				})
-			})
-		},
-
-		/**
-		 * [TODO] MEMO
-		 * restituiscono il valore memorizzato se il payload non è cambiato dal precedente esecuzione
-		 * altrimenti eseguono la funzione e memorizza il risultato
-		 */
-		_memo: async (action, payload) => {
-		},
+		// // allows you to call an "action" in order to be synchronized with the "mutations"
+		// _syncAct: async (action, payload) => {
+		// 	// TO DO: dovrebbe attendere tutti i reducers e non solo il primo
+		// 	return new Promise((res, rej) => {
+		// 		store._reducers.forEach(red => {
+		// 			red[1](async (state) => {
+		// 				const ret = await action(payload, state)
+		// 				res(ret)
+		// 				return state
+		// 			})
+		// 		})
+		// 	})
+		// },
 
 		/**
 		 * called upon store initialization
 		 * before ALL stores are initialized
 		 */
-		_init: () => {
-			if (setup.init) setup.init(store)
-		},
+		// _init: () => {
+		// 	if (setup.init) setup.init(store)
+		// },
 
 		/**
 		 * called upon store initialization
 		 * when all the stores have been initialized
 		 */
-		_initAfter: () => {
-			if (setup.initAfter) setup.initAfter(store)
-		},
+		// _initAfter: () => {
+		// 	if (setup.initAfter) setup.initAfter(store)
+		// },
 
 		/**
 		 * called when the STORE was removed
