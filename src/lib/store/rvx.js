@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
-import { addWatch, EVENTS_TYPES, pluginEmit, removeWatch } from "./rvxPlugin";
+import { useEffect, useState, useSyncExternalStore } from 'react';
+import { EVENTS_TYPES, pluginEmit } from "./rvxPlugin";
 
 //#region TYPEDEF
 
@@ -34,14 +34,14 @@ import { addWatch, EVENTS_TYPES, pluginEmit, removeWatch } from "./rvxPlugin";
 //#endregion
 
 
-// export function useStore(store) {
-// 	return useSyncExternalStore(
-// 		store._subscribe,
-// 		() => store.state
-// 	)
-// }
-
 export function useStore(store) {
+	return useSyncExternalStore(
+		store._subscribe,
+		() => store.state
+	)
+}
+
+export function useStore17(store) {
 	const [state, setState] = useState(() => store.state)
 
 	useEffect(() => {
@@ -71,24 +71,14 @@ export function createStore(setup, name) {
 		// [II] clonare
 		state: setup.state,
 
-		/**
-		 * The registration name of the STORE in JON
-		 */
-		//_name: name,
-
+		// the listeners that are watching the store
 		_listeners: new Set(),
 
+		// add listener to the store
 		_subscribe: (listener) => {
 			store._listeners.add(listener)
 			return () => store._listeners.delete(listener)
 		},
-
-		// // "reducers" to make a change to the STATE
-		// _dispatchState: (state) => {
-		// 	return store._reducers.forEach(reducer => {
-		// 		reducer[1](state)
-		// 	})
-		// },
 
 		/**
 		 * Called by the MUTATOR to make a change to the STATE
@@ -98,57 +88,6 @@ export function createStore(setup, name) {
 			store.state = fn(store.state)
 			store._listeners.forEach(listener => listener())
 		},
-
-		/**
-		 * called to replace and update the STATE
-		 * @param {Object} payload se è null aggiorna lo STORE con lo stesso STATE di prima
-		 * @returns {Object}
-		 */
-		// _update: payload => {
-		// 	const state = payload ?? { ...store.state }
-		// 	return store._dispatchState(state)
-		// },
-
-		// // allows you to call an "action" in order to be synchronized with the "mutations"
-		// _syncAct: async (action, payload) => {
-		// 	// TO DO: dovrebbe attendere tutti i reducers e non solo il primo
-		// 	return new Promise((res, rej) => {
-		// 		store._reducers.forEach(red => {
-		// 			red[1](async (state) => {
-		// 				const ret = await action(payload, state)
-		// 				res(ret)
-		// 				return state
-		// 			})
-		// 		})
-		// 	})
-		// },
-
-		/**
-		 * called upon store initialization
-		 * before ALL stores are initialized
-		 */
-		// _init: () => {
-		// 	if (setup.init) setup.init(store)
-		// },
-
-		/**
-		 * called upon store initialization
-		 * when all the stores have been initialized
-		 */
-		// _initAfter: () => {
-		// 	if (setup.initAfter) setup.initAfter(store)
-		// },
-
-		/**
-		 * called when the STORE was removed
-		 */
-		// _remove: () => {
-		// 	for (const listener of store._watch) {
-		// 		removeWatch(listener)
-		// 	}
-		// },
-
-		//_watch: [],
 	}
 
 	/**
@@ -225,43 +164,6 @@ export function createStore(setup, name) {
 			return acc
 		}, store)
 	}
-
-	/**
-	 * WATCH
-	 */
-	// if (setup.watch) {
-	// 	for (const storeName in setup.watch) {
-	// 		const storeWatch = setup.watch[storeName]
-
-	// 		for (const actionName in storeWatch) {
-	// 			const callbackStore = storeWatch[actionName]
-
-	// 			const callbackPlugin = (msg) => {
-	// 				callbackStore(store, msg.payload)
-	// 			}
-	// 			const listener = { storeName, actionName, callback: callbackPlugin }
-	// 			addWatch(listener)
-	// 			store._watch.push(listener)
-	// 		}
-	// 	}
-	// }
-
-	/**
-	 * MEMO
-	 * restituiscono il valore memorizzato se il payload non è cambiato dal precedente esecuzione
-	 * altrimenti eseguono la funzione e memorizza il risultato
-	 * TO DO
-	 */
-	// if (setup.memo) {
-	// 	store = Object.keys(setup.memo).reduce((acc, key) => {
-	// 		acc[key] = payload => store.d(state => {
-	// 			const stub = setup.mutators[key](state, payload, store, store._bundle);
-	// 			if ( stub == null ) return state;
-	// 			return { ...state, ...stub };
-	// 		});
-	// 		return acc;
-	// 	}, store)
-	// }
 
 	return store
 }

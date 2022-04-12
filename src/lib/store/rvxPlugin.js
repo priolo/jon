@@ -13,8 +13,6 @@ export const EVENTS_TYPES = {
 	ACTION: "action",
 	ACTION_SYNC: "action-sync",
 	MUTATION: "mutation",
-	// STORE_ADD: "store-add",
-	// STORE_REMOVE: "store-remove",
 }
 
 /**
@@ -36,11 +34,6 @@ const listeners = new Map()
 export function pluginEmit(type, store, key, payload, result, subcall) {
 
 	const msg = { type, store, key, payload, result, subcall }
-
-	// const callbacksJON = listeners["*"]?.["*"]
-	// if (callbacksJON) {
-	// 	for (const callback of callbacksJON) callback(msg)
-	// }
 
 	if ( !listeners.has(store) ) return
 

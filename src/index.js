@@ -1,11 +1,11 @@
 
-import { MultiStoreProvider, getStore, useStore } from './lib/store/rvxProviders'
-import { getAllStates, setAllState, options, ENVIROMENTS } from './lib/store/rvxUtils'
+import { createStore, useStore } from './lib/store/rvx'
 import mixStores from './lib/store/mixStores'
-
 import { useValidator, validateAll, resetAll } from './lib/input/validator'
-import { rules } from './lib/input/rules'
 
+
+
+import { options, ENVIROMENTS } from './lib/store/rvxUtils'
 import recorder, { RECORDER_ACTIONS, RECORDER_STATE } from "./lib/test/recorder"
 import player from "./lib/test/player"
 
@@ -13,13 +13,14 @@ import player from "./lib/test/player"
 
 // store
 export {
-	MultiStoreProvider,
-	getStore,
+	createStore,
 	useStore,
 	mixStores,
 
-	getAllStates,
-	setAllState,
+	useValidator,
+	validateAll,
+	resetAll,
+
 	options,
 	ENVIROMENTS,
 }
@@ -30,10 +31,3 @@ export {
 	player
 }
 
-// validate, ref
-export {
-	useValidator,
-	validateAll,
-	resetAll,
-	rules,
-}
