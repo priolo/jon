@@ -10,8 +10,7 @@ import { EVENTS_TYPES, pluginEmit } from "./rvxPlugin";
 /**
  * @typedef {(state:Object, props:Object, store:Store)=>Object} CallStoreSetup
  * @typedef {(props:Object)=>Object} CallStore
- * @typedef {Object.<string,Object.<string,(store:Store,value:*)=>void>>} Watch
- */
+  */
 
 /**
  * @typedef {Object} StoreSetup 
@@ -20,14 +19,11 @@ import { EVENTS_TYPES, pluginEmit } from "./rvxPlugin";
  * @property  {Object.<string,CallStoreSetup>} actions
  * @property  {Object.<string,CallStoreSetup>} actionsSync
  * @property  {Object.<string,CallStoreSetup>} mutators
- * @property  {Watch} watch
  */
 
 /**
  * @typedef {Object} Store
- * @property {string} _name
  * @property {Object} state
- * @property {Listener[]} _watch
  * @property {...Object.<string, CallStore>}
  */
 
@@ -42,12 +38,13 @@ export function useStore(store) {
 }
 
 export function useStore17(store) {
-	const [state, setState] = useState(() => store.state)
+	const [state, setState] = useState(store.state)
 
 	useEffect(() => {
-		const callback = () => setState(store.state)
-		const unsubscribe = store._subscribe(callback)
-		callback()
+		const listener = (s) => {
+			setState(s)
+		}
+		const unsubscribe = store._subscribe(listener)
 		return unsubscribe
 	}, [store])
 
@@ -85,8 +82,10 @@ export function createStore(setup, name) {
 		 * @param {(state:Object)=>Object} fn reducer (oldState) => newState 
 		 */
 		_dispatchReducer: (fn) => {
-			store.state = fn(store.state)
-			store._listeners.forEach(listener => listener())
+			const state = fn(store.state)
+			if (state == null) return
+			store.state = state
+			store._listeners.forEach(listener => listener(store.state))
 		},
 	}
 
@@ -95,9 +94,8 @@ export function createStore(setup, name) {
 	 */
 	if (setup.getters) {
 		store = Object.keys(setup.getters).reduce((acc, key) => {
-			acc[key] = (payload, newState) => {
-				if (newState == undefined) newState = store.state
-				return setup.getters[key](newState, payload, store)
+			acc[key] = (payload) => {
+				return setup.getters[key](store.state, payload, store)
 			}
 			return acc
 		}, store)
@@ -108,12 +106,11 @@ export function createStore(setup, name) {
 	 */
 	if (setup.actions) {
 		store = Object.keys(setup.actions).reduce((acc, key) => {
-			acc[key] = async (payload, newState) => {
+			acc[key] = async (payload) => {
 				const tmp = _block_subcall
 				if (tmp == false) _block_subcall = true
 
-				if (newState == undefined) newState = store.state
-				const result = await setup.actions[key](newState, payload, store)
+				const result = await setup.actions[key](store.state, payload, store)
 
 				pluginEmit(EVENTS_TYPES.ACTION, store, key, payload, result, tmp)
 				if (tmp == false) _block_subcall = false
@@ -128,11 +125,10 @@ export function createStore(setup, name) {
 	 */
 	if (setup.actionsSync) {
 		store = Object.keys(setup.actionsSync).reduce((acc, key) => {
-			acc[key] = (payload, newState) => {
+			acc[key] = (payload) => {
 				const tmp = _block_subcall
 				if (tmp == false) _block_subcall = true
 
-				if (newState == undefined) newState = store.state
 				const result = setup.actionsSync[key](store.state, payload, store)
 
 				pluginEmit(EVENTS_TYPES.ACTION_SYNC, store, key, payload, result, tmp)
@@ -151,14 +147,12 @@ export function createStore(setup, name) {
 			acc[key] = payload => store._dispatchReducer(state => {
 				const stub = setup.mutators[key](state, payload, store)
 				// if the "mutator" returns "null" then I do nothing
-				if (stub == null) return state
-				// to optimize check if there is any change
-				if (Object.keys(stub).some(key => stub[key] != state[key])) {
-					state = { ...state, ...stub }
-					// TODO: Questo evento va portato su "_dispatchReducer" perche' deve essere eseguito solo una volta.
-					// ora invece è eseguito per tutti i provider con lo stesso nome
-					pluginEmit(EVENTS_TYPES.MUTATION, store, key, payload, null, _block_subcall)
-				}
+				if (stub == null) return null
+				// to optimize check if there is any change and dispath on plugins
+				if (Object.keys(stub).every(key => stub[key] == state[key])) return null
+
+				state = { ...state, ...stub }
+				pluginEmit(EVENTS_TYPES.MUTATION, store, key, payload, null, _block_subcall)
 				return state
 			})
 			return acc

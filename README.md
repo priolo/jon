@@ -21,10 +21,8 @@
 `npm install @priolo/jon`
 
 ### Create STORE and PROVIDER
-`my_app/index.js`
 ```jsx
-import App from "./App";
-import { MultiStoreProvider } from '@priolo/jon';
+import { createStore, useStore } from '@priolo/jon';
 
 // SETUP of STORE
 const mySetup = {
@@ -44,23 +42,14 @@ const mySetup = {
 	}
 }
 
-// APP creation with PROVIDER
-ReactDOM.render(
-	<MultiStoreProvider setups={{myStore:mySetup}}>
-		<App />
-	</MultiStoreProvider>,
-	document.getElementById("root")
-);
-```
+// CREATE STORE
+const myStore = createStore(mySetup)
 
-### Use STORE
-`my_app/App.js`
-```jsx
-import { useStore } from "@priolo/jon";
+// USE STORE
+function App() {
 
-export default function App() {
-
-  const { state, setValue, getUppercase } = useStore("myStore")
+  const state = useStore(myStore) // useStore17 if React version is < 18
+  const { setValue, getUppercase } = myStore
 
   return (<div>
 	<h1>{state.value}</h1><h2>{getUppercase()}</h2>
@@ -70,7 +59,14 @@ export default function App() {
 	/>
   </div>);
 }
+
+// React 18
+const root = ReactDOM.createRoot(document.getElementById('root'))
+root.render(<React.StrictMode><App /></React.StrictMode>)
+// React <=17
+//ReactDOM.render(<App />, document.getElementById("root") )
 ```
+
 
 [codesandbox](https://codesandbox.io/s/example-1-5d2tt)
 

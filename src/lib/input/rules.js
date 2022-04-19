@@ -4,7 +4,6 @@ import { Validator } from "@priolo/jon-utils"
 
 /**
  * rules to apply to validators
- * @deprecated use the utilities in jon-utils
  */
 export const rules = {
 
