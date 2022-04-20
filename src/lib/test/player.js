@@ -17,7 +17,6 @@ import utils from "@priolo/jon-utils";
 /**
  * Indicates whether to use DIFF or HASH for the check
  * @readonly
- * @enum {number}
  */
 const PLAY_LOG_TYPE = {
 	CHECK_DIFF_FAIL: 0,

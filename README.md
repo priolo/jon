@@ -390,6 +390,33 @@ export function async apiIndex () {
 }
 ```
 
+## Bind two value of distinct STOREs
+
+```js
+import { createStore, addWatch } from "@priolo/jon"
+
+const setup = {
+	state: {
+		value: "init value",
+	},
+	mutators: {
+		setValue: (state, value) => ({ value }),
+	},
+})
+
+const store1 = createStore(setup)
+const store2 = createStore(setup)
+
+// bind "store1.value" with "store2.value" 
+addWatch({
+	store: store1,
+	actionName: "setValue",
+	callback: ({ type, store, key, payload }) => {
+		const store1 = store
+		store2.setValue(store1.state.value)
+	}
+})
+```
 
 # ROADMAP
 
