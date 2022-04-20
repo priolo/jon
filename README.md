@@ -2,10 +2,9 @@
 [Jon](https://github.com/priolo/jon)
 
 # INDEX
-- [Quick start](#quick-start)  
-	- [Installation](#installation)  
-	- [Create STORE and PROVIDER](#create-store-and-provider)  
-	- [Use STORE](#use-store)  
+- [Installation](#installation)  
+- [Create STORE and VIEW](#create-store-and-view)  
+- [Use STORE](#use-store)  
 - [Examples](#examples)
 - [What we have done?](#what-we-have-done)
 - [Why](#why)
@@ -14,17 +13,15 @@
 - [API](./res/api/index.md)
 
 
-# Quick start
-
 ### Installation
 
 `npm install @priolo/jon`
 
-### Create STORE and PROVIDER
+### Create STORE and VIEW
 ```jsx
 import { createStore, useStore } from '@priolo/jon';
 
-// SETUP of STORE
+// create STORE-SETUP
 const mySetup = {
 	state: {
 		value: "init value"
@@ -42,10 +39,10 @@ const mySetup = {
 	}
 }
 
-// CREATE STORE
+// create STORE
 const myStore = createStore(mySetup)
 
-// USE STORE
+// use STORE in VIEW
 function App() {
 
   const state = useStore(myStore) // useStore17 if React version is < 18
@@ -79,11 +76,19 @@ root.render(<React.StrictMode><App /></React.StrictMode>)
 
 # What we have done?
 
-We have implemented a React PROVIDER-PATTERN with JON
+We have implemented a React STORE-PATTERN with JON  
+<https://refactoring.guru/design-patterns/state>  
+Nelle versioni precedenti di JON (0.4) avveniva tramiti i CONTEXT  
+Con il vantaggio di non dover sottoscrivere un listener,  
+inoltre lo stato risiede SOLO nel CONTEXT  
+Lo svantaggio è che la VIEW si aggiorna per tutte le modifiche degli STOREs.  
+Questo problema si può evitare usando "memo" ma aumenta la complessità.  
+Nella nell'ultima versione (0.5) JON usa i listener (OBSERVABLE-PATTERN).  
+Permette di aggiornare l'albero della VIEW solo dal punto in cui avviene una modifica.
 
 ## STORE-SETUP
 
-First of all we have created a STORE-SETUP
+First of all we have created a STORE-SETUP  
 (VUEX users will recognize the "style")
 
 ```jsx
@@ -112,9 +117,9 @@ The value of the STORE right now!
 Inside is all the data needed to render the page.  
 For example: the selected tab, texts in the textboxes, array for the lists etc etc ...  
 So you know the "useState" scattered on the various components? Now (those values) are in one place!  
-- The STATE is a JSON so there should be no complex objects (only string and number)  
+- The STATE is a JSON so there should be no complex objects (only string or number)  
 and ESPECIALLY no reference to external objects!  
-- It is unique. That is, if I have a STATE it always displays the same VIEW  
+- It is IMMUTABLE. That is, if I have a STATE it always displays the same VIEW  
 
 So we have very cool features: Automatic Tests, Remote Synchronizations, Time Travel ...  
 
@@ -125,12 +130,15 @@ They are functions that return a value ... typically a property of the STATE bei
 A classic example is the concatenation of the first and last name:  
 
 ```js
-getters: {
-	getName: (state) => `${state.firstName} ${state.lastName}`
+const setup = {
+	...
+	getters: {
+		getName: (state) => `${state.firstName} ${state.lastName}`
+	}
 }
 ```
 
-- They are pure functions and can only use the STATE, other GETTERS of the same STORE in addition, of course, to the `payload`
+- They are PURE FUNCTIONS and can only use the STATE, other GETTERS of the same STORE in addition, of course, to the `payload`
 - Always return a value
 
 However ALL the functions of the STORE have this signature:  
@@ -153,7 +161,8 @@ These functions also have signature:
 
 ### MUTATORS
 
-- The only functions that change the STATE
+- the only functions that can replace one STATE with another STATE   
+  (STATEs are by themselves immutable)
 - They accept a STATE and possibly a paylod and return the new modified STATE
 
 So if you were to have a STATE:  
@@ -179,65 +188,57 @@ actions: {
 the STATE will become   
 `{ firstName: "", lastName: "Rossi" }`  
 
+## CREATE STORE
 
-## MULTI-PROVIDER
-
-So we have created a MULTI-STORE-PROVIDER
-even if in this example there is only one STORE
+Usare il SETUP dello STORE come TEMPLATE per creare un istanza di STORE
 
 ```jsx
-<MultiStoreProvider setups={{myStore:mySetup}}>
-	<App />
-</MultiStoreProvider>
+import { createStore } from "@priolo/jon"
+
+const mySetup = { ... }
+
+const store = createStore(mySetup)
+export default store
 ```
 
-- `mySetup`: object described above
-- `myStore`: identifying name (and unique) of the STORE
-
-In the PROVIDER there is the instance of the STORE
-He eventually updates his `children` components.
-
+Esportare L'istanza dello STORE ed il gioco è fatto!
 
 ## REACT-COMPONENTS
 
-At this point we can use the created STOREs
-inside the React components through the HOOKS
+Nella VIEW, chiamando `useStore`,
+mi metto in ascolto sui cambiamenti dello STATE.
+Se cio' avviene l'intero componente è aggiornato.
 
 ```jsx
-import { useStore } from "@priolo/jon";
+import { useStore } from "@priolo/jon"
+import myStore from "stores/myStore"
 
 export default function App() {
 
-  const { state, setValue, getUppercase } = useStore("myStore")
+  	const myState = useStore(myStore)
+	const { setValue, getUppercase } = myStore
 
-  return (<div>
-	<h1>{state.value}</h1><h2>{getUppercase()}</h2>
-	<input 
-		value={state.value} 
-		onChange={(e)=>setValue(e.target.value)} 
-	/>
-  </div>);
+  	return (<div>
+		<h1>{myState.value}</h1><h2>{getUppercase()}</h2>
+		<input 
+			value={state.value} 
+			onChange={(e)=>setValue(e.target.value)} 
+		/>
+	</div>)
 }
 ```
 
-`useStore` allows you to pull into the STORE (by its name).  
-Destructuring it yields: `state`,` actions`, `getters` and` mutators`.  
-Note that the functions previously defined in STORE-SETUP now only need the `payload`  
-`state` and` store` will be passed automatically by JON  
+Note that the functions previously defined in STORE-SETUP now only need the `payload`.  
+The `state` and` store` will be passed automatically by JON  
 (for example `getUppercase ()` and `setValue (value)`).   
 
 # FAQ
 
 ## Why?
 
-JON is designed to be VERY VERY LIGHT and integrated with React.  
-Basically it is a utility to use native [PROVIDERS](https://it.reactjs.org/docs/hooks-reference.html#usecontext), [Take a look!](https://github.com/priolo/jon/blob/develop/src/lib/store/rvxProviders.jsx)... and this is all
+JON is designed to be VERY VERY LIGHT, [Take a look!](https://github.com/priolo/jon/blob/develop/src/lib/store/rvxProviders.jsx)... and this is all
 
 ![logo](./res/schema1.png)
-
-also, for development, you can use "React Developer Tools"  
-
-![chrome inspector](res/screenshot1.png)
 
 ## Is Production Ready?
 
@@ -262,10 +263,13 @@ To optimize a component that uses STOREs:
 ```jsx
 import React, { useMemo } from "react";
 import { useStore } from "@priolo/jon";
+import myStore from "stores/mystore";
+
 
 export default function Cmp () {
 
-	const { state, setValue } = useStore("myStore")
+	const state = useStore(myStore)
+	const { setValue } = myStore
 
 	return useMemo( ()=>(<div>
 
@@ -326,71 +330,65 @@ To be able to distribute the code on more files
 
 ```js
 import mixStores from "@priolo/jon"
-import store2 from "./store2"
 
-const storeBaseAbstract = {
+const setupBaseAbstract = {
 	state: { ... },
 	getters: { ... },
 	actions: { ... },
 	mutators: { ... }
 }
 
-const storeConcrete = {
+const setupConcrete = {
 	state: { ... },
 	getters: { ... },
 	actions: { ... },
 	mutators: { ... }
 }
 
-export default mixStores(storeBaseAbstract, storeConcrete)
+const setup = mixStores(setupBaseAbstract, setupConcrete)
 ```
 
 ## Using a "**store**" inside another "**store**"
 `/stores/layout.js`
 ```js
-export default {
+import { createStore } from "@priolo/jon"
+
+export default createStore({
 	...
 	actions: { 
-		dialogOpen: (state, payload, store) => {
+		dialogOpen: (state, _, store) => {
 			...
 		},
-	},
+	},)
 }
 ```
-`/stores/store2.js`
+`/stores/user.js`
 ```js
-import { getStore } from "@priolo/jon"
+import { createStore } from "@priolo/jon"
+import layoutStore from "../layout"
 
-export default {
+export default createStore({
 	...
 	actions: {
-		save: (state, payload, store) => {
-			const { dialogOpen } = getStore("layout")
-			dialogOpen()
+		save: async (state, _, store) => {
+			...
+			layoutStore.dialogOpen()
 		}
 	},
-}
+})
 ```
 
 ## Using a "**store**" in an external function
 
-`/stores/store2.js`
+`/ws/command.js`
 ```js
-import { getStore } from "@priolo/jon"
+import userStore from "stores/user"
 
 export function async apiIndex () {
-	const { state, myAction, myGetter, myMutator } = getStore("myStore")
-	// the "actions" can be asynchronous
-	// and can return a value
-	const {data} = await myAction()
-	console.log(state.value)
+	await userStore.save()
+	console.log(userStore.state.value)
 }
 ```
-
-
-## Check a "**store**" from the inspector
-
-![chrome inspector](res/screenshot1.png)
 
 
 # ROADMAP
