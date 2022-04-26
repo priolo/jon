@@ -244,7 +244,7 @@ The `state` and` store` will be passed automatically by JON
 
 ## WHY?
 
-JON is designed to be VERY VERY VERY LIGHT, [Take a look!](https://github.com/priolo/jon/blob/develop/src/lib/store/rvxProviders.jsx)... and this is all
+JON is designed to be VERY VERY VERY LIGHT, [Take a look!](https://github.com/priolo/jon/blob/master/src/lib/store/rvx.js)... and this is all
 
 ![logo](./res/schema1.png)
 
