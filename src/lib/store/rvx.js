@@ -1,3 +1,4 @@
+import utils from '@priolo/jon-utils';
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import { EVENTS_TYPES, pluginEmit } from "./rvxPlugin";
 
@@ -10,7 +11,7 @@ import { EVENTS_TYPES, pluginEmit } from "./rvxPlugin";
 /**
  * @typedef {(state:Object, props:Object, store:Store)=>Object} CallStoreSetup
  * @typedef {(props:Object)=>Object} CallStore
-  */
+ */
 
 /**
  * @typedef {Object} StoreSetup 
@@ -29,7 +30,11 @@ import { EVENTS_TYPES, pluginEmit } from "./rvxPlugin";
 
 //#endregion
 
-
+/**
+ * HOOK to use the STORE in React v18
+ * @param {Store} store 
+ * @returns {Object}
+ */
 export function useStore(store) {
 	return useSyncExternalStore(
 		store._subscribe,
@@ -37,6 +42,11 @@ export function useStore(store) {
 	)
 }
 
+/**
+ * HOOK to use the STORE in React v17
+ * @param {Store} store 
+ * @returns {Object}
+ */
 export function useStore17(store) {
 	const [state, setState] = useState(store.state)
 
@@ -52,7 +62,7 @@ export function useStore17(store) {
 }
 
 
-/**@type {boolean} Indicates whether the last block of code was called internally at the store or not */
+/** @type {boolean} Indicates whether the last block of code was called internally at the store or not */
 let _block_subcall = false
 
 /**
@@ -65,8 +75,8 @@ export function createStore(setup, name) {
 	/**@type {Store} */
 	let store = {
 
-		// [II] clonare
-		state: setup.state,
+		// the current state of the store
+		state: utils.cloneDeep(setup.state),
 
 		// the listeners that are watching the store
 		_listeners: new Set(),
@@ -83,7 +93,7 @@ export function createStore(setup, name) {
 		 */
 		_dispatchReducer: (fn) => {
 			const state = fn(store.state)
-			if (state == null) return
+			if (state == undefined) return
 			store.state = state
 			store._listeners.forEach(listener => listener(store.state))
 		},
@@ -122,6 +132,7 @@ export function createStore(setup, name) {
 
 	/**
 	 * ACTION SYNC
+	 * [II] Da eliminare
 	 */
 	if (setup.actionsSync) {
 		store = Object.keys(setup.actionsSync).reduce((acc, key) => {
@@ -145,11 +156,12 @@ export function createStore(setup, name) {
 	if (setup.mutators) {
 		store = Object.keys(setup.mutators).reduce((acc, key) => {
 			acc[key] = payload => store._dispatchReducer(state => {
+
 				const stub = setup.mutators[key](state, payload, store)
-				// if the "mutator" returns "null" then I do nothing
-				if (stub == null) return null
+				// if the "mutator" returns "undefined" then I do nothing
+				if (stub === undefined) return
 				// to optimize check if there is any change and dispath on plugins
-				if (Object.keys(stub).every(key => stub[key] == state[key])) return null
+				if (Object.keys(stub).every(key => stub[key] === state[key])) return
 
 				state = { ...state, ...stub }
 				pluginEmit(EVENTS_TYPES.MUTATION, store, key, payload, null, _block_subcall)

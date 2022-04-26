@@ -1,41 +1,49 @@
 ![logo](./res/logo.png)  
 [Jon](https://github.com/priolo/jon)
 
+
 # INDEX
 - [Installation](#installation)  
 - [Create STORE and VIEW](#create-store-and-view)  
-- [Use STORE](#use-store)  
 - [Examples](#examples)
 - [What we have done?](#what-we-have-done)
-- [Why](#why)
-- [Is Production Ready](#is-production-ready)
+- [WHY?](#why)
 - [TIPS](#tips)
-- [API](./res/api/index.md)
 
 
-### Installation
+## Installation
 
 `npm install @priolo/jon`
 
-### Create STORE and VIEW
+
+## Create STORE and VIEW
+
 ```jsx
+import React from "react";
+//import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { createStore, useStore } from '@priolo/jon';
 
 // create STORE-SETUP
 const mySetup = {
+	// The immutable single source of truth.
 	state: {
 		value: "init value"
 	},
+	// Pure functions return a "processed" value of the STATE.
 	getters: {
-		getUppercase: (state) => state.value.toUpperCase()
+		getUppercase: (state, _, store) => state.value.toUpperCase()
 	},
+	// They do things! For example: here you have to put API calls to the server
 	actions: {
-		addAtEnd: (state, char, store) => {
-			store.setValue(state.value + char)
+		addAtEnd: (state, payload, store) => {
+			store.setValue(state.value + payload)
 		}
 	},
+	// The only ones that can replace the STATE with a new one.
+	// NOTE: JON merges the returned property with the previous STATE.
 	mutators: {
-		setValue: (state, value) => ({value})
+		setValue: (state, value, store) => ({value})
 	}
 }
 
@@ -45,48 +53,50 @@ const myStore = createStore(mySetup)
 // use STORE in VIEW
 function App() {
 
-  const state = useStore(myStore) // useStore17 if React version is < 18
-  const { setValue, getUppercase } = myStore
+	// picks up the current STATE of the "myStore" STORE
+  	const state = useStore(myStore) // "useStore17" if React version is < 18
 
-  return (<div>
-	<h1>{state.value}</h1><h2>{getUppercase()}</h2>
-	<input 
-		value={state.value} 
-		onChange={(e)=>setValue(e.target.value)} 
-	/>
-  </div>);
+	// call ACTION. NOTE:  you must pass ONLY the "payload"
+	const handleClick = e => myStore.addAtEnd("!")
+
+	// render
+	return (<div>
+		<h1>{state.value}</h1><h2>{myStore.getUppercase()}</h2>
+		<input 
+			value={state.value} 
+			// call MUTATOR. NOTE: you must pass ONLY the "payload"
+			onChange={(e)=>myStore.setValue(e.target.value)} 
+		/>
+		<button onClick={handleClick}>add !</button>
+	</div>);
 }
 
 // React 18
-const root = ReactDOM.createRoot(document.getElementById('root'))
+const root = createRoot(document.getElementById('root'))
 root.render(<React.StrictMode><App /></React.StrictMode>)
 // React <=17
 //ReactDOM.render(<App />, document.getElementById("root") )
 ```
 
-
 [codesandbox](https://codesandbox.io/s/example-1-5d2tt)
 
-# Examples
+
+## Examples
 
 - [basic](https://codesandbox.io/s/example-1-5d2tt)
 - [multi stores](https://codesandbox.io/s/example-2-iz6l7)
 - [action](https://codesandbox.io/s/example-3-hw6hs)
 - [material-ui](https://codesandbox.io/s/example-4-0jeqi)
 
-# What we have done?
+## What we have done?
 
 We have implemented a React STORE-PATTERN with JON  
 <https://refactoring.guru/design-patterns/state>  
-Nelle versioni precedenti di JON (0.4) avveniva tramiti i CONTEXT  
-Con il vantaggio di non dover sottoscrivere un listener,  
-inoltre lo stato risiede SOLO nel CONTEXT  
-Lo svantaggio è che la VIEW si aggiorna per tutte le modifiche degli STOREs.  
-Questo problema si può evitare usando "memo" ma aumenta la complessità.  
-Nella nell'ultima versione (0.5) JON usa i listener (OBSERVABLE-PATTERN).  
-Permette di aggiornare l'albero della VIEW solo dal punto in cui avviene una modifica.
+In practice: When a MUTATOR is executed in a STORE  
+the listeners of the STORE update the hooks of the components they use.  
+The result is that the component always shows the "current" STATE of the STORE.
 
-## STORE-SETUP
+### STORE-SETUP
 
 First of all we have created a STORE-SETUP  
 (VUEX users will recognize the "style")
@@ -188,7 +198,7 @@ actions: {
 the STATE will become   
 `{ firstName: "", lastName: "Rossi" }`  
 
-## CREATE STORE
+### CREATE STORE
 
 Usare il SETUP dello STORE come TEMPLATE per creare un istanza di STORE
 
@@ -203,7 +213,7 @@ export default store
 
 Esportare L'istanza dello STORE ed il gioco è fatto!
 
-## REACT-COMPONENTS
+### REACT-COMPONENTS
 
 Nella VIEW, chiamando `useStore`,
 mi metto in ascolto sui cambiamenti dello STATE.
@@ -232,24 +242,11 @@ Note that the functions previously defined in STORE-SETUP now only need the `pay
 The `state` and` store` will be passed automatically by JON  
 (for example `getUppercase ()` and `setValue (value)`).   
 
-# FAQ
+## WHY?
 
-## Why?
-
-JON is designed to be VERY VERY LIGHT, [Take a look!](https://github.com/priolo/jon/blob/develop/src/lib/store/rvxProviders.jsx)... and this is all
+JON is designed to be VERY VERY VERY LIGHT, [Take a look!](https://github.com/priolo/jon/blob/develop/src/lib/store/rvxProviders.jsx)... and this is all
 
 ![logo](./res/schema1.png)
-
-## Is Production Ready?
-
-"JON" is not a used library.  
-I don't know a lot of use cases!  
-I can tell you that I use it in three medium-sized professional projects (CRA and NEXT).  
-Furthermore JON is a VERY LIGHT lib.  
-You can always replace it on the fly with React's "native" PROVIDERS.   
-This is an example: [sandbox](https://codesandbox.io/s/react-template-ln4gh?file=/index.js)  
->You can use a series of "Providers" instead of "MultiStoreProvider"  
->and share the "reducer"
 
 # TIPS
 
@@ -264,7 +261,6 @@ To optimize a component that uses STOREs:
 import React, { useMemo } from "react";
 import { useStore } from "@priolo/jon";
 import myStore from "stores/mystore";
-
 
 export default function Cmp () {
 
@@ -329,7 +325,7 @@ You can use the "mixStores" tool to merge multiple setup-stores.
 To be able to distribute the code on more files  
 
 ```js
-import mixStores from "@priolo/jon"
+import { mixStores } from "@priolo/jon"
 
 const setupBaseAbstract = {
 	state: { ... },
@@ -420,13 +416,12 @@ addWatch({
 
 # ROADMAP
 
+- Documentation
 - Involvement of the community
-- Self-test plugin
-- Remote synchronization plugin
-
+- Development of plugins to be applied to the library
 
 # DEVELOPMENT NOTE
 
-If you use a local hard-link in package.json for testing
-delete from "node_moduls" the folders "react", "react-dom" and "react-script"
+If you use a local hard-link in package.json for testing  
+delete from "node_moduls" the folders "react", "react-dom" and "react-script"  
 to avoid the "Invalid hook call" error
