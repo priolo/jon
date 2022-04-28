@@ -16,19 +16,19 @@ beforeEach(() => {
 			responseValue: "",
 		},
 		actions: {
-			fetch: async (state, _, store) => {
+			fetch: async ( _, store) => {
 				// simulate http response
 				await new Promise((res) => setTimeout(res, 100))
 				store.setValue("new value")
 			},
-			processesValue: (state, _, store) => {
+			processesValue: ( _, {state, ...store}) => {
 				const valueTmp = state.value.toUpperCase()
 				store.setResponseValue(valueTmp)
 			},
 		},
 		mutators: {
-			setValue: (state, value) => ({ value }),
-			setResponseValue: (state, responseValue) => ({ responseValue }),
+			setValue: (value) => ({ value }),
+			setResponseValue: (responseValue) => ({ responseValue }),
 		},
 	})
 })

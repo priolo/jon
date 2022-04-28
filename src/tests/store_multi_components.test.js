@@ -9,21 +9,21 @@ const store = {
 		value: "init value",
 	},
 	actions: {
-		act: async (state, value, store) => {
+		act: async (value, store) => {
 			store.setValue(`value: ${value}`)
 		},
-		actMulti: async (state, { value, index }, store) => {
+		actMulti: async ({ value, index }, store) => {
 			store.setValue(`multi_value: ${value}`)
 			myStores[index].act(`multi-${value}`)
 		},
-		actFromAnotherStore: async (state, index, store) => {
+		actFromAnotherStore: async (index, store) => {
 			const anotherStore = myStores[index]
 			const { state:anotherState} = anotherStore
 			store.act(anotherState.value)
 		}
 	},
 	mutators: {
-		setValue: (state, value) => {
+		setValue: (value) => {
 			return { value }
 		},
 	},

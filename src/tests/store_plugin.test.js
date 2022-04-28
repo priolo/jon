@@ -13,15 +13,15 @@ beforeEach(() => {
 			value: "init value",
 		},
 		getters: {
-			getUppercase: (state) => state.value.toUpperCase(),
+			getUppercase: (_ , {state}) => state.value.toUpperCase(),
 		},
 		actions: {
-			changeValue: (state, value, store) => {
+			changeValue: (value, store) => {
 				store.setValue(`${value}... from action!`)
 			}
 		},
 		mutators: {
-			setValue: (state, value) => ({ value }),
+			setValue: (value) => ({ value }),
 		},
 	})
 })

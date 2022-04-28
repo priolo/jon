@@ -14,13 +14,13 @@ beforeEach(() => {
 			value2: "init value2",
 		},
 		actions: {
-			changeValue1: (state, value, store) => {
+			changeValue1: (value, store) => {
 				store.setValue1(`${value}... from 1`)
 			}
 		},
 		mutators: {
-			setValue1: (state, value1) => ({ value1 }),
-			setValue2: (state, value2) => ({ value2 }),
+			setValue1: (value1) => ({ value1 }),
+			setValue2: (value2) => ({ value2 }),
 		},
 	})
 	myStore2 = createStore({
@@ -28,12 +28,12 @@ beforeEach(() => {
 			value: "init value",
 		},
 		actions: {
-			changeValue: (state, value, store) => {
+			changeValue: (value, store) => {
 				store.setValue(`${value}... from 2`)
 			}
 		},
 		mutators: {
-			setValue: (state, value) => ({ value }),
+			setValue: (value) => ({ value }),
 		}
 	})
 

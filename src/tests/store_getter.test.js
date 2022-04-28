@@ -15,17 +15,17 @@ import { createStore, useStore} from '../lib/store/rvx'
 			value: "init value",
 		},
 		getters: {
-			getValue: (state, _, store) => {
+			getValue: (_, {state}) => {
 				return state.value.toUpperCase()
 			}
 		},
 		actions: {
-			changeValue: async (state, value, store) => {
+			changeValue: async (value, store) => {
 				store.setValue(`${value} from action`)
 			}
 		},
 		mutators: {
-			setValue: (state, value) => {
+			setValue: (value) => {
 				return { value }
 			},
 		},

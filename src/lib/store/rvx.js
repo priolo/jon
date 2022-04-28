@@ -70,7 +70,7 @@ let _block_subcall = false
  * @param {StoreSetup} setup 
  * @returns {Store}
  */
-export function createStore(setup, name) {
+export function createStore(setup) {
 
 	/**@type {Store} */
 	let store = {
@@ -86,17 +86,6 @@ export function createStore(setup, name) {
 			store._listeners.add(listener)
 			return () => store._listeners.delete(listener)
 		},
-
-		/**
-		 * Called by the MUTATOR to make a change to the STATE
-		 * @param {(state:Object)=>Object} fn reducer (oldState) => newState 
-		 */
-		_dispatchReducer: (fn) => {
-			const state = fn(store.state)
-			if (state == undefined) return
-			store.state = state
-			store._listeners.forEach(listener => listener(store.state))
-		},
 	}
 
 	/**
@@ -105,7 +94,7 @@ export function createStore(setup, name) {
 	if (setup.getters) {
 		store = Object.keys(setup.getters).reduce((acc, key) => {
 			acc[key] = (payload) => {
-				return setup.getters[key](store.state, payload, store)
+				return setup.getters[key](payload, store)
 			}
 			return acc
 		}, store)
@@ -120,7 +109,7 @@ export function createStore(setup, name) {
 				const tmp = _block_subcall
 				if (tmp == false) _block_subcall = true
 
-				const result = await setup.actions[key](store.state, payload, store)
+				const result = await setup.actions[key](payload, store)
 
 				pluginEmit(EVENTS_TYPES.ACTION, store, key, payload, result, tmp)
 				if (tmp == false) _block_subcall = false
@@ -140,7 +129,7 @@ export function createStore(setup, name) {
 				const tmp = _block_subcall
 				if (tmp == false) _block_subcall = true
 
-				const result = setup.actionsSync[key](store.state, payload, store)
+				const result = setup.actionsSync[key](payload, store)
 
 				pluginEmit(EVENTS_TYPES.ACTION_SYNC, store, key, payload, result, tmp)
 				if (tmp == false) _block_subcall = false
@@ -155,22 +144,19 @@ export function createStore(setup, name) {
 	 */
 	if (setup.mutators) {
 		store = Object.keys(setup.mutators).reduce((acc, key) => {
-			acc[key] = payload => store._dispatchReducer(state => {
-
-				const stub = setup.mutators[key](state, payload, store)
+			acc[key] = payload => {
+				const stub = setup.mutators[key](payload, store)
 				// if the "mutator" returns "undefined" then I do nothing
 				if (stub === undefined) return
 				// to optimize check if there is any change and dispath on plugins
-				if (Object.keys(stub).every(key => stub[key] === state[key])) return
-
-				state = { ...state, ...stub }
+				if (Object.keys(stub).every(key => stub[key] === store.state[key])) return
+				store.state = { ...store.state, ...stub }
 				pluginEmit(EVENTS_TYPES.MUTATION, store, key, payload, null, _block_subcall)
-				return state
-			})
+				store._listeners.forEach(listener => listener(store.state))
+			}
 			return acc
 		}, store)
 	}
 
 	return store
 }
-
