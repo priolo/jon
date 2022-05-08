@@ -9,10 +9,10 @@ let myStore2
 
 beforeEach(() => {
 	myStore1 = createStore({
-		state: {
+		state: ()=>({
 			value1: "init value1",
 			value2: "init value2",
-		},
+		}),
 		actions: {
 			changeValue1: (value, store) => {
 				store.setValue1(`${value}... from 1`)

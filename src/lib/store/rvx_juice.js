@@ -25,7 +25,7 @@ export function createStore(setup, name) {
 	let store = {
 
 		// the current state of the store
-		state: JSON.parse(JSON.stringify(setup.state)),
+		state: setup.state(),
 
 		// the listeners that are watching the store
 		_listeners: new Set(),

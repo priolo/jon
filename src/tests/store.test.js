@@ -8,9 +8,9 @@ let myStore
 
 beforeEach(() => {
 	myStore = createStore({
-		state: {
+		state: ()=>({
 			value: "init value",
-		},
+		}),
 		getters: {
 			getUppercase: (_, {state}) => state.value.toUpperCase(),
 		},

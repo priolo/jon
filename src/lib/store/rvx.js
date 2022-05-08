@@ -76,7 +76,7 @@ export function createStore(setup) {
 	let store = {
 
 		// the current state of the store
-		state: utils.cloneDeep(setup.state),
+		state: typeof setup.state === "function" ? setup.state() : utils.cloneDeep(setup.state),
 
 		// the listeners that are watching the store
 		_listeners: new Set(),
