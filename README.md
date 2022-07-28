@@ -31,8 +31,7 @@ const mySetup = {
 		value: "init value"
 	},
 	// Pure functions return a "processed" value of the STATE.
-	getters: {
-		getUppercase: (state, _, store) => state.value.toUpperCase()
+	getters: {		getUppercase: (state, _, store) => state.value.toUpperCase()
 	},
 	// They do things! For example: here you have to put API calls to the server
 	actions: {

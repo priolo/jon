@@ -11,7 +11,8 @@ import { EVENTS_TYPES, addWatch, removeWatch } from "../store/rvxPlugin";
  * @typedef { {include:?string[], exclude:?string[], initState:?boolean} } RecOption
  * **include**: string[] ONLY the data relating to these paths will be taken
  * **exclude**: string[] the data relating to these paths are eliminated
-  * @typedef { {type:RECORDER_ACTIONS, payload:Obect} } Action
+ * @typedef { {type:RECORDER_ACTIONS, payload:Obect} } Action
+ * @typedef { import("../store/rvx").Store[] } Store
  */
 
 /**
@@ -22,7 +23,7 @@ import { EVENTS_TYPES, addWatch, removeWatch } from "../store/rvxPlugin";
 export const RECORDER_STATE = {
 	STOP: 0,
 	PAUSE: 1,
-	PLAY: 2
+	REC: 2
 }
 
 /**
@@ -59,6 +60,16 @@ const optionsDefault = {
 //#region PROPS
 
 /**
+ * Stores involved in the registration 
+ * @type {Store[]}
+ */
+let stores = []
+
+function storeAdd ( store, rules ) {
+	
+}
+
+/**
  * the actions I'm recording now
  * @type {Action[]} 
  */
@@ -88,7 +99,6 @@ let options = optionsDefault
  * @type {RECORDER_STATE}
  */
 let state = RECORDER_STATE.STOP
-
 /**
  * Get the STATE of RECORDER
  * @returns {RECORDER_STATE}
@@ -106,8 +116,8 @@ function getState() {
  * @param {RecOption} opt see optionsDefault
  */
 function start(opt) {
-	if (state == RECORDER_STATE.PLAY) return
-	state = RECORDER_STATE.PLAY
+	if (state == RECORDER_STATE.REC) return
+	state = RECORDER_STATE.REC
 	actions = []
 	options = utils.merge(opt, optionsDefault)
 
@@ -128,6 +138,15 @@ function stop() {
 	state = RECORDER_STATE.STOP
 	stopStoreSubscribe()
 	return actions
+}
+
+/**
+ * add an action to the registered actions
+ * @param {object} action 
+ */
+ function add(action) {
+	if (state != RECORDER_STATE.REC) return;
+	actions.push(action)
 }
 
 /**
@@ -154,15 +173,6 @@ function checkHash() {
 }
 
 /**
- * I add an action to the registered actions
- * @param {object} action 
- */
-function add(action) {
-	if (state != RECORDER_STATE.PLAY) return;
-	actions.push(action)
-}
-
-/**
  * Set the current state.
  * Done at the beginning of the recording
  * to initialize the store when it goes into play
@@ -181,7 +191,7 @@ function addCurrentState() {
 function startStoreSubscribe() {
 	const recAction = {
 		[EVENTS_TYPES.ACTION]: RECORDER_ACTIONS.ACTION,
-		[EVENTS_TYPES.ACTION_SYNC]: RECORDER_ACTIONS.ACTIONA_SYNC,
+		[EVENTS_TYPES.ACTION_SYNC]: RECORDER_ACTIONS.ACTION_SYNC,
 		[EVENTS_TYPES.MUTATION]: RECORDER_ACTIONS.MUTATION,
 	}
 	listener = {

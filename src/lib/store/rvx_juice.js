@@ -40,7 +40,7 @@ export function createStore(setup, name) {
 	// GETTERS
 	if (setup.getters) {
 		store = Object.keys(setup.getters).reduce((acc, key) => {
-			acc[key] = (payload) => setup.getters[key](store.state, payload, store)
+			acc[key] = (payload) => setup.getters[key](payload, store)
 			return acc
 		}, store)
 	}
@@ -48,7 +48,7 @@ export function createStore(setup, name) {
 	// ACTIONS
 	if (setup.actions) {
 		store = Object.keys(setup.actions).reduce((acc, key) => {
-			acc[key] = async (payload) => await setup.actions[key](store.state, payload, store)
+			acc[key] = async (payload) => await setup.actions[key](payload, store)
 			return acc
 		}, store)
 	}
@@ -57,7 +57,7 @@ export function createStore(setup, name) {
 	if (setup.mutators) {
 		store = Object.keys(setup.mutators).reduce((acc, key) => {
 			acc[key] = payload => {
-				const stub = setup.mutators[key](store.state, payload, store)
+				const stub = setup.mutators[key](payload, store)
 				if (stub === undefined) return
 				if (Object.keys(stub).every(key => stub[key] === store.state[key])) return
 				store.state = { ...store.state, ...stub }

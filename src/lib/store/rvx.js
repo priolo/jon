@@ -1,5 +1,5 @@
-import utils from '@priolo/jon-utils';
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import utils from "@priolo/jon-utils";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { EVENTS_TYPES, pluginEmit } from "./rvxPlugin";
 
 //#region TYPEDEF
@@ -9,12 +9,12 @@ import { EVENTS_TYPES, pluginEmit } from "./rvxPlugin";
  */
 
 /**
- * @typedef {(state:Object, props:Object, store:Store)=>Object} CallStoreSetup
+ * @typedef {(props:Object, store:Store)=>Object} CallStoreSetup
  * @typedef {(props:Object)=>Object} CallStore
  */
 
 /**
- * @typedef {Object} StoreSetup 
+ * @typedef {Object} StoreSetup
  * @property  {Object} state
  * @property  {Object.<string,CallStoreSetup>} getters
  * @property  {Object.<string,CallStoreSetup>} actions
@@ -32,51 +32,45 @@ import { EVENTS_TYPES, pluginEmit } from "./rvxPlugin";
 
 /**
  * HOOK to use the STORE in React v18
- * @param {Store} store 
+ * @param {Store} store
  * @returns {Object}
  */
 export function useStore(store) {
-	return useSyncExternalStore(
-		store._subscribe,
-		() => store.state
-	)
+  return useSyncExternalStore(store._subscribe, () => store.state)
 }
 
 /**
  * HOOK to use the STORE in React v17
- * @param {Store} store 
+ * @param {Store} store
  * @returns {Object}
  */
 export function useStore17(store) {
-	const [state, setState] = useState(store.state)
+  const [state, setState] = useState(store.state)
 
-	useEffect(() => {
-		const listener = (s) => {
-			setState(s)
-		}
-		const unsubscribe = store._subscribe(listener)
-		return unsubscribe
-	}, [store])
+  useEffect(() => {
+    const listener = (s) => {
+      setState(s)
+    }
+    const unsubscribe = store._subscribe(listener)
+    return unsubscribe
+  }, [store])
 
-	return state
+  return state
 }
 
-
 /** @type {boolean} Indicates whether the last block of code was called internally at the store or not */
-let _block_subcall = false
+let _block_subcall = false;
 
 /**
  * create a STORE with a SETUP-STORE
- * @param {StoreSetup} setup 
+ * @param {StoreSetup} setup
  * @returns {Store}
  */
 export function createStore(setup) {
-
 	/**@type {Store} */
 	let store = {
-
 		// the current state of the store
-		state: typeof setup.state === "function" ? setup.state() : utils.cloneDeep(setup.state),
+		state: finalizeState(setup.state),
 
 		// the listeners that are watching the store
 		_listeners: new Set(),
@@ -86,7 +80,9 @@ export function createStore(setup) {
 			store._listeners.add(listener)
 			return () => store._listeners.delete(listener)
 		},
-	}
+
+		_update: () => store._listeners.forEach((listener) => listener(store.state)),
+	};
 
 	/**
 	 * GETTERS
@@ -116,7 +112,7 @@ export function createStore(setup) {
 				return result
 			}
 			return acc
-		}, store)
+		}, store);
 	}
 
 	/**
@@ -134,7 +130,7 @@ export function createStore(setup) {
 				pluginEmit(EVENTS_TYPES.ACTION_SYNC, store, key, payload, result, tmp)
 				if (tmp == false) _block_subcall = false
 				return result
-			}
+			};
 			return acc
 		}, store)
 	}
@@ -144,19 +140,37 @@ export function createStore(setup) {
 	 */
 	if (setup.mutators) {
 		store = Object.keys(setup.mutators).reduce((acc, key) => {
-			acc[key] = payload => {
+			acc[key] = (payload) => {
 				const stub = setup.mutators[key](payload, store)
 				// if the "mutator" returns "undefined" then I do nothing
 				if (stub === undefined) return
 				// to optimize check if there is any change and dispath on plugins
-				if (Object.keys(stub).every(key => stub[key] === store.state[key])) return
+				if (Object.keys(stub).every((key) => stub[key] === store.state[key])) return
 				store.state = { ...store.state, ...stub }
-				pluginEmit(EVENTS_TYPES.MUTATION, store, key, payload, null, _block_subcall)
-				store._listeners.forEach(listener => listener(store.state))
-			}
+				pluginEmit(
+					EVENTS_TYPES.MUTATION,
+					store,
+					key,
+					payload,
+					null,
+					_block_subcall
+				)
+				//store._listeners.forEach((listener) => listener(store.state));
+				store._update()
+			};
 			return acc
 		}, store)
 	}
 
 	return store
+}
+
+/**
+ *
+ * @param {*} state
+ * @returns
+ */
+export function finalizeState(state) {
+  if (!state) return {};
+  return typeof state === "function" ? state() : utils.cloneDeep(state);
 }
