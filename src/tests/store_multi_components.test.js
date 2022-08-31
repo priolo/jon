@@ -5,9 +5,9 @@ import { createStore, useStore} from '../lib/store/rvx'
 
 
 const store = {
-	state: {
+	state: ()=>({
 		value: "init value",
-	},
+	}),
 	actions: {
 		act: async (value, store) => {
 			store.setValue(`value: ${value}`)

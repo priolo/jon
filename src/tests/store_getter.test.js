@@ -11,9 +11,9 @@ import { createStore, useStore} from '../lib/store/rvx'
 
  beforeEach(() => {
 	 myStore = createStore({
-		state: {
+		state: ()=>({
 			value: "init value",
-		},
+		}),
 		getters: {
 			getValue: (_, {state}) => {
 				return state.value.toUpperCase()

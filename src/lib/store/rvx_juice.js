@@ -2,10 +2,7 @@ import { useEffect, useState, useSyncExternalStore } from 'react'
 
 // HOOK to use the STORE in React v18
 export function useStore(store) {
-	return useSyncExternalStore(
-		store._subscribe,
-		() => store.state
-	)
+	return useSyncExternalStore(store._subscribe, () => store.state)
 }
 
 // HOOK to use the STORE in React v17
@@ -16,7 +13,6 @@ export function useStore17(store) {
 		const unsubscribe = store._subscribe(listener)
 		return unsubscribe
 	}, [store])
-
 	return state
 }
 
@@ -25,7 +21,7 @@ export function createStore(setup, name) {
 	let store = {
 
 		// the current state of the store
-		state: JSON.parse(JSON.stringify(setup.state)),
+		state: setup.state,
 
 		// the listeners that are watching the store
 		_listeners: new Set(),

@@ -4,7 +4,7 @@
 import React from 'react'
 import { render, fireEvent, waitFor, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
-import { createStore, useStore} from '../lib/store/rvx_juice'
+import { createStore, useStore } from '../lib/store/rvx_juice'
 
 
 let myStore
@@ -15,7 +15,7 @@ beforeEach(() => {
 			value: "init value",
 		},
 		getters: {
-			getUppercase: (_, {state}) => state.value.toUpperCase(),
+			getUppercase: (_, { state }) => state.value.toUpperCase(),
 		},
 		actions: {
 			changeValue: (value, store) => {
@@ -38,15 +38,14 @@ test('getters/mutators', async () => {
 
 	// ha il valore iniziale?
 	expect(myStore.state.value).toBe("init value")
+	expect(screen.getByTestId('view')).toHaveTextContent("init value")
 
 	// change state value with reducer
 	act(() => {
 		myStore.setValue("new value")
 	})
+	
 	expect(screen.getByTestId('view')).toHaveTextContent("new value")
-
-	// get value with getter
-	expect(myStore.getUppercase()).toBe("NEW VALUE")
 
 })
 

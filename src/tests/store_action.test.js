@@ -11,10 +11,10 @@ let myStore
 
 beforeEach(() => {
 	myStore = createStore({
-		state: {
+		state: ()=>({
 			value: "init value",
 			responseValue: "",
-		},
+		}),
 		actions: {
 			fetch: async ( _, store) => {
 				// simulate http response
