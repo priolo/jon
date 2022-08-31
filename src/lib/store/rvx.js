@@ -1,4 +1,4 @@
-import utils from '@priolo/jon-utils';
+import { obj } from '@priolo/jon-utils';
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import { EVENTS_TYPES, pluginEmit } from "./rvxPlugin";
 
@@ -76,7 +76,7 @@ export function createStore(setup) {
 	let store = {
 
 		// the current state of the store
-		state: utils.cloneDeep(setup.state),
+		state: obj.cloneDeep(setup.state),
 
 		// the listeners that are watching the store
 		_listeners: new Set(),

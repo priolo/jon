@@ -37,7 +37,7 @@
 		"@priolo/jon-utils": "^0.2.5"
 	},
 	"dependencies": {
-		"@priolo/jon-utils": "^0.3.0"
+		"@priolo/jon-utils": "file:C://Users//iorio//Documents//jon-utils"
 	},
 	"devDependencies": {
 		"cross-env": "^7.0.3",
