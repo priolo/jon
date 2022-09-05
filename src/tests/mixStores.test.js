@@ -78,6 +78,13 @@ test('mixStores - action', async () => {
 
 })
 
+// test('mixStores - store', async () => {
+
+// 	let value = 0
+
+
+// })
+
 
 function TestView() {
 	const state = useStore(myStore)

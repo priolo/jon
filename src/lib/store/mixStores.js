@@ -11,10 +11,10 @@ import { finalizeState } from "./rvx";
  * @returns {StoreSetup}
  */
 export default function mixStores(...stores) {
-  return stores.reduce((acc, store) => {
-    if (acc == null) return store;
-    return mix(acc, store);
-  }, null);
+	return stores.reduce((acc, store) => {
+		if (acc == null) return store;
+		return mix(acc, store);
+	}, null);
 }
 
 /**
@@ -24,31 +24,34 @@ export default function mixStores(...stores) {
  * @returns {StoreSetup}
  */
 function mix(store1, store2) {
-  if (!store1 && !store2) return {};
-  if (!store1) return store2;
-  if (!store2) return store1;
+	if (!store1 && !store2) return {};
+	if (!store1) return store2;
+	if (!store2) return store1;
 
-  return {
-    state: () => {
-      const state1 = finalizeState(store1.state);
-      const state2 = finalizeState(store2.state);
-      return { ...state1, ...state2 };
-    },
-    mutators: {
-      ...store1.mutators,
-      ...store2.mutators,
-    },
-    getters: {
-      ...store1.getters,
-      ...store2.getters,
-    },
-    actions: {
-      ...store1.actions,
-      ...store2.actions,
-    },
-    actionsSync: {
-      ...store1.actionsSync,
-      ...store2.actionsSync,
-    },
-  };
+	const state = (typeof store1.state == "function" || typeof store2.state == "function")
+		? () => {
+			const state1 = finalizeState(store1.state);
+			const state2 = finalizeState(store2.state);
+			return { ...state1, ...state2 };
+		} : { ...store1.state, ...store2.state }
+
+	return {
+		state,
+		mutators: {
+			...store1.mutators,
+			...store2.mutators,
+		},
+		getters: {
+			...store1.getters,
+			...store2.getters,
+		},
+		actions: {
+			...store1.actions,
+			...store2.actions,
+		},
+		actionsSync: {
+			...store1.actionsSync,
+			...store2.actionsSync,
+		},
+	};
 }
