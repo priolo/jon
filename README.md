@@ -354,8 +354,8 @@ export default createStore({
 		dialogOpen: (state, _, store) => {
 			...
 		},
-	},)
-}
+	},
+})
 ```
 `/stores/user.js`
 ```js
@@ -397,7 +397,7 @@ const setup = {
 	mutators: {
 		setValue: (state, value) => ({ value }),
 	},
-})
+}
 
 const store1 = createStore(setup)
 const store2 = createStore(setup)
@@ -421,6 +421,7 @@ addWatch({
 
 # DEVELOPMENT NOTE
 
-If you use a local hard-link in package.json for testing  
-delete from "node_moduls" the folders "react", "react-dom" and "react-script"  
+If you use a local hard-link in package.json for testing
+`npm link <path_app>/node_modules/react`
 to avoid the "Invalid hook call" error
+https://reactjs.org/warnings/invalid-hook-call-warning.html#duplicate-react

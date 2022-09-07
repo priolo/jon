@@ -1,55 +1,28 @@
-import { obj } from '@priolo/jon-utils';
-import { useEffect, useState, useSyncExternalStore } from 'react';
-import { EVENTS_TYPES, pluginEmit } from "./rvxPlugin";
+import { obj } from '@priolo/jon-utils'
+import { useEffect, useState, useSyncExternalStore } from 'react'
+import { Store, StoreSetup } from './global'
+import { EVENTS_TYPES, pluginEmit } from "./rvxPlugin"
 
-
-//#region TYPEDEF
-
-/**
- * @typedef {import("./rvxPlugin").Listener} Listener
+/** 
+ * Indicates whether the last block of code was called internally at the store or not 
  */
-
-/**
- * @typedef {(props:Object, store:Store)=>Object} CallStoreSetup
- * @typedef {(props:Object)=>Object} CallStore
- */
-
-/**
- * @typedef {Object} StoreSetup
- * @property  {Object} state
- * @property  {Object.<string,CallStoreSetup>} getters
- * @property  {Object.<string,CallStoreSetup>} actions
- * @property  {Object.<string,CallStoreSetup>} actionsSync
- * @property  {Object.<string,CallStoreSetup>} mutators
- */
-
-/**
- * @typedef {Object} Store
- * @property {Object} state
- * @property {...Object.<string, CallStore>}
- */
-
-//#endregion
+let _block_subcall = false
 
 /**
  * HOOK to use the STORE in React v18
- * @param {Store} store
- * @returns {Object}
  */
-export function useStore(store) {
+export function useStore(store: Store): any {
 	return useSyncExternalStore(store._subscribe, () => store.state)
 }
 
 /**
  * HOOK to use the STORE in React v17
- * @param {Store} store
- * @returns {Object}
  */
-export function useStore17(store) {
+export function useStore17(store: Store): any {
 	const [state, setState] = useState(store.state)
 
 	useEffect(() => {
-		const listener = (s) => {
+		const listener = (s:any) => {
 			setState(s)
 		}
 		const unsubscribe = store._subscribe(listener)
@@ -59,31 +32,26 @@ export function useStore17(store) {
 	return state
 }
 
-/** @type {boolean} Indicates whether the last block of code was called internally at the store or not */
-let _block_subcall = false;
-
 /**
  * create a STORE with a SETUP-STORE
- * @param {StoreSetup} setup
- * @returns {Store}
  */
-export function createStore(setup) {
-	/**@type {Store} */
-	let store = {
+export function createStore(setup: StoreSetup): Store {
+
+	let store: Store = {
 		// the current state of the store
 		state: finalizeState(setup.state),
 
 		// the listeners that are watching the store
 		_listeners: new Set(),
 
-		// add listener to the store
+		// add listener to the store. Called by "useSyncExternalStore"
 		_subscribe: (listener) => {
 			store._listeners.add(listener)
 			return () => store._listeners.delete(listener)
 		},
 
-		_update: () => store._listeners.forEach((listener) => listener(store.state)),
-	};
+		_update: () => store._listeners.forEach(listener => listener(store.state)),
+	}
 
 	/**
 	 * GETTERS
@@ -167,11 +135,9 @@ export function createStore(setup) {
 }
 
 /**
- *
- * @param {*} state
- * @returns
+ * Estrapola il valore di uno "state"
  */
-export function finalizeState(state) {
+export function finalizeState(state: any): any {
 	if (!state) return {};
 	return typeof state === "function" ? state() : obj.cloneDeep(state);
 }

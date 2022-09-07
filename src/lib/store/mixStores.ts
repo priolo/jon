@@ -1,30 +1,22 @@
-/**
- * @typedef {import("./rvx").StoreSetup} StoreSetup
- * @typedef {import("./rvx").Store} Store
- */
-
+import { StoreSetup } from "./global";
 import { finalizeState } from "./rvx";
+
 
 /**
  * Merges the parameters and returns a derived store
- * @param  {...StoreSetup} stores
- * @returns {StoreSetup}
  */
-export default function mixStores(...stores) {
-	return stores.reduce((acc, store) => {
+export default function mixStores(...stores: StoreSetup[]): StoreSetup | null {
+	return stores.reduce<StoreSetup|null>((acc, store) => {
 		if (acc == null) return store;
 		return mix(acc, store);
 	}, null);
 }
 
 /**
- * combines two stores
- * @param {StoreSetup} store1
- * @param {StoreSetup} store2
- * @returns {StoreSetup}
+ * Combines two stores
  */
-function mix(store1, store2) {
-	if (!store1 && !store2) return {};
+function mix(store1:StoreSetup, store2:StoreSetup): StoreSetup | null {
+	if (!store1 && !store2) return null;
 	if (!store1) return store2;
 	if (!store2) return store1;
 
