@@ -1,0 +1,17 @@
+{
+	"presets": [
+		"@babel/preset-typescript",
+		"@babel/preset-react",
+		[
+			"@babel/preset-env",
+			{
+				"targets": {
+					"esmodules": true
+				}
+			}
+		]
+	],
+	"exclude": [
+		"**/*.test.js" // ignore test files only
+	]
+}
