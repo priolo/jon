@@ -2,16 +2,9 @@
 	"presets": [
 		"@babel/preset-typescript",
 		"@babel/preset-react",
-		[
-			"@babel/preset-env",
-			{
-				"targets": {
-					"esmodules": true
-				}
-			}
-		]
+		"@babel/preset-env"
 	],
-	"exclude": [
-		"**/*.test.js" // ignore test files only
+	"plugins": [
+		"inline-dotenv"
 	]
 }

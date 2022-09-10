@@ -3,6 +3,7 @@
 # dependencies
 /.vscode
 /dist
+/types
 /node_modules
 
 # misc
