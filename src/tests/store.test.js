@@ -1,10 +1,10 @@
 /**
  * @jest-environment jsdom
  */
+import '@testing-library/jest-dom/extend-expect'
 import React from 'react'
 import { render, fireEvent, waitFor, screen, act } from '@testing-library/react'
-import '@testing-library/jest-dom/extend-expect'
-import { createStore, useStore} from '../lib/store/rvx'
+import { createStore, finalizeState, useStore} from '../lib/store/rvx'
 
 
 let myStore
@@ -65,6 +65,20 @@ test('call action', async () => {
 	// get value with getter
 	expect(myStore.getUppercase()).toBe("NEW VALUE... FROM ACTION!")
 
+})
+
+test('finalizeState', async () => {
+	let ret = finalizeState(null)
+	expect(ret).toEqual({})
+
+	ret = finalizeState(34)
+	expect(ret).toBe(34)
+
+	ret = finalizeState({ name: "pippo" })
+	expect(ret).toEqual({ name: "pippo" })
+
+	ret = finalizeState(()=> ({ name: "pippo" }))
+	expect(ret).toEqual({ name: "pippo" })
 })
 
 

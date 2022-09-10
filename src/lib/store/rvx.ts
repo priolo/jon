@@ -58,7 +58,7 @@ export function createStore(setup: StoreSetup): Store {
 	 */
 	if (setup.getters) {
 		store = Object.keys(setup.getters).reduce((acc, key) => {
-			acc[key] = (payload) => {
+			acc[key] = (payload:any) => {
 				return setup.getters[key](payload, store)
 			}
 			return acc
@@ -70,7 +70,7 @@ export function createStore(setup: StoreSetup): Store {
 	 */
 	if (setup.actions) {
 		store = Object.keys(setup.actions).reduce((acc, key) => {
-			acc[key] = async (payload) => {
+			acc[key] = async (payload:any) => {
 				const tmp = _block_subcall
 				if (tmp == false) _block_subcall = true
 
@@ -90,7 +90,7 @@ export function createStore(setup: StoreSetup): Store {
 	 */
 	if (setup.actionsSync) {
 		store = Object.keys(setup.actionsSync).reduce((acc, key) => {
-			acc[key] = (payload) => {
+			acc[key] = (payload:any) => {
 				const tmp = _block_subcall
 				if (tmp == false) _block_subcall = true
 
@@ -109,7 +109,7 @@ export function createStore(setup: StoreSetup): Store {
 	 */
 	if (setup.mutators) {
 		store = Object.keys(setup.mutators).reduce((acc, key) => {
-			acc[key] = (payload) => {
+			acc[key] = (payload:any) => {
 				const stub = setup.mutators[key](payload, store)
 				// if the "mutator" returns "undefined" then I do nothing
 				if (stub === undefined) return
@@ -138,6 +138,6 @@ export function createStore(setup: StoreSetup): Store {
  * Estrapola il valore di uno "state"
  */
 export function finalizeState(state: any): any {
-	if (!state) return {};
-	return typeof state === "function" ? state() : obj.cloneDeep(state);
+	if (!state) return {}
+	return typeof state === "function" ? state() : obj.cloneDeep(state)
 }

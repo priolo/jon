@@ -12,7 +12,7 @@ type CallStoreSetup = (props: Object, store: Store) => Object
 type CallStore = (props: Object) => Object | void
 export type Store = StoreCore & { [key: string]: CallStore | any }
 
-interface StoreSetup {
+export interface StoreSetup {
 	state: any,
 	getters: { [name: string]: CallStoreSetup },
 	actions: { [name: string]: CallStoreSetup },
