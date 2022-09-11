@@ -17,7 +17,6 @@
     "url": "https://github.com/priolo/jon.git"
   },
   "main": "./dist/index.js",
-  "module": "./dist/index.m.js",
   "types": "./types",
   "files": [
     "./dist",
@@ -30,8 +29,8 @@
     "build": "babel ./src --out-dir ./dist --extensions .ts,.js --ignore **/*.test.js",
     "build:watch": "cross-env NODE_ENV=development babel ./src --out-dir ./dist --extensions .ts,.js --ignore **/*.test.js --watch",
     "build:types": "npx tsc ./src/index.js --declaration --allowJs --emitDeclarationOnly --declarationMap --outDir ./types",
-    "pub": "npm publish --access public",
-    "link": "npm link C:/Users/iorio/Desktop/tests/biblio-parcel/node_modules/react"
+    "link:biblio": "npm link C:/Users/iorio/Documents/biblio/biblio-client/node_modules/react",
+    "pub": "npm publish --access public"
   },
   "//dependencies": {
     "@priolo/jon-utils#local": "file:C://Users//iorio//Documents//jon-utils",
