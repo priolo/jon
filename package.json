@@ -16,20 +16,24 @@
 		"type": "git",
 		"url": "https://github.com/priolo/jon.git"
 	},
-	"main": "dist/index.js",
-	"module": "dist/index.umd.cjs",
-	"types": "dist/index.d.ts",
-	"type": "module",
+
+  "type": "module",
+	"main": "dist/index.umd.cjs",
+	"module": "dist/index.js",
 	"files": [
 		"dist",
-		"src"
+		"src",
+    "types"
 	],
 	"scripts": {
-		"test": "react-scripts test --env=jsdom --watchAll=false ./src/tests",
 		"dev": "vite",
-		"build": "vite build",
+		"build": "tsc && vite build",
 		"preview": "vite preview",
+
+    	"test": "react-scripts test --env=jsdom --watchAll=false ./src/tests",
 		"link": "npm link C:/Users/iorio/Desktop/tests/biblio-parcel/node_modules/react",
+		"link2": "npm link C:/Users/iorio/Desktop/tests/biblio-parcel/node_modules/react-dom",
+		"link3": "npm link C:/Users/iorio/Documents/biblio/biblio-client/node_modules/react",
 		"pub": "npm publish --access public"
 	},
 	"//dependencies": {
@@ -40,16 +44,20 @@
 		"@priolo/jon-utils": "file:C://Users//iorio//Documents//jon-utils"
 	},
 	"devDependencies": {
-		"vite": "^3.1.0",
-		"@testing-library/jest-dom": "^5.16.4",
-		"@testing-library/react": "^13.0.0",
-		"@testing-library/user-event": "^14.0.4",
-		"@types/react": "^18.0.17",
-		"@types/react-dom": "^18.0.6",
-		"react": "18",
+    "react": "18",
 		"react-dom": "18",
 		"react-scripts": "5",
-		"typescript": "^4.8.2"
+    "@types/react": "^18.0.17",
+    "@types/react-dom": "^18.0.6",
+
+    "vite": "^3.1.0",
+    "@vitejs/plugin-react": "^2.1.0",
+
+    "typescript": "^4.6.4",
+
+		"@testing-library/jest-dom": "^5.16.4",
+		"@testing-library/react": "^13.0.0",
+		"@testing-library/user-event": "^14.0.4"
 	},
 	"peerDependencies": {
 		"react": ">=17",
@@ -60,16 +68,5 @@
 		"node": ">=14",
 		"npm": ">=7"
 	},
-	"browserslist": {
-		"production": [
-			">0.2%",
-			"not dead",
-			"not op_mini all"
-		],
-		"development": [
-			"last 1 chrome version",
-			"last 1 firefox version",
-			"last 1 safari version"
-		]
-	}
+	"browserslist": "defaults and supports es6-module,maintained node versions"
 }
