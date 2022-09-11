@@ -24,10 +24,10 @@
 		"src"
 	],
 	"scripts": {
-		"test": "react-scripts test --env=jsdom --watchAll=false ./src/tests",
-		"start": "parcel watch",
-		"build": "parcel build",
-		"link": "npm link C:/Users/iorio/Desktop/tests/biblio-parcel/node_modules/react",
+    "build": "parcel build",
+		"build:watch": "parcel watch",
+		"test": "react-scripts test --env=jsdom --watchAll=false ./src/tests",    
+    "link:biblio": "npm link C:/Users/iorio/Documents/biblio/biblio-client/node_modules/react",
 		"pub": "npm publish --access public"
 	},
 	"//dependencies": {
@@ -62,16 +62,5 @@
 		"node": ">=14",
 		"npm": ">=7"
 	},
-	"browserslist": {
-		"production": [
-			">0.2%",
-			"not dead",
-			"not op_mini all"
-		],
-		"development": [
-			"last 1 chrome version",
-			"last 1 firefox version",
-			"last 1 safari version"
-		]
-	}
+  "browserslist": "defaults and supports es6-module,maintained node versions"
 }
