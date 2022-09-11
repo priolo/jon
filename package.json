@@ -29,11 +29,8 @@
 		"dev": "vite",
 		"build": "tsc && vite build",
 		"preview": "vite preview",
-
-    	"test": "react-scripts test --env=jsdom --watchAll=false ./src/tests",
-		"link": "npm link C:/Users/iorio/Desktop/tests/biblio-parcel/node_modules/react",
-		"link2": "npm link C:/Users/iorio/Desktop/tests/biblio-parcel/node_modules/react-dom",
-		"link3": "npm link C:/Users/iorio/Documents/biblio/biblio-client/node_modules/react",
+   	"test": "react-scripts test --env=jsdom --watchAll=false ./src/tests",
+		"link:biblio": "npm link C:/Users/iorio/Documents/biblio/biblio-client/node_modules/react",
 		"pub": "npm publish --access public"
 	},
 	"//dependencies": {
