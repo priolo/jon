@@ -1,33 +1,39 @@
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import dts from 'vite-plugin-dts';
 
 export default defineConfig({
-  resolve: {
-    dedupe: ["react", "react-dom"],
-  },
+  plugins: [
+    react(),
+    dts({
+      insertTypesEntry: true,
+    }),
+  ],
   build: {
     lib: {
       entry: resolve(__dirname, 'src/index.js'),
-      name: 'index',
-      fileName: 'index'
+      name: 'Jon',
+      formats: ['es', 'umd'],
+      fileName: (format) => `index.${format}.js`,
     },
-    outDir: resolve(__dirname, './dist'),
+    //outDir: resolve(__dirname, './dist'),
+    rollupOptions: {
+      external: ['react', 'react-dom', 'styled-components'],
+      output: {
+        globals: {
+          react: 'React',
+          'react-dom': 'ReactDOM',
+          'styled-components': 'styled',
+        },
+      },
+    },
   },
   // resolve: {
   //     alias: [
   //         // put your alias here
   //     ]
   // },
-  plugins: [react()],
-  // rollupOptions: {
-  //   external: ['react', 'react-dom'],
-  //   output: {
-  //       globals: {
-  //           react: 'React',
-  //           'react-dom': 'ReactDOM',
-  //           'styled-components': 'styled',
-  //       },
-  //   },
-  // }
+
+  
 })
