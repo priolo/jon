@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 import React from 'react'
-import { render, fireEvent, waitFor, screen, act } from '@testing-library/react'
+import { render, fireEvent, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import { createStore, useStore } from '../lib/store/rvx_juice'
 
@@ -18,12 +18,12 @@ beforeEach(() => {
 			getUppercase: (_, { state }) => state.value.toUpperCase(),
 		},
 		actions: {
-			changeValue: (value, store) => {
-				store.setValue(`${value}... from action!`)
+			changeValue: (value, {setValue}) => {
+				setValue(`${value}... from action!`)
 			}
 		},
 		mutators: {
-			setValue: (value) => ({ value }),
+			setValue: value => ({ value }),
 		},
 	})
 })

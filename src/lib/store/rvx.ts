@@ -1,5 +1,5 @@
 import { obj } from '@priolo/jon-utils'
-import { useEffect, useState, useSyncExternalStore } from 'react'
+import { useEffect, useState, useSyncExternalStore, version } from 'react'
 import { Store, StoreSetup } from './global'
 import { EVENTS_TYPES, pluginEmit } from "./rvxPlugin"
 
@@ -11,14 +11,14 @@ let _block_subcall = false
 /**
  * HOOK to use the STORE in React v18
  */
-export function useStore(store: Store): any {
+function useStore18(store: Store): any {
 	return useSyncExternalStore(store._subscribe, () => store.state)
 }
 
 /**
  * HOOK to use the STORE in React v17
  */
-export function useStore17(store: Store): any {
+function useStore17(store: Store): any {
 	const [state, setState] = useState(store.state)
 
 	useEffect(() => {
@@ -31,6 +31,8 @@ export function useStore17(store: Store): any {
 
 	return state
 }
+
+export const useStore = version.slice(0,2)=="17" ? useStore17 : useStore18
 
 /**
  * create a STORE with a SETUP-STORE

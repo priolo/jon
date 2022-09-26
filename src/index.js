@@ -1,5 +1,5 @@
 
-import { createStore, useStore, useStore17 } from './lib/store/rvx'
+import { createStore, useStore } from './lib/store/rvx'
 import mixStores from './lib/store/mixStores'
 import { useValidator, validateAll, resetAll } from './lib/input/validator'
 import { rules } from './lib/input/rules'
@@ -13,7 +13,6 @@ import { rules } from './lib/input/rules'
 export {
 	createStore,
 	useStore,
-	useStore17,
 	mixStores,
 
 	useValidator,
