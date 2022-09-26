@@ -19,13 +19,17 @@
   "source": "src/index.js",
   "main": "dist/index.js",
   "module": "dist/module.js",
+  "types": "dist/index.d.ts",
+  "targets": {
+    "types": false
+  },
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "scripts": {
     "build": "parcel build",
     "build:watch": "parcel watch",
+    "build:type": "tsc ./src/index.js --declaration --allowJs --emitDeclarationOnly --declarationMap --outDir ./dist",
     "test": "react-scripts test --env=jsdom --watchAll=false ./src/tests",
     "link:biblio": "npm link C:/Users/iorio/Documents/biblio/biblio-client/node_modules/react",
     "pub": "npm publish --access public"
