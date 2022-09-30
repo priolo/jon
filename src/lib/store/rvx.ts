@@ -135,7 +135,7 @@ export function createStore(setup: StoreSetup): Store {
 
 	return store
 }
-
+ 
 /**
  * Estrapola il valore di uno "state"
  */
