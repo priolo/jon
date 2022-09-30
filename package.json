@@ -1,6 +1,6 @@
 {
   "name": "@priolo/jon",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "private": false,
   "keywords": [
     "react",
@@ -30,7 +30,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "test": "react-scripts test --env=jsdom --watchAll=false ./src/tests",
     "link:biblio": "npm link C:/Users/iorio/Documents/biblio/biblio-client/node_modules/react",
@@ -38,10 +38,10 @@
   },
   "//dependencies": {
     "@priolo/jon-utils#local": "file:C://Users//iorio//Documents//jon-utils",
-    "@priolo/jon-utils": "^0.2.5"
+    "@priolo/jon-utils": "^0.4.1"
   },
   "dependencies": {
-    "@priolo/jon-utils": "file:C://Users//iorio//Documents//jon-utils"
+    "@priolo/jon-utils": "^0.4.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.4",

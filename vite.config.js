@@ -19,12 +19,11 @@ export default defineConfig({
     },
     //outDir: resolve(__dirname, './dist'),
     rollupOptions: {
-      external: ['react', 'react-dom', 'styled-components'],
+      external: ['react', 'react-dom'],
       output: {
         globals: {
-          react: 'React',
+          'react': 'React',
           'react-dom': 'ReactDOM',
-          'styled-components': 'styled',
         },
       },
     },
@@ -35,5 +34,4 @@ export default defineConfig({
   //     ]
   // },
 
-  
 })
