@@ -1,8 +1,7 @@
 import React from 'react'
 import { render, fireEvent, waitFor, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
-import { createStore, useStore} from '../lib/store/rvx'
-import { addWatch } from '../lib/store/rvxPlugin'
+import { addWatch, removeWatch, createStore, useStore } from '../index'
 
 let myStore1
 let myStore2
@@ -37,6 +36,18 @@ beforeEach(() => {
 		}
 	})
 
+	
+})
+
+test('addWatch/deleteWatch', async () => {
+
+	render(<>
+		<TestView />
+		<TestCommand />
+	</>)
+
+	// addWatch
+	// se cambia "setValue1" dello store1 allora cambia anche "value" dello store2
 	addWatch({
 		store: myStore1,
 		actionName: "setValue1",
@@ -44,16 +55,7 @@ beforeEach(() => {
 			myStore2.changeValue(payload)
 		}
 	})
-})
 
-test('main watch', async () => {
-
-	render(<>
-		<TestView />
-		<TestCommand />
-	</>)
-
-	// with reducer
 	await act(async () => {
 		myStore1.changeValue1("value-changed")
 	})
@@ -63,15 +65,30 @@ test('main watch', async () => {
 	expect(myStore1.state.value1).toBe("value-changed... from 1")
 	expect(myStore1.state.value2).toBe("init value2")
 	expect(myStore2.state.value).toBe("value-changed... from 1... from 2")
+
+
+	// removeWatch
+	// lo store2 non cambia piu'
+	removeWatch({ store: myStore1 })
+
+	await act(async () => {
+		myStore1.changeValue1("value-changed-2")
+	})
+
+	await new Promise(res => setTimeout(res, 1000))
+
+	expect(myStore1.state.value1).toBe("value-changed-2... from 1")
+	expect(myStore2.state.value).toBe("value-changed... from 1... from 2")
 })
 
-
+// componente che visualizza i valori
 function TestView() {
 	//const s1 = useStore(myStore1)
 	const s2 = useStore(myStore2)
 	return <div data-testid="view">{s2.value}</div>
 }
 
+// componente che esegue le modifiche
 function TestCommand() {
 	const { changeValue, setValue } = myStore2
 	const handleClick = async () => {

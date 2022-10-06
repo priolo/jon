@@ -1,6 +1,6 @@
 import { obj } from '@priolo/jon-utils'
 import { useEffect, useState, useSyncExternalStore, version } from 'react'
-import { Store, StoreSetup } from './global'
+import { Store, StoreSetup, WatchCallback } from './global'
 import { EVENTS_TYPES, pluginEmit } from "./rvxPlugin"
 
 /** 
@@ -44,7 +44,7 @@ export function createStore(setup: StoreSetup): Store {
 		state: finalizeState(setup.state),
 
 		// the listeners that are watching the store
-		_listeners: new Set(),
+		_listeners: new Set<WatchCallback>(),
 
 		// add listener to the store. Called by "useSyncExternalStore"
 		_subscribe: (listener) => {

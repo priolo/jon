@@ -15,35 +15,35 @@ export default function mixStores(...stores: StoreSetup[]): StoreSetup | null {
 /**
  * Combines two stores
  */
-function mix(store1:StoreSetup, store2:StoreSetup): StoreSetup | null {
-	if (!store1 && !store2) return null;
-	if (!store1) return store2;
-	if (!store2) return store1;
+function mix(setup1:StoreSetup, setup2:StoreSetup): StoreSetup | null {
+	if (!setup1 && !setup2) return null;
+	if (!setup1) return setup2;
+	if (!setup2) return setup1;
 
-	const state = (typeof store1.state == "function" || typeof store2.state == "function")
+	const state = (typeof setup1.state == "function" || typeof setup2.state == "function")
 		? () => {
-			const state1 = finalizeState(store1.state);
-			const state2 = finalizeState(store2.state);
+			const state1 = finalizeState(setup1.state);
+			const state2 = finalizeState(setup2.state);
 			return { ...state1, ...state2 };
-		} : { ...store1.state, ...store2.state }
+		} : { ...setup1.state, ...setup2.state }
 
 	return {
 		state,
 		mutators: {
-			...store1.mutators,
-			...store2.mutators,
+			...setup1.mutators,
+			...setup2.mutators,
 		},
 		getters: {
-			...store1.getters,
-			...store2.getters,
+			...setup1.getters,
+			...setup2.getters,
 		},
 		actions: {
-			...store1.actions,
-			...store2.actions,
+			...setup1.actions,
+			...setup2.actions,
 		},
 		actionsSync: {
-			...store1.actionsSync,
-			...store2.actionsSync,
+			...setup1.actionsSync,
+			...setup2.actionsSync,
 		},
 	};
 }
