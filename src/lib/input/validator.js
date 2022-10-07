@@ -61,6 +61,7 @@ export function useValidator(value, rules, refName="inputRef") {
 	/** @type {[string,(error:string)=>void]} string containing the error */
 	const [error, setError] = useState(null)
 	// component ref (optional)
+	// essentially serves to give focus to the HTML component
 	const ref = useRef(null)
 	// I have to store the inserted value in the ref because otherwise I lose it if I call the validate externally
 	const refValue = useRef(value)
