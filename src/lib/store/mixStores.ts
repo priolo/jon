@@ -3,7 +3,7 @@ import { finalizeState } from "./rvx";
 
 
 /**
- * Merges the parameters and returns a derived store
+ * Merges the parameters and returns a derived SETUP-STORE
  */
 export default function mixStores(...stores: StoreSetup[]): StoreSetup | null {
 	return stores.reduce<StoreSetup|null>((acc, store) => {
@@ -13,7 +13,7 @@ export default function mixStores(...stores: StoreSetup[]): StoreSetup | null {
 }
 
 /**
- * Combines two stores
+ * Combines two SETUP-STORE
  */
 function mix(setup1:StoreSetup, setup2:StoreSetup): StoreSetup | null {
 	if (!setup1 && !setup2) return null;

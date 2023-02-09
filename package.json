@@ -29,9 +29,8 @@
     "dist"
   ],
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
+    "build-dev": "vite build --mode production --sourcemap --watch",
+    "build-prod": "vite build",
     "test": "jest --env=jsdom --watchAll=false ./src/tests",
     "link:biblio": "npm link C:/Users/iorio/Documents/biblio/biblio-client/node_modules/react",
     "pub": "npm publish --access public"
