@@ -7,6 +7,9 @@ import { addWatch, removeWatch, EVENTS_TYPES} from "./lib/store/rvxPlugin"
 import { useValidator, validateAll, resetAll } from './lib/input/validator'
 import { rules } from './lib/input/rules'
 
+export type { StoreCore, StoreSetup } from "./lib/store/global"
+
+
 export {
 	createStore,
 	useStore,

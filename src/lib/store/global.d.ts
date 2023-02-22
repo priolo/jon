@@ -4,36 +4,36 @@ import { EVENTS_TYPES } from "./rvxPlugin"
 /**
  * Lets you create a STORE with 'createStore'
  */
- interface StoreSetup {
-	state: any,
-	getters: { [name: string]: CallStoreSetup },
-	actions: { [name: string]: CallStoreSetup },
-	actionsSync: { [name: string]: CallStoreSetup },
-	mutators: { [name: string]: CallStoreSetup },
+ export interface StoreSetup<T> {
+	state: T | (()=>T),
+	getters?: { [name: any]: CallStoreSetup<T> },
+	actions?: { [name: any]: CallStoreSetup<T> },
+	actionsSync?: { [name: any]: CallStoreSetup<T> },
+	mutators?: { [name: any]: CallStoreSetup<T> },
 }
-
+ 
 /**
  * The functions of `StoreSetup` ALL have this signature
  * @param payload parameter passed to STORE
  * @param store the STORE object itself... can be seen as a kind of `this`
  */
-type CallStoreSetup = (payload: any|null, store: Store) => Object
+type CallStoreSetup<T> = (payload: any|null, store?: StoreCore<T>) => any
 
 
 
 /**
  * Instance of a STORE 
  */
-interface StoreCore {
-	state: any,
+export interface StoreCore<T> extends any {
+	state: T,
 	_listeners: Set<WatchCallback>,
 	_subscribe: (onStoreChange: WatchCallback) => (() => void),
 	_update: () => void
-}
+} 
 /**
  * Instance of a STORE with the functions that have been defined in StoreSetup
  */
-export type Store = StoreCore// & { [key: string]: CallStore }
+export type Store = StoreCore //| { [key: string]: any }
 /**
  * all STORE methods have this signature
  */

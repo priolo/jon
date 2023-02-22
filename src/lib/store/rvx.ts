@@ -1,6 +1,6 @@
 import { obj } from '@priolo/jon-utils'
 import { useEffect, useState, useSyncExternalStore, version } from 'react'
-import { Store, StoreSetup, WatchCallback } from './global'
+import { StoreCore, StoreSetup, WatchCallback } from './global'
 import { EVENTS_TYPES, pluginEmit } from "./rvxPlugin"
 
 /** 
@@ -11,14 +11,14 @@ let _block_subcall = false
 /**
  * HOOK to use the STORE in React v18
  */
-function useStore18(store: Store): any {
+function useStore18<T>(store: StoreCore<T>): T {
 	return useSyncExternalStore(store._subscribe, () => store.state)
 }
 
 /**
  * HOOK to use the STORE in React v17
  */
-function useStore17(store: Store): any {
+function useStore17<T>(store: StoreCore<T>): T {
 	const [state, setState] = useState(store.state)
 
 	useEffect(() => {
@@ -37,9 +37,9 @@ export const useStore = version.slice(0,2)=="17" ? useStore17 : useStore18
 /**
  * create a STORE with a SETUP-STORE
  */
-export function createStore(setup: StoreSetup): Store {
+export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 
-	let store: Store = {
+	let store: StoreCore<T> = {
 		// the current state of the store
 		state: finalizeState(setup.state),
 
@@ -60,7 +60,7 @@ export function createStore(setup: StoreSetup): Store {
 	 */
 	if (setup.getters) {
 		store = Object.keys(setup.getters).reduce((acc, key) => {
-			acc[key] = (payload) => {
+			acc[key] = (payload:any) => {
 				return setup.getters[key](payload, store)
 			}
 			return acc
