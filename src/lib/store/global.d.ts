@@ -4,20 +4,20 @@ import { EVENTS_TYPES } from "./rvxPlugin"
 /**
  * Lets you create a STORE with 'createStore'
  */
- export interface StoreSetup<T> {
-	state: T | (()=>T),
+export interface StoreSetup<T> {
+	state: T | (() => T),
 	getters?: { [name: any]: CallStoreSetup<T> },
 	actions?: { [name: any]: CallStoreSetup<T> },
 	actionsSync?: { [name: any]: CallStoreSetup<T> },
 	mutators?: { [name: any]: CallStoreSetup<T> },
 }
- 
+
 /**
  * The functions of `StoreSetup` ALL have this signature
  * @param payload parameter passed to STORE
  * @param store the STORE object itself... can be seen as a kind of `this`
  */
-type CallStoreSetup<T> = (payload: any|null, store?: StoreCore<T>) => any
+type CallStoreSetup<T> = (payload: any | null, store?: StoreCore<T>) => any
 
 
 
@@ -26,10 +26,13 @@ type CallStoreSetup<T> = (payload: any|null, store?: StoreCore<T>) => any
  */
 export interface StoreCore<T> extends any {
 	state: T,
-	_listeners: Set<WatchCallback>,
-	_subscribe: (onStoreChange: WatchCallback) => (() => void),
+	_listeners: Set<ReducerCallback>,
+	_subscribe: (onStoreChange: ReducerCallback) => (() => void),
 	_update: () => void
-} 
+}
+
+export type ReducerCallback = (state: any) => void
+
 /**
  * Instance of a STORE with the functions that have been defined in StoreSetup
  */
@@ -37,7 +40,7 @@ export type Store = StoreCore //| { [key: string]: any }
 /**
  * all STORE methods have this signature
  */
-type CallStore = (payload: any|null) => any | void
+type CallStore = (payload: any | null) => any | void
 
 
 
@@ -62,7 +65,7 @@ export type WatchCallback = (msg: WatchMsg) => void
 /**
  * Data of an event that occurred in a STORE. 
  */
- export interface WatchMsg {
+export interface WatchMsg {
 	/** type of event, may be: `mutator`, `action` */
 	type: EVENTS_TYPES,
 	/** STORE instance that generated this event */
