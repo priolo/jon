@@ -52,7 +52,10 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 			return () => store._listeners.delete(listener)
 		},
 
-		_update: () => store._listeners.forEach(listener => listener(store.state)),
+		_update: () => {
+			const clone = {...store.state}
+			store._listeners.forEach(listener => listener(clone))
+		},
 	}
 
 	/**
