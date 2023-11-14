@@ -53,8 +53,9 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 		},
 
 		_update: () => {
-			const clone = {...store.state}
-			store._listeners.forEach(listener => listener(clone))
+			//const clone = {...store.state}
+			store.state = { ...store.state }
+			store._listeners.forEach(listener => listener(store.state))
 		},
 	}
 
@@ -129,8 +130,9 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 					null,
 					_block_subcall
 				)
-				//store._listeners.forEach((listener) => listener(store.state));
-				store._update()
+				// [II] PERCKE NON USARE QUESTO????
+				store._listeners.forEach((listener) => listener(store.state));
+				//store._update()
 			};
 			return acc
 		}, store)
