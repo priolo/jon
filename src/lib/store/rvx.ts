@@ -1,6 +1,6 @@
 import { obj } from '@priolo/jon-utils'
 import { useEffect, useState, useSyncExternalStore, version } from 'react'
-import { ReducerCallback, StoreCore, StoreSetup, WatchCallback } from './global'
+import { FnConditionalRendering, ReducerCallback, StoreCore, StoreSetup, WatchCallback } from './global'
 import { EVENTS_TYPES, pluginEmit } from "./rvxPlugin"
 
 /** 
@@ -22,7 +22,7 @@ function useStore17<T>(store: StoreCore<T>): T {
 	const [state, setState] = useState(store.state)
 
 	useEffect(() => {
-		const listener = (s:any) => {
+		const listener = (s: any) => {
 			setState(s)
 		}
 		const unsubscribe = store._subscribe(listener)
@@ -32,7 +32,11 @@ function useStore17<T>(store: StoreCore<T>): T {
 	return state
 }
 
-export const useStore = version.slice(0,2)=="17" ? useStore17 : useStore18
+export const useStore = version.slice(0, 2) == "17" ? useStore17 : useStore18
+
+export function useStoreNext<T>(store: StoreCore<T>, fn?: FnConditionalRendering): T {
+	return useSyncExternalStore((listener) => store._subscribe(listener, fn), () => store.state)
+}
 
 /**
  * create a STORE with a SETUP-STORE
@@ -47,15 +51,18 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 		_listeners: new Set<ReducerCallback>(),
 
 		// add listener to the store. Called by "useSyncExternalStore"
-		_subscribe: (listener) => {
+		_subscribe: (listener, fn) => {
+			listener.fn = fn
 			store._listeners.add(listener)
 			return () => store._listeners.delete(listener)
 		},
 
 		_update: () => {
-			//const clone = {...store.state}
+			const oldState = store.state
 			store.state = { ...store.state }
-			store._listeners.forEach(listener => listener(store.state))
+			for (const listener of store._listeners) {
+				if (!listener.fn || listener.fn(store.state, oldState)) listener(store.state)
+			}
 		},
 	}
 
@@ -64,7 +71,7 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 	 */
 	if (setup.getters) {
 		store = Object.keys(setup.getters).reduce((acc, key) => {
-			acc[key] = (payload:any) => {
+			acc[key] = (payload: any) => {
 				return setup.getters[key](payload, store)
 			}
 			return acc
@@ -91,26 +98,6 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 	}
 
 	/**
-	 * ACTION SYNC
-	 * [II] Da eliminare
-	 */
-	if (setup.actionsSync) {
-		store = Object.keys(setup.actionsSync).reduce((acc, key) => {
-			acc[key] = (payload) => {
-				const tmp = _block_subcall
-				if (tmp == false) _block_subcall = true
-
-				const result = setup.actionsSync[key](payload, store)
-
-				pluginEmit(EVENTS_TYPES.ACTION_SYNC, store, key, payload, result, tmp)
-				if (tmp == false) _block_subcall = false
-				return result
-			};
-			return acc
-		}, store)
-	}
-
-	/**
 	 * MUTATORS
 	 */
 	if (setup.mutators) {
@@ -130,17 +117,16 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 					null,
 					_block_subcall
 				)
-				// [II] PERCKE NON USARE QUESTO????
+				// send reaction 
 				store._listeners.forEach((listener) => listener(store.state));
-				//store._update()
-			};
+			}
 			return acc
 		}, store)
 	}
 
 	return store
 }
- 
+
 /**
  * Estrapola il valore di uno "state"
  */

@@ -27,11 +27,18 @@ type CallStoreSetup<T> = (payload: any | null, store?: StoreCore<T>) => any
 export interface StoreCore<T> extends any {
 	state: T,
 	_listeners: Set<ReducerCallback>,
-	_subscribe: (onStoreChange: ReducerCallback) => (() => void),
+	_subscribe: (onStoreChange: ReducerCallback, fn?: FnConditionalRendering) => (() => void),
 	_update: () => void
 }
 
-export type ReducerCallback = (state: any) => void
+export type FnConditionalRendering = (state: any, oldState: any) => boolean
+
+export type ReducerCallback = {
+	(state: any): void;
+	fn?: FnConditionalRendering;
+}
+
+
 
 /**
  * Instance of a STORE with the functions that have been defined in StoreSetup
