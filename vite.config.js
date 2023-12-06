@@ -1,23 +1,21 @@
-import { resolve } from 'path'
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import react from '@vitejs/plugin-react-swc'
 import dts from 'vite-plugin-dts';
+
 
 export default defineConfig({
   plugins: [
     react(),
-    dts({
-      insertTypesEntry: true,
-    }),
+    dts({ insertTypesEntry: true }),
   ],
   build: {
+    sourcemap: true,
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
+      entry: 'src/index.ts',
       name: 'Jon',
       formats: ['es', 'umd'],
       fileName: (format) => `index.${format}.js`,
     },
-    //outDir: resolve(__dirname, './dist'),
     rollupOptions: {
       external: ['react', 'react-dom'],
       output: {
@@ -28,10 +26,4 @@ export default defineConfig({
       },
     },
   },
-  // resolve: {
-  //     alias: [
-  //         // put your alias here
-  //     ]
-  // },
-
 })

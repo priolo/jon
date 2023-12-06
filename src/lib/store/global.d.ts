@@ -6,10 +6,10 @@ import { EVENTS_TYPES } from "./rvxPlugin"
  */
 export interface StoreSetup<T> {
 	state: T | (() => T),
-	getters?: { [name: any]: CallStoreSetup<T> },
-	actions?: { [name: any]: CallStoreSetup<T> },
-	actionsSync?: { [name: any]: CallStoreSetup<T> },
-	mutators?: { [name: any]: CallStoreSetup<T> },
+	getters?: { [name: string]: CallStoreSetup<T> },
+	actions?: { [name: string]: CallStoreSetup<T> },
+	actionsSync?: { [name: string]: CallStoreSetup<T> },
+	mutators?: { [name: string]: CallStoreSetup<T> },
 }
 
 /**
@@ -24,7 +24,7 @@ type CallStoreSetup<T> = (payload: any | null, store?: StoreCore<T>) => any
 /**
  * Instance of a STORE 
  */
-export interface StoreCore<T> extends any {
+export interface StoreCore<T> {
 	state: T,
 	_listeners: Set<ReducerCallback>,
 	_subscribe: (onStoreChange: ReducerCallback, fn?: FnConditionalRendering) => (() => void),
@@ -43,7 +43,7 @@ export type ReducerCallback = {
 /**
  * Instance of a STORE with the functions that have been defined in StoreSetup
  */
-export type Store = StoreCore //| { [key: string]: any }
+export type Store = StoreCore<any> //| { [key: string]: any }
 /**
  * all STORE methods have this signature
  */
