@@ -5,7 +5,7 @@ import { EVENTS_TYPES } from "./rvxPlugin"
  * Lets you create a STORE with 'createStore'
  */
 export interface StoreSetup<T> {
-	state: T | (() => T),
+	state?: T | (() => T),
 	getters?: { [name: string]: CallStoreSetup<T> },
 	actions?: { [name: string]: CallStoreSetup<T> },
 	actionsSync?: { [name: string]: CallStoreSetup<T> },

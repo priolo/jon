@@ -12,6 +12,7 @@ let _block_subcall = false
  * HOOK to use the STORE in React v18
  */
 function useStore18<T>(store: StoreCore<T>): T {
+	if ( !store ) return null
 	return useSyncExternalStore(store._subscribe, () => store.state)
 }
 
@@ -35,6 +36,7 @@ function useStore17<T>(store: StoreCore<T>): T {
 export const useStore = version.slice(0, 2) == "17" ? useStore17 : useStore18
 
 export function useStoreNext<T>(store: StoreCore<T>, fn?: FnConditionalRendering): T {
+	if ( !store ) return null
 	return useSyncExternalStore((listener) => store._subscribe(listener, fn), () => store.state)
 }
 
