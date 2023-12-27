@@ -1,6 +1,4 @@
-import React from 'react'
-import { render, fireEvent, waitFor, screen, act } from '@testing-library/react'
-import '@testing-library/jest-dom/extend-expect'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { createStore, useStore } from '../lib/store/rvx'
 import { addWatch } from '../lib/store/rvxPlugin'
 

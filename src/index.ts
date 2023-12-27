@@ -1,5 +1,5 @@
 
-import { createStore, useStore } from './lib/store/rvx'
+import { createStore, useStore, useStoreNext } from './lib/store/rvx'
 import mixStores from './lib/store/mixStores'
 
 import { addWatch, removeWatch, EVENTS_TYPES} from "./lib/store/rvxPlugin"
@@ -13,6 +13,7 @@ export type { StoreCore, StoreSetup } from "./lib/store/global"
 export {
 	createStore,
 	useStore,
+	useStoreNext,
 	mixStores,
 
 	addWatch,

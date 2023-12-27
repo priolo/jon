@@ -1,4 +1,3 @@
-import '@testing-library/jest-dom/extend-expect'
 import { rules } from '../lib/input/rules'
 
 

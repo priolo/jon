@@ -1,7 +1,5 @@
-import React from 'react'
-import { render, fireEvent, waitFor, screen, act } from '@testing-library/react'
-import '@testing-library/jest-dom/extend-expect'
-import { addWatch, removeWatch, createStore, useStore } from '../index'
+import { act, render } from '@testing-library/react'
+import { addWatch, createStore, removeWatch, useStore } from '../index'
 
 let myStore1
 let myStore2

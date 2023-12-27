@@ -1,8 +1,6 @@
-import React from 'react'
-import { render, fireEvent, waitFor, screen, act } from '@testing-library/react'
-import '@testing-library/jest-dom/extend-expect'
-import { createStore, useStore} from '../lib/store/rvx'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import mixStores from '../lib/store/mixStores'
+import { createStore, useStore } from '../lib/store/rvx'
 
 
 let myStore

@@ -12,7 +12,7 @@ let _block_subcall = false
  * HOOK to use the STORE in React v18
  */
 function useStore18<T>(store: StoreCore<T>): T {
-	if ( !store ) return null
+	if (!store) return null
 	return useSyncExternalStore(store._subscribe, () => store.state)
 }
 
@@ -35,8 +35,11 @@ function useStore17<T>(store: StoreCore<T>): T {
 
 export const useStore = version.slice(0, 2) == "17" ? useStore17 : useStore18
 
-export function useStoreNext<T>(store: StoreCore<T>, fn?: FnConditionalRendering): T {
-	if ( !store ) return null
+/**
+ * use a STORE only if the condition evaluates to true
+ */
+export function useStoreNext<T>(store: StoreCore<T>, fn?: FnConditionalRendering<T>): T {
+	if (!store) return null
 	return useSyncExternalStore((listener) => store._subscribe(listener, fn), () => store.state)
 }
 
@@ -50,7 +53,7 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 		state: finalizeState(setup.state),
 
 		// the listeners that are watching the store
-		_listeners: new Set<ReducerCallback>(),
+		_listeners: new Set<ReducerCallback<T>>(),
 
 		// add listener to the store. Called by "useSyncExternalStore"
 		_subscribe: (listener, fn) => {
@@ -59,8 +62,8 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 			return () => store._listeners.delete(listener)
 		},
 
-		_update: () => {
-			const oldState = store.state
+		/** smista l'aggiornamento a tutti i listener dello STORE */
+		_update: (oldState?: T) => {
 			store.state = { ...store.state }
 			for (const listener of store._listeners) {
 				if (!listener.fn || listener.fn(store.state, oldState)) listener(store.state)
@@ -110,6 +113,7 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 				if (stub === undefined) return
 				// to optimize check if there is any change and dispath on plugins
 				if (Object.keys(stub).every((key) => stub[key] === store.state[key])) return
+				const old = store.state
 				store.state = { ...store.state, ...stub }
 				pluginEmit(
 					EVENTS_TYPES.MUTATION,
@@ -120,7 +124,9 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 					_block_subcall
 				)
 				// send reaction 
-				store._listeners.forEach((listener) => listener(store.state));
+				for (const listener of store._listeners) {
+					if (!listener.fn || listener.fn(store.state, old)) listener(store.state)
+				}
 			}
 			return acc
 		}, store)

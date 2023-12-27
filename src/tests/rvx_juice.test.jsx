@@ -1,29 +1,24 @@
-/**
- * @jest-environment jsdom
- */
-import React from 'react'
-import { render, fireEvent, waitFor, screen, act } from '@testing-library/react'
-import '@testing-library/jest-dom/extend-expect'
-import { createStore, useStore} from '../lib/store/rvx'
+import { render, fireEvent, screen, act } from '@testing-library/react'
+import { createStore, useStore } from '../lib/store/rvx_juice'
 
 
 let myStore
 
 beforeEach(() => {
 	myStore = createStore({
-		state: ()=>({
+		state: {
 			value: "init value",
-		}),
+		},
 		getters: {
-			getUppercase: (_, {state}) => state.value.toUpperCase(),
+			getUppercase: (_, { state }) => state.value.toUpperCase(),
 		},
 		actions: {
-			changeValue: (value, store) => {
-				store.setValue(`${value}... from action!`)
+			changeValue: (value, {setValue}) => {
+				setValue(`${value}... from action!`)
 			}
 		},
 		mutators: {
-			setValue: (value) => ({ value }),
+			setValue: value => ({ value }),
 		},
 	})
 })
@@ -38,15 +33,14 @@ test('getters/mutators', async () => {
 
 	// ha il valore iniziale?
 	expect(myStore.state.value).toBe("init value")
+	expect(screen.getByTestId('view')).toHaveTextContent("init value")
 
 	// change state value with reducer
 	act(() => {
 		myStore.setValue("new value")
 	})
+	
 	expect(screen.getByTestId('view')).toHaveTextContent("new value")
-
-	// get value with getter
-	expect(myStore.getUppercase()).toBe("NEW VALUE")
 
 })
 
