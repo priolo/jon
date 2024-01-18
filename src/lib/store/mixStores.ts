@@ -45,5 +45,6 @@ function mix<T>(setup1:StoreSetup<T>, setup2:StoreSetup<T>): StoreSetup<T> | nul
 			...setup1.actionsSync,
 			...setup2.actionsSync,
 		},
+		onListenerChange: setup2.onListenerChange ?? setup1.onListenerChange
 	};
 }

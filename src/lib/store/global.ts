@@ -5,6 +5,7 @@ import { EVENTS_TYPES } from "./rvxPlugin"
  * Lets you create a STORE with 'createStore'
  */
 export interface StoreSetup<T> {
+	onListenerChange?: (store: any) => void
 	state?: T | (() => T),
 	getters?: { [name: string]: CallStoreSetup<T> },
 	actions?: { [name: string]: CallStoreSetup<T> },
@@ -26,9 +27,11 @@ type CallStoreSetup<T> = (payload: any | null, store?: StoreCore<T>) => any
  */
 export interface StoreCore<T> {
 	state: T,
-	_listeners: Set<ReducerCallback<T>>,
-	_subscribe: (onStoreChange: ReducerCallback<T>, fn?: FnConditionalRendering<T>) => (() => void),
+	_listeners: Set<ReducerCallback<any>>,
+	_subscribe: (onStoreChange: ReducerCallback<any>, fn?: FnConditionalRendering<any>) => (() => void),
 	_update: () => void
+	/** chiamato quando i listener cambiano */
+	_listenerChange?: (store: any) => void
 }
 
 export type FnConditionalRendering<T> = (state: T, oldState: T) => boolean

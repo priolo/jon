@@ -59,7 +59,11 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 		_subscribe: (listener, fn) => {
 			listener.fn = fn
 			store._listeners.add(listener)
-			return () => store._listeners.delete(listener)
+			store._listenerChange?.(store)
+			return () => {
+				store._listeners.delete(listener)
+				store._listenerChange?.(store)
+			}
 		},
 
 		/** smista l'aggiornamento a tutti i listener dello STORE */
@@ -69,7 +73,11 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 				if (!listener.fn || listener.fn(store.state, oldState)) listener(store.state)
 			}
 		},
+
+		_listenerChange: null,
 	}
+
+	store._listenerChange = setup.onListenerChange
 
 	/**
 	 * GETTERS
@@ -99,7 +107,7 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 				return result
 			}
 			return acc
-		}, store);
+		}, store)
 	}
 
 	/**
