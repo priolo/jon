@@ -1,11 +1,17 @@
 import { EVENTS_TYPES } from "./rvxPlugin"
 
 
+/** Indica di che tipo è l'evento "onListenerChange" */
+export enum LISTENER_CHANGE {
+	ADD = 0,
+	REMOVE,
+}
+
 /**
  * Lets you create a STORE with 'createStore'
  */
 export interface StoreSetup<T> {
-	onListenerChange?: (store: any) => void
+	onListenerChange?: (store: any, type: LISTENER_CHANGE) => void
 	state?: T | (() => T),
 	getters?: { [name: string]: CallStoreSetup<T> },
 	actions?: { [name: string]: CallStoreSetup<T> },
@@ -31,7 +37,7 @@ export interface StoreCore<T> {
 	_subscribe: (onStoreChange: ReducerCallback<any>, fn?: FnConditionalRendering<any>) => (() => void),
 	_update: () => void
 	/** chiamato quando i listener cambiano */
-	_listenerChange?: (store: any) => void
+	_listenerChange?: (store: any, type: LISTENER_CHANGE) => void
 }
 
 export type FnConditionalRendering<T> = (state: T, oldState: T) => boolean

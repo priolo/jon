@@ -1,6 +1,6 @@
 import { obj } from '@priolo/jon-utils'
 import { useEffect, useState, useSyncExternalStore, version } from 'react'
-import { FnConditionalRendering, ReducerCallback, StoreCore, StoreSetup, WatchCallback } from './global'
+import { FnConditionalRendering, LISTENER_CHANGE, ReducerCallback, StoreCore, StoreSetup, WatchCallback } from './global'
 import { EVENTS_TYPES, pluginEmit } from "./rvxPlugin"
 
 /** 
@@ -43,6 +43,8 @@ export function useStoreNext<T>(store: StoreCore<T>, fn?: FnConditionalRendering
 	return useSyncExternalStore((listener) => store._subscribe(listener, fn), () => store.state)
 }
 
+
+
 /**
  * create a STORE with a SETUP-STORE
  */
@@ -59,10 +61,10 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 		_subscribe: (listener, fn) => {
 			listener.fn = fn
 			store._listeners.add(listener)
-			store._listenerChange?.(store)
+			store._listenerChange?.(store, LISTENER_CHANGE.ADD)
 			return () => {
 				store._listeners.delete(listener)
-				store._listenerChange?.(store)
+				store._listenerChange?.(store, LISTENER_CHANGE.REMOVE)
 			}
 		},
 
