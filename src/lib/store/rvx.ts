@@ -11,7 +11,7 @@ let _block_subcall = false
 /**
  * HOOK to use the STORE in React v18
  */
-function useStore18<T>(store: StoreCore<T>): T {
+export function useStore<T>(store: StoreCore<T>): T {
 	if (!store) return null
 	return useSyncExternalStore(store._subscribe, () => store.state)
 }
@@ -33,7 +33,8 @@ function useStore17<T>(store: StoreCore<T>): T {
 	return state
 }
 
-export const useStore = version.slice(0, 2) == "17" ? useStore17 : useStore18
+//export const useStore = version.slice(0, 2) == "17" ? useStore17 : useStore18
+
 
 /**
  * use a STORE only if the condition evaluates to true
@@ -71,6 +72,7 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 		/** smista l'aggiornamento a tutti i listener dello STORE */
 		_update: (oldState?: T) => {
 			store.state = { ...store.state }
+			store._stateChange?.(store, oldState)
 			for (const listener of store._listeners) {
 				if (!listener.fn || listener.fn(store.state, oldState)) listener(store.state)
 			}
@@ -80,6 +82,7 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 	}
 
 	store._listenerChange = setup.onListenerChange
+	store._stateChange = setup.onStateChange
 
 	/**
 	 * GETTERS
@@ -133,6 +136,7 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 					null,
 					_block_subcall
 				)
+				store._stateChange?.(store, old)
 				// send reaction 
 				for (const listener of store._listeners) {
 					if (!listener.fn || listener.fn(store.state, old)) listener(store.state)
