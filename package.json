@@ -25,7 +25,7 @@
   ],
   "scripts": {
     "build-dev": "vite build --mode production --sourcemap --watch",
-    "build-prod": "vite build",
+    "build": "vite build",    
     "test": "vitest",
     "link:biblio": "npm link C:/Users/iorio/Documents/biblio/biblio-client/node_modules/react",
     "pub": "npm publish --access public"
