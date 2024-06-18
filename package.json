@@ -3,6 +3,12 @@
   "version": "0.7.7",
   "private": false,
   "type": "module",
+  "main": "./dist/index.umd.js",
+  "module": "./dist/index.es.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "keywords": [
     "react",
     "store",
@@ -17,17 +23,10 @@
     "type": "git",
     "url": "https://github.com/priolo/jon.git"
   },
-  "main": "./dist/index.umd.js",
-  "module": "./dist/index.es.js",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "build-dev": "vite build --mode production --sourcemap --watch",
-    "build": "vite build",    
+    "build": "vite build",
     "test": "vitest",
-    "link:biblio": "npm link C:/Users/iorio/Documents/biblio/biblio-client/node_modules/react",
     "pub": "npm publish --access public"
   },
   "//dependencies": {
@@ -35,35 +34,27 @@
     "@priolo/jon-utils": "^0.4.1"
   },
   "dependencies": {
-    "@priolo/jon-utils": "^0.4.1"
+    "@priolo/jon-utils": "^0.4.3"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",
-    "@types/react": "^18.2.37",
-    "@types/react-dom": "^18.2.15",
-    "@typescript-eslint/eslint-plugin": "^6.10.0",
-    "@typescript-eslint/parser": "^6.10.0",
-    "@vitejs/plugin-react-swc": "^3.5.0",
-    "eslint": "^8.53.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.4",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "jsdom": "latest",    
-    "typescript": "^5.2.2",
-    "vite": "^5.2.12",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react-swc": "^3.7.0",
+    "jsdom": "latest",
+    "typescript": "^5.4.5",
+    "vite": "^5.3.1",
     "vite-plugin-dts": "^3.9.1",
     "vitest": "^1.6.0"
   },
   "peerDependencies": {
-    "react": "18",
-    "react-dom": "18"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "engines": {
-    "node": ">=14",
-    "npm": ">=7"
+    "node": ">=16"
   },
   "browserslist": "defaults and supports es6-module,maintained node versions"
 }

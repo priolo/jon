@@ -9,7 +9,7 @@ import dts from 'vite-plugin-dts';
 export default defineConfig({
 	plugins: [
 		react(),
-		dts({ insertTypesEntry: true }),
+		dts(),
 	],
 	build: {
 		sourcemap: true,
@@ -20,13 +20,14 @@ export default defineConfig({
 			fileName: (format) => `index.${format}.js`,
 		},
 		rollupOptions: {
-			external: ['react', 'react-dom'],
+			external: (id) => ["react", "react-dom"].includes(id) || id.endsWith('.test.ts') || id.endsWith('.test.jsx'),
 			output: {
 				globals: {
 					'react': 'React',
 					'react-dom': 'ReactDOM',
 				},
 			},
+
 		},
 	},
 	test: {

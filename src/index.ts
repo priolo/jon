@@ -1,29 +1,11 @@
 
-import { createStore, useStore, useStoreNext } from './lib/store/rvx'
-import mixStores from './lib/store/mixStores'
+export { createStore, useStore, useStoreNext } from './lib/store/rvx'
+export { default as mixStores} from './lib/store/mixStores'
 
-import { addWatch, removeWatch, EVENTS_TYPES } from "./lib/store/rvxPlugin"
+export { addWatch, removeWatch, EVENTS_TYPES } from "./lib/store/rvxPlugin"
 
-import { useValidator, validateAll, resetAll } from './lib/input/validator'
-import { rules } from './lib/input/rules'
+export { useValidator, validateAll, resetAll } from './lib/input/validator'
+export { rules } from './lib/input/rules'
 
 export { LISTENER_CHANGE } from "./lib/store/global"
 export type { StoreCore, StoreSetup } from "./lib/store/global"
-
-
-export {
-	createStore,
-	useStore,
-	useStoreNext,
-	mixStores,
-
-	addWatch,
-	removeWatch,
-	EVENTS_TYPES,
-
-	useValidator,
-	validateAll,
-	resetAll,
-	rules,
-}
-
