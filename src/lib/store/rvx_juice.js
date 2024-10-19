@@ -6,26 +6,18 @@ function useStore18(store) {
 }
 function useStore17(store) {
 	const [state, setState] = useState(store.state)
-	useEffect(() => {
-		const listener = (s) => setState(s)
-		const unsubscribe = store._subscribe(listener)
-		return unsubscribe
-	}, [store])
+	useEffect(() => store._subscribe(setState), [store])
 	return state
-
 }
 export const useStore = version.slice(0,2)=="17" ? useStore17 : useStore18
 
 export function createStore(setup, name) {
 
 	let store = {
-
 		// the current state of the store
 		state: setup.state,
-
 		// the listeners that are watching the store
 		_listeners: new Set(),
-
 		// add listener to the store
 		_subscribe: (listener) => {
 			store._listeners.add(listener)
@@ -67,4 +59,3 @@ export function createStore(setup, name) {
 
 	return store
 }
-

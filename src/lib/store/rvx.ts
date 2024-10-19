@@ -81,7 +81,9 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 		_listenerChange: null,
 	}
 
+	// chiamato quando il numero di "listeners" cambia. è utile per capire se listanta di uno store è ancora attiva oppure se è la prima istanza creata
 	store._listenerChange = setup.onListenerChange
+	// chiamato ognii volta che lo "state" cambia. E' un alternativa "easy" al "addWatch"
 	store._stateChange = setup.onStateChange
 
 	/**

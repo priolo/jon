@@ -4,6 +4,7 @@
 /.vscode
 /dist
 /node_modules
+/res
 
 # misc
 .parcel-cache
