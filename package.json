@@ -2,19 +2,6 @@
   "name": "@priolo/jon",
   "version": "0.7.7",
   "private": false,
-  "type": "module",
-  "main": "./dist/index.umd.js",
-  "module": "./dist/index.es.js",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "keywords": [
-    "react",
-    "store",
-    "hooks",
-    "reducer"
-  ],
   "description": "React manager state with reducers hooks",
   "author": "Iorio Ivano <iorioivano@gmail.com>",
   "license": "MIT",
@@ -23,6 +10,23 @@
     "type": "git",
     "url": "https://github.com/priolo/jon.git"
   },
+  "keywords": [
+    "react",
+    "store",
+    "hooks",
+    "reducer"
+  ],
+
+
+  "type": "module",
+  "main": "./dist/index.umd.js",
+  "module": "./dist/index.es.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+
+  
   "scripts": {
     "build-dev": "vite build --mode production --sourcemap --watch",
     "build": "vite build",

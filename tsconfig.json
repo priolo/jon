@@ -1,16 +1,17 @@
 {
   "compilerOptions": {
     "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+
     "useDefineForClassFields": true,
     "lib": [
       "DOM",
       "DOM.Iterable",
       "ESNext"
     ],
-    "module": "ESNext",
     "skipLibCheck": true,
-    "moduleResolution": "Node",
-    "esModuleInterop": false,
+   "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
     "strict": false,
     "forceConsistentCasingInFileNames": true,

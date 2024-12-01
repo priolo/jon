@@ -10,7 +10,7 @@ export enum LISTENER_CHANGE {
 /**
  * Lets you create a STORE with 'createStore'
  */
-export interface StoreSetup<T> {
+export interface StoreSetup<T=any> {
 	/** quando cambiano i LISTERNES */
 	onListenerChange?: (store: any, type: LISTENER_CHANGE) => void
 	/** quanto lo stato dello STORE cambia */
@@ -34,7 +34,7 @@ type CallStoreSetup<T> = (payload: any | null, store?: StoreCore<T>) => any
 /**
  * Instance of a STORE 
  */
-export interface StoreCore<T> {
+export interface StoreCore<T=any> {
 	state: T,
 	_listeners: Set<ReducerCallback<any>>,
 	_subscribe: (onStoreChange: ReducerCallback<any>, fn?: FnConditionalRendering<any>) => (() => void),
