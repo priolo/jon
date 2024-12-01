@@ -28,9 +28,10 @@
 
   
   "scripts": {
-    "build-dev": "vite build --mode production --sourcemap --watch",
     "build": "vite build",
+    "build:watch": "vite build --mode production --sourcemap --watch",
     "test": "vitest",
+    "prepublishOnly": "npm run build",
     "pub": "npm publish --access public"
   },
   "//dependencies": {
