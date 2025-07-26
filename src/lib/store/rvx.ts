@@ -1,6 +1,6 @@
 import { obj } from '@priolo/jon-utils'
-import { useEffect, useState, useSyncExternalStore, version } from 'react'
-import { FnConditionalRendering, LISTENER_CHANGE, ReducerCallback, StoreCore, StoreSetup, WatchCallback } from './global'
+import { useSyncExternalStore } from 'react'
+import { FnConditionalRendering, LISTENER_CHANGE, ReducerCallback, StoreCore, StoreSetup } from './global'
 import { EVENTS_TYPES, pluginEmit } from "./rvxPlugin"
 
 /** 
@@ -19,19 +19,19 @@ export function useStore<T>(store: StoreCore<T>): T {
 /**
  * HOOK to use the STORE in React v17
  */
-function useStore17<T>(store: StoreCore<T>): T {
-	const [state, setState] = useState(store.state)
+// function useStore17<T>(store: StoreCore<T>): T {
+// 	const [state, setState] = useState(store.state)
 
-	useEffect(() => {
-		const listener = (s: any) => {
-			setState(s)
-		}
-		const unsubscribe = store._subscribe(listener)
-		return unsubscribe
-	}, [store])
+// 	useEffect(() => {
+// 		const listener = (s: any) => {
+// 			setState(s)
+// 		}
+// 		const unsubscribe = store._subscribe(listener)
+// 		return unsubscribe
+// 	}, [store])
 
-	return state
-}
+// 	return state
+// }
 
 //export const useStore = version.slice(0, 2) == "17" ? useStore17 : useStore18
 

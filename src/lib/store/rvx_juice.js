@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore, version } from 'react'
+import { useEffect, useState, useSyncExternalStore/*, version*/ } from 'react'
 
 // HOOK to use the STORE 
 function useStore18(store) {
@@ -9,7 +9,7 @@ function useStore17(store) {
 	useEffect(() => store._subscribe(setState), [store])
 	return state
 }
-export const useStore = version.slice(0,2)=="17" ? useStore17 : useStore18
+export const useStore = /*version.slice(0,2)=="17" ? useStore17 :*/ useStore18
 
 export function createStore(setup, name) {
 

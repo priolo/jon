@@ -1,4 +1,4 @@
-import { EVENTS_TYPES } from "./rvxPlugin"
+import { EVENTS_TYPES } from "./rvxPlugin.js"
 
 
 /** Indica di che tipo è l'evento "onListenerChange" */
