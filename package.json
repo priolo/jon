@@ -1,6 +1,6 @@
 {
   "name": "@priolo/jon",
-  "version": "0.7.7",
+  "version": "0.7.8",
   "private": false,
   "description": "React manager state with reducers hooks",
   "author": "Iorio Ivano <iorioivano@gmail.com>",
@@ -55,8 +55,8 @@
     "vitest": "^1.6.0"
   },
   "peerDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
   },
   "engines": {
     "node": ">=16"
