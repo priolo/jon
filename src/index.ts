@@ -9,3 +9,5 @@ export { rules } from './lib/input/rules'
 
 export { LISTENER_CHANGE } from "./lib/store/global"
 export type { StoreCore, StoreSetup } from "./lib/store/global"
+
+export { renderOnChange, equalsSome, equalsIgnore } from './lib/store/utils'
