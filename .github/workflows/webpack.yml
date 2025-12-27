@@ -13,10 +13,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Use Node.js 14
-      uses: actions/setup-node@v2
+    - name: Use Node.js 18
+      uses: actions/setup-node@v3
       with:
-        node-version: '14'
+        node-version: '18'
         
     - name: Install dependency
       run: npm install
