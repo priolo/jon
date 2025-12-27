@@ -11,9 +11,9 @@ let _block_subcall = false
 /**
  * HOOK to use the STORE in React v18
  */
-export function useStore<T>(store: StoreCore<T>): T {
-	if (!store) return null
-	return useSyncExternalStore(store._subscribe, () => store.state)
+export function useStore<T, R = T>(store: StoreCore<T>, selector: (state: T) => R = (state: T) => state as unknown as R): R {
+	if (!store) return null as unknown as R
+	return useSyncExternalStore(store._subscribe, () => selector(store.state))
 }
 
 /**
