@@ -1,15 +1,10 @@
-import { useEffect, useState, useSyncExternalStore/*, version*/ } from 'react'
+import { useSyncExternalStore } from 'react'
 
 // HOOK to use the STORE 
-function useStore18(store) {
-	return useSyncExternalStore(store._subscribe, () => store.state)
+export function useStore(store, selector = (state) => state) {
+	if (!store) return null
+	return useSyncExternalStore(store._subscribe, () => selector(store.state))
 }
-function useStore17(store) {
-	const [state, setState] = useState(store.state)
-	useEffect(() => store._subscribe(setState), [store])
-	return state
-}
-export const useStore = /*version.slice(0,2)=="17" ? useStore17 :*/ useStore18
 
 export function createStore(setup, name) {
 

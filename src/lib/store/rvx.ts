@@ -17,26 +17,6 @@ export function useStore<T>(store: StoreCore<T>): T {
 }
 
 /**
- * HOOK to use the STORE in React v17
- */
-// function useStore17<T>(store: StoreCore<T>): T {
-// 	const [state, setState] = useState(store.state)
-
-// 	useEffect(() => {
-// 		const listener = (s: any) => {
-// 			setState(s)
-// 		}
-// 		const unsubscribe = store._subscribe(listener)
-// 		return unsubscribe
-// 	}, [store])
-
-// 	return state
-// }
-
-//export const useStore = version.slice(0, 2) == "17" ? useStore17 : useStore18
-
-
-/**
  * use a STORE only if the condition evaluates to true
  */
 export function useStoreNext<T>(store: StoreCore<T>, fn?: FnConditionalRendering<T>): T {
@@ -49,7 +29,7 @@ export function useStoreNext<T>(store: StoreCore<T>, fn?: FnConditionalRendering
 /**
  * create a STORE with a SETUP-STORE
  */
-export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
+export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> & Record<string, any> {
 
 	let store: StoreCore<T> = {
 		// the current state of the store
@@ -90,9 +70,9 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 	 * GETTERS
 	 */
 	if (setup.getters) {
-		store = Object.keys(setup.getters).reduce((acc, key) => {
+		store = Object.keys(setup.getters).reduce((acc: any, key) => {
 			acc[key] = (payload: any) => {
-				return setup.getters[key](payload, store)
+				return setup.getters![key](payload, store)
 			}
 			return acc
 		}, store)
@@ -102,12 +82,12 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 	 * ACTIONS
 	 */
 	if (setup.actions) {
-		store = Object.keys(setup.actions).reduce((acc, key) => {
-			acc[key] = async (payload) => {
+		store = Object.keys(setup.actions).reduce((acc: any, key) => {
+			acc[key] = async (payload: any) => {
 				const tmp = _block_subcall
 				if (tmp == false) _block_subcall = true
 
-				const result = await setup.actions[key](payload, store)
+				const result = await setup.actions![key](payload, store)
 
 				pluginEmit(EVENTS_TYPES.ACTION, store, key, payload, result, tmp)
 				if (tmp == false) _block_subcall = false
@@ -121,9 +101,9 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 	 * MUTATORS
 	 */
 	if (setup.mutators) {
-		store = Object.keys(setup.mutators).reduce((acc, key) => {
-			acc[key] = (payload) => {
-				const stub = setup.mutators[key](payload, store)
+		store = Object.keys(setup.mutators).reduce((acc: any, key) => {
+			acc[key] = (payload: any) => {
+				const stub = setup.mutators![key](payload, store)
 				// if the "mutator" returns "undefined" then I do nothing
 				if (stub === undefined) return
 				// to optimize check if there is any change and dispath on plugins
@@ -148,13 +128,13 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> {
 		}, store)
 	}
 
-	return store
+	return store as StoreCore<T> & Record<string, any>
 }
 
 /**
  * Estrapola il valore di uno "state"
  */
-export function finalizeState(state: any): any {
-	if (!state) return {};
-	return typeof state === "function" ? state() : obj.cloneDeep(state);
+export function finalizeState<T>(state: T | (() => T) | undefined): T {
+	if (!state) return {} as T;
+	return typeof state === "function" ? (state as () => T)() : obj.cloneDeep(state) as T;
 }
