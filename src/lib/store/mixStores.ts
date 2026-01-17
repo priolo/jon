@@ -4,6 +4,8 @@ import { finalizeState } from "./rvx";
 
 /**
  * Merges the parameters and returns a derived SETUP-STORE
+ * @example
+ * const mixedSetup = mixStores(setup1, setup2, setup3);
  */
 export default function mixStores(...stores: StoreSetup<any>[]): StoreSetup<any> | null {
 	return stores.reduce<StoreSetup<any>|null>((acc, store) => {
@@ -14,6 +16,8 @@ export default function mixStores(...stores: StoreSetup<any>[]): StoreSetup<any>
 
 /**
  * Combines two SETUP-STORE
+ * @example
+ * const mixedSetup = mix(setup1, setup2);
  */
 function mix<T>(setup1:StoreSetup<T>, setup2:StoreSetup<T>): StoreSetup<T> | null {
 	if (!setup1 && !setup2) return null;

@@ -3,24 +3,28 @@ import { useSyncExternalStore } from 'react'
 import { FnConditionalRendering, LISTENER_CHANGE, ReducerCallback, StoreCore, StoreSetup } from './global'
 import { EVENTS_TYPES, pluginEmit } from "./rvxPlugin"
 
+
+
 /** 
  * Indicates whether the last block of code was called internally at the store or not 
  */
 let _block_subcall = false
 
 /**
- * HOOK to use the STORE in React v18
+ * HOOK to use the STORE in React
+ * @example
+ * const state = useStore(store, (state) => ({ count: state.count }) )
  */
-export function useStore<T, R = T>(store: StoreCore<T>, selector: (state: T) => R = (state: T) => state as unknown as R): R {
-	if (!store) return null as unknown as R
+export function useStore<T>(store: StoreCore<T>, selector: (state: T) => T = (state: T) => state as T): T {
 	return useSyncExternalStore(store._subscribe, () => selector(store.state))
 }
 
 /**
  * use a STORE only if the condition evaluates to true
+ * @example
+ * const state = useStoreNext(store, (state, oldState) => state.count !== oldState.count)
  */
 export function useStoreNext<T>(store: StoreCore<T>, fn?: FnConditionalRendering<T>): T {
-	if (!store) return null
 	return useSyncExternalStore((listener) => store._subscribe(listener, fn), () => store.state)
 }
 
@@ -28,6 +32,29 @@ export function useStoreNext<T>(store: StoreCore<T>, fn?: FnConditionalRendering
 
 /**
  * create a STORE with a SETUP-STORE
+ * @example
+ 	const mySetup = {
+		// The immutable single source of truth.
+		state: {
+			value: "init value"
+		},
+		// Pure functions return a "processed" value of the STATE.
+		getters: {		
+			getUppercase: (_, store) => store.state.value.toUpperCase()
+		},
+		// They do things! For example: here you have to put API calls to the server
+		actions: {
+			addAtEnd: (payload, store) => {
+				store.setValue(store.state.value + payload)
+			}
+		},
+		// The only ones that can replace the STATE with a new one.
+		// NOTE: JON merges the returned property with the previous STATE.
+		mutators: {
+		   setValue: (value) => ({value})
+		}
+	}
+ 	const store = createStore(setup);
  */
 export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> & Record<string, any> {
 
@@ -132,7 +159,7 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> & Record<stri
 }
 
 /**
- * Estrapola il valore di uno "state"
+ * Extracts the value of a "state" (accepts a direct object or a function returning the state)
  */
 export function finalizeState<T>(state: T | (() => T) | undefined): T {
 	if (!state) return {} as T;

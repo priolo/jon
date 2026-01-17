@@ -39,7 +39,7 @@ describe('useStore with selector', () => {
         })
 
         expect(screen.getByTestId('count')).toHaveTextContent('1')
-        expect(renderCount).toBe(2) 
+        expect(renderCount).toBe(2)
     })
 
     it('should work without selector (backward compatibility)', () => {
@@ -62,5 +62,36 @@ describe('useStore with selector', () => {
             store.inc(5)
         })
         expect(screen.getByTestId('count-full')).toHaveTextContent('15')
+    })
+
+    it('test33333', () => {
+        const myStore = createStore({
+            state: {
+                text: "init value",
+                count: 0,
+            },
+            mutators: {
+                setText: text => ({ text }),
+                setCount: count => ({ count }),
+            },
+        })
+
+        let renderCount = 0
+
+        function Counter() {
+            useStore(myStore, state => state.text)
+            useStore(myStore, state => state.count)
+            //useStore(myStore)
+            renderCount++
+            return <div data-testid="count">{myStore.state.count}</div>
+        }
+        render(<Counter />)
+
+        // Update selected state -> should re-render
+        act(() => {
+            myStore.setText("pippo")
+        })
+
+        expect(renderCount).toBe(1)
     })
 })
