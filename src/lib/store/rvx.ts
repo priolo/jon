@@ -3,10 +3,9 @@ import { useSyncExternalStore } from 'react'
 import { FnConditionalRendering, LISTENER_CHANGE, ReducerCallback, StoreCore, StoreSetup } from './global'
 import { EVENTS_TYPES, pluginEmit } from "./rvxPlugin"
 
-
-
 /** 
  * Indicates whether the last block of code was called internally at the store or not 
+ * @deprecated likely buggy for async actions
  */
 let _block_subcall = false
 
@@ -15,7 +14,10 @@ let _block_subcall = false
  * @example
  * const state = useStore(store, (state) => ({ count: state.count }) )
  */
-export function useStore<T>(store: StoreCore<T>, selector: (state: T) => T = (state: T) => state as T): T {
+export function useStore<T, S = T>(
+	store: StoreCore<T>, 
+	selector: (state: T) => S = (state: any) => state
+): S {
 	return useSyncExternalStore(store._subscribe, () => selector(store.state))
 }
 
@@ -28,33 +30,8 @@ export function useStoreNext<T>(store: StoreCore<T>, fn?: FnConditionalRendering
 	return useSyncExternalStore((listener) => store._subscribe(listener, fn), () => store.state)
 }
 
-
-
 /**
  * create a STORE with a SETUP-STORE
- * @example
- 	const mySetup = {
-		// The immutable single source of truth.
-		state: {
-			value: "init value"
-		},
-		// Pure functions return a "processed" value of the STATE.
-		getters: {		
-			getUppercase: (_, store) => store.state.value.toUpperCase()
-		},
-		// They do things! For example: here you have to put API calls to the server
-		actions: {
-			addAtEnd: (payload, store) => {
-				store.setValue(store.state.value + payload)
-			}
-		},
-		// The only ones that can replace the STATE with a new one.
-		// NOTE: JON merges the returned property with the previous STATE.
-		mutators: {
-		   setValue: (value) => ({value})
-		}
-	}
- 	const store = createStore(setup);
  */
 export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> & Record<string, any> {
 
@@ -76,67 +53,66 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> & Record<stri
 			}
 		},
 
-		/** smista l'aggiornamento a tutti i listener dello STORE */
+		/** distributes the update to all STORE listeners */
 		_update: (oldState?: T) => {
 			store.state = { ...store.state }
 			store._stateChange?.(store, oldState)
 			for (const listener of store._listeners) {
-				if (!listener.fn || listener.fn(store.state, oldState)) listener(store.state)
+				if (!listener.fn || listener.fn(store.state, oldState || store.state)) listener(store.state)
 			}
 		},
 
-		_listenerChange: null,
+		_listenerChange: setup.onListenerChange,
+		_stateChange: setup.onStateChange,
 	}
-
-	// chiamato quando il numero di "listeners" cambia. è utile per capire se listanta di uno store è ancora attiva oppure se è la prima istanza creata
-	store._listenerChange = setup.onListenerChange
-	// chiamato ognii volta che lo "state" cambia. E' un alternativa "easy" al "addWatch"
-	store._stateChange = setup.onStateChange
 
 	/**
 	 * GETTERS
 	 */
 	if (setup.getters) {
-		store = Object.keys(setup.getters).reduce((acc: any, key) => {
-			acc[key] = (payload: any) => {
+		Object.keys(setup.getters).forEach((key) => {
+			(store as any)[key] = (payload: any) => {
 				return setup.getters![key](payload, store)
 			}
-			return acc
-		}, store)
+		})
 	}
 
 	/**
 	 * ACTIONS
 	 */
 	if (setup.actions) {
-		store = Object.keys(setup.actions).reduce((acc: any, key) => {
-			acc[key] = async (payload: any) => {
+		Object.keys(setup.actions).forEach((key) => {
+			(store as any)[key] = async (payload: any) => {
 				const tmp = _block_subcall
 				if (tmp == false) _block_subcall = true
 
-				const result = await setup.actions![key](payload, store)
-
-				pluginEmit(EVENTS_TYPES.ACTION, store, key, payload, result, tmp)
-				if (tmp == false) _block_subcall = false
-				return result
+				try {
+					const result = await setup.actions![key](payload, store)
+					pluginEmit(EVENTS_TYPES.ACTION, store, key, payload, result, tmp)
+					return result
+				} finally {
+					// Ensure flag is reset even on error, though scope logic is still suspicious for async
+					if (tmp == false) _block_subcall = false
+				}
 			}
-			return acc
-		}, store)
+		})
 	}
 
 	/**
 	 * MUTATORS
 	 */
 	if (setup.mutators) {
-		store = Object.keys(setup.mutators).reduce((acc: any, key) => {
-			acc[key] = (payload: any) => {
+		Object.keys(setup.mutators).forEach((key) => {
+			(store as any)[key] = (payload: any) => {
 				const stub = setup.mutators![key](payload, store)
 				// if the "mutator" returns "undefined" then I do nothing
 				if (stub === undefined) return
 				// to optimize check if there is any change and dispath on plugins
-				if (Object.keys(stub).every((key) => stub[key] === store.state[key])) return
+				if (Object.keys(stub).every((k) => stub[k] === (store.state as any)[k])) return
+				
 				const old = store.state
 				store.state = { ...store.state, ...stub }
+				
 				pluginEmit(
 					EVENTS_TYPES.MUTATION,
 					store,
@@ -145,14 +121,9 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> & Record<stri
 					null,
 					_block_subcall
 				)
-				store._stateChange?.(store, old)
-				// send reaction 
-				for (const listener of store._listeners) {
-					if (!listener.fn || listener.fn(store.state, old)) listener(store.state)
-				}
+				store._update(old)
 			}
-			return acc
-		}, store)
+		})
 	}
 
 	return store as StoreCore<T> & Record<string, any>

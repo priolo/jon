@@ -38,7 +38,7 @@ export interface StoreCore<T=any> {
 	state: T,
 	_listeners: Set<ReducerCallback<any>>,
 	_subscribe: (onStoreChange: ReducerCallback<any>, fn?: FnConditionalRendering<any>) => (() => void),
-	_update: () => void
+	_update: (oldState?: T) => void
 	/** chiamato quando i listener cambiano */
 	_listenerChange?: (store: any, type: LISTENER_CHANGE) => void
 	_stateChange?: (store: any, oldState: any) => void
