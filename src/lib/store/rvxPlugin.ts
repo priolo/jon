@@ -24,9 +24,9 @@ const listeners: Map<Store, WatchCallbackGroupByProp> = new Map()
  * @param key name of actionmutation
  * @param payload of action/mutator
  */
-export function pluginEmit(type: EVENTS_TYPES, store: Store, key: string, payload: any, result: any, subcall: boolean) {
+export function pluginEmit(type: EVENTS_TYPES, store: Store, key: string, payload: any, result: any) {
 
-	const msg = { type, store, key, payload, result, subcall } as WatchMsg
+	const msg = { type, store, key, payload, result } as WatchMsg
 
 	// se non trovo lo store non fare nulla
 	if (!listeners.has(store)) return

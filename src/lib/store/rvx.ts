@@ -1,13 +1,8 @@
-import { obj } from '@priolo/jon-utils'
 import { useSyncExternalStore } from 'react'
 import { FnConditionalRendering, LISTENER_CHANGE, ReducerCallback, StoreCore, StoreSetup } from './global'
 import { EVENTS_TYPES, pluginEmit } from "./rvxPlugin"
 
-/** 
- * Indicates whether the last block of code was called internally at the store or not 
- * @deprecated likely buggy for async actions
- */
-let _block_subcall = false
+
 
 /**
  * HOOK to use the STORE in React
@@ -83,17 +78,9 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> & Record<stri
 	if (setup.actions) {
 		Object.keys(setup.actions).forEach((key) => {
 			(store as any)[key] = async (payload: any) => {
-				const tmp = _block_subcall
-				if (tmp == false) _block_subcall = true
-
-				try {
-					const result = await setup.actions![key](payload, store)
-					pluginEmit(EVENTS_TYPES.ACTION, store, key, payload, result, tmp)
-					return result
-				} finally {
-					// Ensure flag is reset even on error, though scope logic is still suspicious for async
-					if (tmp == false) _block_subcall = false
-				}
+				const result = await setup.actions![key](payload, store)
+				pluginEmit(EVENTS_TYPES.ACTION, store, key, payload, result)
+				return result
 			}
 		})
 	}
@@ -119,7 +106,6 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> & Record<stri
 					key,
 					payload,
 					null,
-					_block_subcall
 				)
 				store._update(old)
 			}
@@ -134,5 +120,15 @@ export function createStore<T>(setup: StoreSetup<T>): StoreCore<T> & Record<stri
  */
 export function finalizeState<T>(state: T | (() => T) | undefined): T {
 	if (!state) return {} as T;
-	return typeof state === "function" ? (state as () => T)() : obj.cloneDeep(state) as T;
+	return typeof state === "function" ? (state as () => T)() : cloneDeep(state) as T;
+}
+
+/**
+ * Fa un clone "deep" di un oggetto
+ * @param obj oggetto da clonare
+ * > ATTENZIONE: gli `undefined` vengono trasformati in `null`
+ */
+ function cloneDeep(obj:any):any {
+    if (obj == undefined) return undefined;
+    return JSON.parse(JSON.stringify(obj));
 }

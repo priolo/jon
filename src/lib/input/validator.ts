@@ -1,6 +1,4 @@
-/* eslint eqeqeq: "off", react-hooks/exhaustive-deps: "off" */
 import { useState, useRef, useEffect, MutableRefObject } from "react";
-import { ValidationRule } from "./rules";
 
 export interface ValidationError {
 	error: string | null;
@@ -11,6 +9,8 @@ export interface ValidationListener {
 	validate: () => ValidationError;
 	reset: () => void;
 }
+
+export type ValidationRule = (value: any) => string | null | undefined;
 
 /**
  * listeners created for programmatic testing (validateAll)
@@ -103,3 +103,4 @@ export function useValidator(value: any, rules: Record<string, ValidationRule>, 
 
 	return { helperText: error, error: error != null, [refName]: ref }
 }
+

@@ -45,7 +45,6 @@
     "@priolo/jon-utils#local": "file:C://Users//iorio//Documents//jon-utils"
   },
   "dependencies": {
-    "@priolo/jon-utils": "^0.4.3"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.4",
