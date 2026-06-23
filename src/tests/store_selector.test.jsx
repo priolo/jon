@@ -2,8 +2,11 @@ import { act, render, screen } from '@testing-library/react'
 import { createStore, useStore } from '../lib/store/rvx'
 import React from 'react'
 
-describe('useStore with selector', () => {
-    it('should select a slice of state and avoid unnecessary re-renders', () => {
+// `useStore(store, fn)` ora usa un PREDICATO di rendering `(state, oldState) => boolean`
+// (ex `useStoreNext`): ritorna l'intero stato e ri-renderizza solo quando `fn` torna true.
+// Non esiste piu' una API a "selettore" che ritorna una slice.
+describe('useStore with conditional render', () => {
+    it('should re-render only when the watched slice changes', () => {
         const store = createStore({
             state: { count: 0, text: 'hello' },
             mutators: {
@@ -15,9 +18,9 @@ describe('useStore with selector', () => {
         let renderCount = 0
 
         function Counter() {
-            const count = useStore(store, state => state.count)
+            const state = useStore(store, (s, old) => s.count !== old.count)
             renderCount++
-            return <div data-testid="count">{count}</div>
+            return <div data-testid="count">{state.count}</div>
         }
 
         render(<Counter />)
@@ -25,7 +28,7 @@ describe('useStore with selector', () => {
         expect(screen.getByTestId('count')).toHaveTextContent('0')
         expect(renderCount).toBe(1)
 
-        // Update selected state -> should re-render
+        // Update watched slice (count) -> should re-render
         act(() => {
             store.inc(1)
         })
@@ -33,7 +36,7 @@ describe('useStore with selector', () => {
         expect(screen.getByTestId('count')).toHaveTextContent('1')
         expect(renderCount).toBe(2)
 
-        // Update unrelated state -> should NOT re-render
+        // Update unrelated slice (text) -> should NOT re-render
         act(() => {
             store.setText('world')
         })
@@ -42,7 +45,7 @@ describe('useStore with selector', () => {
         expect(renderCount).toBe(2)
     })
 
-    it('should work without selector (backward compatibility)', () => {
+    it('should re-render on every update without a predicate', () => {
         const store = createStore({
             state: { count: 10 },
             mutators: {
@@ -64,7 +67,7 @@ describe('useStore with selector', () => {
         expect(screen.getByTestId('count-full')).toHaveTextContent('15')
     })
 
-    it('test33333', () => {
+    it('re-renders once when one of several watched slices changes', () => {
         const myStore = createStore({
             state: {
                 text: "init value",
@@ -79,19 +82,24 @@ describe('useStore with selector', () => {
         let renderCount = 0
 
         function Counter() {
-            useStore(myStore, state => state.text)
-            useStore(myStore, state => state.count)
-            //useStore(myStore)
+            useStore(myStore, (s, old) => s.text !== old.text)
+            useStore(myStore, (s, old) => s.count !== old.count)
             renderCount++
             return <div data-testid="count">{myStore.state.count}</div>
         }
         render(<Counter />)
+        expect(renderCount).toBe(1)
 
-        // Update selected state -> should re-render
+        // Changing `text` triggers only the text predicate -> a single re-render
         act(() => {
             myStore.setText("pippo")
         })
+        expect(renderCount).toBe(2)
 
-        expect(renderCount).toBe(1)
+        // Changing `count` triggers only the count predicate -> one more re-render
+        act(() => {
+            myStore.setCount(5)
+        })
+        expect(renderCount).toBe(3)
     })
 })

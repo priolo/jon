@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { createStore, useStoreNext } from '../lib/store/rvx'
+import { createStore, useStore } from '../lib/store/rvx'
 
 
 let myStore
@@ -46,7 +46,7 @@ describe("use store next function render", async () => {
 
 
 function TestView() {
-	const state = useStoreNext(myStore, (state, old) => {
+	const state = useStore(myStore, (state, old) => {
 		return state.value1 != old.value1
 	})
 	return <>

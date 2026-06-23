@@ -1,5 +1,5 @@
 
-export { createStore, useStore, useStoreNext } from './lib/store/rvx'
+export { createStore, useStore } from './lib/store/rvx'
 export { default as mixStores} from './lib/store/mixStores'
 
 export { addWatch, removeWatch, EVENTS_TYPES } from "./lib/store/rvxPlugin"

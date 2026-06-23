@@ -45,10 +45,10 @@ function mix<T>(setup1:StoreSetup<T>, setup2:StoreSetup<T>): StoreSetup<T> | nul
 			...setup1.actions,
 			...setup2.actions,
 		},
-		actionsSync: {
-			...setup1.actionsSync,
-			...setup2.actionsSync,
-		},
+		// actionsSync: {
+		// 	...setup1.actionsSync,
+		// 	...setup2.actionsSync,
+		// },
 		onListenerChange: setup2.onListenerChange ?? setup1.onListenerChange,
 		onStateChange: setup2.onStateChange ?? setup1.onStateChange,
 	};

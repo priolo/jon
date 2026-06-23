@@ -18,7 +18,7 @@ export interface StoreSetup<T=any> {
 	state?: T | (() => T),
 	getters?: { [name: string]: CallStoreSetup<T> },
 	actions?: { [name: string]: CallStoreSetup<T> },
-	actionsSync?: { [name: string]: CallStoreSetup<T> },
+	//actionsSync?: { [name: string]: CallStoreSetup<T> },
 	mutators?: { [name: string]: CallStoreSetup<T> },
 }
 
@@ -35,10 +35,19 @@ type CallStoreSetup<T> = (payload: any | null, store?: StoreCore<T>) => any
  * Instance of a STORE 
  */
 export interface StoreCore<T=any> {
+	/**
+	 * the current state of the store. It is updated by mutators
+	 */
 	state: T,
+	/**
+	 * the listeners that are watching the store
+	 */
 	_listeners: Set<ReducerCallback<any>>,
-	_subscribe: (onStoreChange: ReducerCallback<any>, fn?: FnConditionalRendering<any>) => (() => void),
-	_update: (oldState?: T) => void
+	/** 
+	 * add listener to the store. Called by "useSyncExternalStore"
+	 */
+	_subscribe: (onStoreChange: ReducerCallback<any>, fn?: FnConditionalRendering<T>) => (() => void),
+	_update: (oldState?: T, onlyNotify?: boolean) => void
 	/** chiamato quando i listener cambiano */
 	_listenerChange?: (store: any, type: LISTENER_CHANGE) => void
 	_stateChange?: (store: any, oldState: any) => void
