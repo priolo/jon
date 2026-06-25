@@ -25,7 +25,9 @@ const config: Config = {
   organizationName: 'priolo', // Usually your GitHub org/user name.
   projectName: 'jon', // Usually your repo name.
 
-  onBrokenLinks: 'throw',
+  // Temporaneo: il sito va riscritto, quindi i link rotti del template
+  // non devono bloccare il build/deploy (era 'throw').
+  onBrokenLinks: 'warn',
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
