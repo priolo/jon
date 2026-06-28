@@ -3,10 +3,8 @@ import userEvent from '@testing-library/user-event'
 import { createStore, useStore } from '../lib/store/rvx'
 
 
-let myStore
-
-beforeEach(() => {
-	myStore = createStore({
+function makeStore() {
+	return createStore({
 		state: () => ({
 			value1: "init value1",
 			value2: "init value2",
@@ -20,9 +18,15 @@ beforeEach(() => {
 			setValue2: (value2) => ({ value2 }),
 		},
 	})
+}
+
+let myStore: ReturnType<typeof makeStore>
+
+beforeEach(() => {
+	myStore = makeStore()
 })
 
-describe("use store next function render", async () => {
+describe("use store next function render", () => {
 
 	it('change only if!', async () => {
 

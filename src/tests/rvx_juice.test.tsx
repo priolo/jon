@@ -2,10 +2,8 @@ import { render, fireEvent, screen, act } from '@testing-library/react'
 import { createStore, useStore } from '../lib/store/rvx_juice'
 
 
-let myStore
-
-beforeEach(() => {
-	myStore = createStore({
+function makeStore() {
+	return createStore({
 		state: {
 			value: "init value",
 		},
@@ -13,14 +11,20 @@ beforeEach(() => {
 			getUppercase: (_, { state }) => state.value.toUpperCase(),
 		},
 		actions: {
-			changeValue: (value, {setValue}) => {
+			changeValue: (value: string, { setValue }) => {
 				setValue(`${value}... from action!`)
 			}
 		},
 		mutators: {
-			setValue: value => ({ value }),
+			setValue: (value: string) => ({ value }),
 		},
 	})
+}
+
+let myStore: ReturnType<typeof makeStore>
+
+beforeEach(() => {
+	myStore = makeStore()
 })
 
 

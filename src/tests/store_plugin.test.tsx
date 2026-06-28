@@ -1,17 +1,15 @@
-import { act, fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { createStore, useStore } from '../lib/store/rvx'
 import { addWatch } from '../lib/store/rvxPlugin'
 
 
-let myStore
-
-beforeEach(() => {
-	myStore = createStore({
-		state: ()=>({
+function makeStore() {
+	return createStore({
+		state: () => ({
 			value: "init value",
 		}),
 		getters: {
-			getUppercase: (_ , {state}) => state.value.toUpperCase(),
+			getUppercase: (_, { state }) => state.value.toUpperCase(),
 		},
 		actions: {
 			changeValue: (value, store) => {
@@ -22,6 +20,12 @@ beforeEach(() => {
 			setValue: (value) => ({ value }),
 		},
 	})
+}
+
+let myStore: ReturnType<typeof makeStore>
+
+beforeEach(() => {
+	myStore = makeStore()
 })
 
 test('action', async () => {
@@ -49,10 +53,10 @@ test('action', async () => {
 	})
 
 	// with hooks
-	await fireEvent.click(screen.getByText('click'))
+	fireEvent.click(screen.getByText('click'))
 
-	// aspetto un po' altrimenti REACT non setta tutto
-	await new Promise(res => setTimeout(res, 300))
+	// attende che la catena async dell'handler abbia emesso entrambi gli eventi
+	await waitFor(() => expect(results).toHaveLength(2))
 
 	expect(results).toEqual([
 		{
@@ -94,10 +98,10 @@ test('store', async () => {
 	})
 
 	// with hooks
-	await fireEvent.click(screen.getByText('click'))
+	fireEvent.click(screen.getByText('click'))
 
-	// aspetto un po' altrimenti REACT non setta tutto
-	await new Promise(res => setTimeout(res, 300))
+	// attende che la catena async dell'handler abbia emesso tutti gli eventi
+	await waitFor(() => expect(results).toHaveLength(6))
 
 	expect(results).toEqual([
 		{

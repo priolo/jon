@@ -1,5 +1,5 @@
 import { createStore, Store } from '../lib/store/rvx_juice'
-import { storeToTools } from '../lib/store/rvx_tools'
+import { storeToTools } from '../lib/experimentals/storeToAiTools'
 
 /**
  * Example: a fully-typed store WITHOUT any cast or hand-written `extends`

@@ -5,21 +5,19 @@ import { createStore, useStore } from '../lib/store/rvx'
  * TEST riguardanti le ACTION dello STORE
  */
 
-let myStore
-
-beforeEach(() => {
-	myStore = createStore({
-		state: ()=>({
+function makeStore() {
+	return createStore({
+		state: () => ({
 			value: "init value",
 			responseValue: "",
 		}),
 		actions: {
-			fetch: async ( _, store) => {
+			fetch: async (_, store) => {
 				// simulate http response
 				await new Promise((res) => setTimeout(res, 100))
 				store.setValue("new value")
 			},
-			processesValue: ( _, {state, ...store}) => {
+			processesValue: (_, { state, ...store }) => {
 				const valueTmp = state.value.toUpperCase()
 				store.setResponseValue(valueTmp)
 			},
@@ -29,6 +27,12 @@ beforeEach(() => {
 			setResponseValue: (responseValue) => ({ responseValue }),
 		},
 	})
+}
+
+let myStore: ReturnType<typeof makeStore>
+
+beforeEach(() => {
+	myStore = makeStore()
 })
 
 test('simply getStore', async () => {
@@ -53,10 +57,7 @@ test('simply useStore', async () => {
 	// change state value with event
 	fireEvent.click(screen.getByText('click'))
 
-	// wait for the state to be updated
-	await new Promise( (res) => setTimeout(res, 200) )
-
-	// verify if the value is updated
+	// verify if the value is updated (waitFor poll the async action chain)
 	await waitFor(() => expect(screen.getByTestId('view')).toHaveTextContent("new value"))
 })
 

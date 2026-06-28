@@ -2,36 +2,39 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { createStore, useStore } from '../lib/store/rvx'
 
 
-const store = {
-	state: ()=>({
-		value: "init value",
-	}),
-	actions: {
-		act: async (value, store) => {
-			store.setValue(`value: ${value}`)
+function makeStore() {
+	return createStore({
+		state: () => ({
+			value: "init value",
+		}),
+		actions: {
+			act: async (value, store) => {
+				store.setValue(`value: ${value}`)
+			},
+			actMulti: async ({ value, index }, store) => {
+				store.setValue(`multi_value: ${value}`)
+				myStores[index].act(`multi-${value}`)
+			},
+			actFromAnotherStore: async (index, store) => {
+				const anotherStore = myStores[index]
+				const { state: anotherState } = anotherStore
+				store.act(anotherState.value)
+			}
 		},
-		actMulti: async ({ value, index }, store) => {
-			store.setValue(`multi_value: ${value}`)
-			myStores[index].act(`multi-${value}`)
+		mutators: {
+			setValue: (value) => {
+				return { value }
+			},
 		},
-		actFromAnotherStore: async (index, store) => {
-			const anotherStore = myStores[index]
-			const { state:anotherState} = anotherStore
-			store.act(anotherState.value)
-		}
-	},
-	mutators: {
-		setValue: (value) => {
-			return { value }
-		},
-	},
+	})
 }
-let myStores
+
+let myStores: ReturnType<typeof makeStore>[]
 
 beforeEach(() => {
 	myStores = [
-		createStore(store),
-		createStore(store),
+		makeStore(),
+		makeStore(),
 	]
 })
 

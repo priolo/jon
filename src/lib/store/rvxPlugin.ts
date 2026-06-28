@@ -76,7 +76,7 @@ export function addWatch({ store, actionName, callback }: Watcher) {
  * if `actionName` is `null` delete all listener of STORE
  * if `callback` is `null` delete all listener of `actionName`
  */
-export function removeWatch({ store, actionName, callback }: Watcher): void {
+export function removeWatch({ store, actionName, callback }: Pick<Watcher, "store"> & Partial<Watcher>): void {
 
 	// if exist get storeActions
 	if (!listeners.has(store)) return

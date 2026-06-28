@@ -7,6 +7,6 @@ export { addWatch, removeWatch, EVENTS_TYPES } from "./lib/store/rvxPlugin"
 export { useValidator, validateAll, resetAll } from './lib/input/validator'
 
 export { LISTENER_CHANGE } from "./lib/store/global"
-export type { StoreCore, StoreSetup } from "./lib/store/global"
+export type { Store, StoreCore, StoreSetup, StoreOf } from "./lib/store/global"
 
 export { renderOnChange, equalsSome, equalsIgnore } from './lib/store/utils'

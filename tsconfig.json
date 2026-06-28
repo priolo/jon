@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
+    "moduleResolution": "Bundler",
     "useDefineForClassFields": true,
     "lib": [
       "DOM",
@@ -22,14 +23,12 @@
     "checkJs": false,
     "noImplicitAny": false,
     "strictNullChecks": false,
+    "types": [
+      "vitest/globals",
+      "@testing-library/jest-dom"
+    ],
   },
   "include": [
     "./src"
-  ],
-  "exclude": [
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "**/*.test.js",
-    "**/*.test.jsx",
   ]
 }

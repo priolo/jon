@@ -1,12 +1,9 @@
-import { act, render } from '@testing-library/react'
+import { act, render, waitFor } from '@testing-library/react'
 import { addWatch, createStore, removeWatch, useStore } from '../index'
 
-let myStore1
-let myStore2
-
-beforeEach(() => {
-	myStore1 = createStore({
-		state: ()=>({
+function makeStore1() {
+	return createStore({
+		state: () => ({
 			value1: "init value1",
 			value2: "init value2",
 		}),
@@ -20,7 +17,10 @@ beforeEach(() => {
 			setValue2: (value2) => ({ value2 }),
 		},
 	})
-	myStore2 = createStore({
+}
+
+function makeStore2() {
+	return createStore({
 		state: {
 			value: "init value",
 		},
@@ -33,8 +33,14 @@ beforeEach(() => {
 			setValue: (value) => ({ value }),
 		}
 	})
+}
 
-	
+let myStore1: ReturnType<typeof makeStore1>
+let myStore2: ReturnType<typeof makeStore2>
+
+beforeEach(() => {
+	myStore1 = makeStore1()
+	myStore2 = makeStore2()
 })
 
 test('addWatch/deleteWatch', async () => {
@@ -58,11 +64,10 @@ test('addWatch/deleteWatch', async () => {
 		myStore1.changeValue1("value-changed")
 	})
 
-	await new Promise(res => setTimeout(res, 1000))
-
+	// il watch propaga la modifica allo store2 tramite changeValue (action async)
+	await waitFor(() => expect(myStore2.state.value).toBe("value-changed... from 1... from 2"))
 	expect(myStore1.state.value1).toBe("value-changed... from 1")
 	expect(myStore1.state.value2).toBe("init value2")
-	expect(myStore2.state.value).toBe("value-changed... from 1... from 2")
 
 
 	// removeWatch
@@ -73,9 +78,8 @@ test('addWatch/deleteWatch', async () => {
 		myStore1.changeValue1("value-changed-2")
 	})
 
-	await new Promise(res => setTimeout(res, 1000))
-
 	expect(myStore1.state.value1).toBe("value-changed-2... from 1")
+	// store2 invariato: il watch e' stato rimosso
 	expect(myStore2.state.value).toBe("value-changed... from 1... from 2")
 })
 

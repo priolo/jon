@@ -1,38 +1,41 @@
 import { act, fireEvent, render, screen } from '@testing-library/react'
 import mixStores from '../lib/store/mixStores'
 import { createStore, useStore } from '../lib/store/rvx'
+import type { Store } from '../lib/store/global'
 
 
-let myStore
+const setup1 = {
+	state: (): { value: string } => ({
+		value: "init value",
+	}),
+}
+const setup2 = {
+	getters: {
+		getUppercase: (_: any, { state }: Store): string => state.value.toUpperCase(),
+	},
+	actions: {
+		changeValue: (value: string, store: Store): void => {
+			store.setValue(`${value}... from action!`)
+		}
+	},
+}
+const setup3 = {
+	actions: {
+		changeValue: (value: string, store: Store): void => {
+			store.setValue(`${value}... from override action!`)
+		}
+	},
+	mutators: {
+		setValue: (value: string) => ({ value }),
+	},
+}
+
+// `mixStores` merges heterogeneous setups, so its result is the permissive
+// `Store` handle rather than a precisely-inferred store type.
+let myStore: Store
 
 beforeEach(() => {
-	const setup1 = {
-		state: ()=>({
-			value: "init value",
-		}),
-	}
-	const setup2 = {
-		getters: {
-			getUppercase: (_, {state}) => state.value.toUpperCase(),
-		},
-		actions: {
-			changeValue: (value, store) => {
-				store.setValue(`${value}... from action!`)
-			}
-		},
-	}
-	const setup3 = {
-		actions: {
-			changeValue: (value, store) => {
-				store.setValue(`${value}... from override action!`)
-			}
-		},
-		mutators: {
-			setValue: (value) => ({ value }),
-		},
-	}
-
-	const setup123 = mixStores(setup1, setup2, setup3)
+	const setup123 = mixStores(setup1, setup2, setup3)!
 	myStore = createStore(setup123)
 
 })

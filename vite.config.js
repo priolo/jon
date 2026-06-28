@@ -9,7 +9,7 @@ import dts from 'vite-plugin-dts';
 export default defineConfig({
 	plugins: [
 		react(),
-		dts(),
+		dts({ exclude: ['src/tests/**', '**/*.test.*'] }),
 	],
 	build: {
 		sourcemap: true,

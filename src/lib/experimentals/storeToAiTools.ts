@@ -1,4 +1,4 @@
-import { Store } from './rvx_juice'
+import { Store } from '../store/rvx_juice'
 
 /**
  * Turn a JON store into a set of tools an LLM agent can call.

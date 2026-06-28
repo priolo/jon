@@ -5,15 +5,13 @@ import { createStore, useStore } from '../lib/store/rvx'
  * TEST riguardanti le ACTION dello STORE
  */
 
- let myStore
-
- beforeEach(() => {
-	 myStore = createStore({
-		state: ()=>({
+function makeStore() {
+	return createStore({
+		state: () => ({
 			value: "init value",
 		}),
 		getters: {
-			getValue: (_, {state}) => {
+			getValue: (_, { state }) => {
 				return state.value.toUpperCase()
 			}
 		},
@@ -27,8 +25,14 @@ import { createStore, useStore } from '../lib/store/rvx'
 				return { value }
 			},
 		},
-	 })
- })
+	})
+}
+
+let myStore: ReturnType<typeof makeStore>
+
+beforeEach(() => {
+	myStore = makeStore()
+})
 
 test('simply getStore', async () => {
 

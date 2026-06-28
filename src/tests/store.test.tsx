@@ -3,10 +3,8 @@ import { createStore, useStore } from '../lib/store/rvx'
 
 
 
-let myStore
-
-beforeEach(() => {
-	myStore = createStore({
+function makeStore() {
+	return createStore({
 		state: () => ({
 			value: "init value",
 		}),
@@ -22,9 +20,15 @@ beforeEach(() => {
 			setValue: (value) => ({ value }),
 		},
 	})
+}
+
+let myStore: ReturnType<typeof makeStore>
+
+beforeEach(() => {
+	myStore = makeStore()
 })
 
-describe( "global test", async()=>{
+describe("global test", () => {
 	it('getters/mutators', async () => {
 
 		render(<>
