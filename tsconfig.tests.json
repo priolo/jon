@@ -1,0 +1,14 @@
+{
+  // Tests are intentionally loose: the library core is strict (see tsconfig.json),
+  // but test files use untyped payloads/fixtures and don't need full strictness.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "strict": false,
+    "strictNullChecks": false,
+    "noImplicitAny": false
+  },
+  "include": [
+    "./src/tests"
+  ],
+  "exclude": []
+}

@@ -19,7 +19,6 @@ export interface StoreSetup<T=any> {
 	state?: T | (() => T),
 	getters?: { [name: string]: CallStoreSetup<T> },
 	actions?: { [name: string]: CallStoreSetup<T> },
-	//actionsSync?: { [name: string]: CallStoreSetup<T> },
 	mutators?: { [name: string]: CallStoreSetup<T> },
 }
 
@@ -162,6 +161,4 @@ export interface WatchMsg {
 	payload: any,
 	/** Value returned by 'action' */
 	result: any,
-	/** true if it is a call from another 'action' */
-	subcall: boolean
 }

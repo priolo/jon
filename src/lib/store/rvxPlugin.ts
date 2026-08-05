@@ -5,7 +5,6 @@ import { Store, WatchCallback, WatchMsg, Watcher } from "./global"
  */
  export enum EVENTS_TYPES {
 	ACTION = "action",
-	ACTION_SYNC = "action-sync",
 	MUTATION = "mutation",
 }
 
@@ -15,9 +14,12 @@ import { Store, WatchCallback, WatchMsg, Watcher } from "./global"
  type WatchCallbackGroupByProp = { [nameProp: string]: Set<WatchCallback> }
 
 /**
- * Groups of CALLBACK per STORE
+ * Groups of CALLBACK per STORE.
+ * A WeakMap keyed by the store instance: when a store is no longer referenced
+ * anywhere else (e.g. an ephemeral per-component store) it can be garbage
+ * collected together with its watchers, even if `removeWatch` was never called.
  */
-const listeners: Map<Store, WatchCallbackGroupByProp> = new Map()
+const listeners: WeakMap<Store, WatchCallbackGroupByProp> = new WeakMap()
 
 /**
  * Deliver the event to all registered LISTENERS
@@ -51,14 +53,11 @@ export function pluginEmit(type: EVENTS_TYPES, store: Store, key: string, payloa
  */
 export function addWatch({ store, actionName, callback }: Watcher) {
 
-	let storeActions: { [name: string]: Set<WatchCallback> }
-
 	// get or create storeActions
-	if (!listeners.has(store)) {
+	let storeActions = listeners.get(store)
+	if (!storeActions) {
 		storeActions = {}
 		listeners.set(store, storeActions)
-	} else {
-		storeActions = listeners.get(store)
 	}
 
 	// get or create action
@@ -79,19 +78,25 @@ export function addWatch({ store, actionName, callback }: Watcher) {
 export function removeWatch({ store, actionName, callback }: Pick<Watcher, "store"> & Partial<Watcher>): void {
 
 	// if exist get storeActions
-	if (!listeners.has(store)) return
 	const storeActions = listeners.get(store)
 	if (!storeActions) return
+
+	// no actionName → remove ALL listeners of the store
+	if (!actionName) {
+		listeners.delete(store)
+		return
+	}
 
 	// delete callback from storeActions
 	const callbacks = storeActions[actionName]
 	if (callbacks && callback) callbacks.delete(callback)
 
-	// if there are no more callbacks for the store, delete the storeActions
+	// if there are no more callbacks for the action, delete it
 	if (!callbacks || callbacks.size === 0 || !callback) {
 		delete storeActions[actionName]
 	}
-	if (Object.keys(storeActions).length === 0 || !actionName) {
+	// if there are no more actions for the store, delete the store
+	if (Object.keys(storeActions).length === 0) {
 		listeners.delete(store)
 	}
 }

@@ -12,7 +12,7 @@ Which means you can spawn as many stores as you have components: here, an array 
 
 ```tsx
 import { useState } from "react"
-import { createStore, useStore, Store } from "@priolo/jon"
+import { createStore, useStore, Store, StoreOf } from "@priolo/jon"
 
 // the "class": one setup describes a window
 const windowSetup = {
@@ -35,8 +35,12 @@ const windowSetup = {
 
 }
 
+// the fully-inferred type of a store built from `windowSetup`: methods and
+// state are typed for free — no `Store` cast, which would collapse them to `any`
+type WindowStore = StoreOf<typeof windowSetup>
+
 // the "new": create an instance and customize it
-function createWindowStore(title: string): Store {
+function createWindowStore(title: string): WindowStore {
   const store = createStore(windowSetup)
   store.setTitle(title)
   return store
@@ -44,7 +48,7 @@ function createWindowStore(title: string): Store {
 
 // the component receives ITS instance via props:
 // same code, different store, different state
-function Window({ store, onClose }: { store: Store, onClose: () => void }) {
+function Window({ store, onClose }: { store: WindowStore, onClose: () => void }) {
   const { title, minimized, count } = useStore(store)
 
   return (

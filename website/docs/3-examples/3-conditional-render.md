@@ -63,5 +63,13 @@ export default function App() {
 - The parent renders the panels but doesn't call `useStore`, so clicking a button never re-renders the whole tree — only the panel whose predicate says yes.
 - The runnable version adds a render counter to each panel so you can *see* who re-renders when.
 
+:::caution The predicate must be pure
+The predicate is bound **once**, when the component subscribes, and isn't re-read on later renders. So it must decide based only on its `state` / `oldState` arguments — don't close over props or other outside variables, or they'll go stale. `(state, old) => state.count != old.count` is fine; `(state) => state.count > props.threshold` is not.
+:::
+
+:::note Equality is by reference, not deep-equal
+`jon` never deep-compares state (that would be O(n) on every mutation). A mutator that returns a **new** object or array which is *deeply equal* to the previous value is still treated as a change and will re-render. If you want to skip an update, return `undefined` from the mutator when nothing actually changed — the check stays cheap and stays in your hands.
+:::
+
 Full source: [src/examples/conditionalRender](https://github.com/priolo/jon/blob/master/src/examples/conditionalRender/App.tsx)  
 Live demo: [open on CodeSandbox](https://codesandbox.io/p/sandbox/snowy-hooks-5s996m)

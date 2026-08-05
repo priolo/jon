@@ -11,8 +11,18 @@ import { EVENTS_TYPES, pluginEmit } from "./rvxPlugin"
  * `fn` predicate to re-render only when it returns `true`: it receives the new
  * state and the previous one, so you can compare just the slices you care about.
  *
+ * The predicate must be **pure**: it should decide based only on its `state` /
+ * `oldState` arguments, not on captured variables (props, closures). It is bound
+ * once when the component subscribes and is not re-read on later renders, so a
+ * value captured from the outside would go stale.
+ *
+ * Note on equality: state is compared by **reference**, not deep-equal. A mutator
+ * that returns a *new* object/array which is deeply equal to the previous one is
+ * still treated as a change and will re-render (skip it in the mutator by
+ * returning `undefined`).
+ *
  * @param store the store to subscribe to
- * @param fn optional predicate `(state, oldState) => boolean`; when provided, the component re-renders only if it returns true
+ * @param fn optional **pure** predicate `(state, oldState) => boolean`; when provided, the component re-renders only if it returns true
  * @returns the current store state
  * @example
  * // re-render only when `count` changes
@@ -107,8 +117,8 @@ export function createStore<S extends StoreSetup>(setup: S): StoreOf<S> {
 	for (const key in setup.mutators) {
 		self[key] = (payload: any) => {
 			const stub = setup.mutators![key](payload, self)
-			// if the mutator returns "undefined" there is nothing to apply
-			if (stub === undefined) return
+			// if the mutator returns undefined/null there is nothing to apply
+			if (stub == null) return
 			// skip the update (and the plugin event) when the returned values match the current state
 			if (Object.keys(stub).every((k) => stub[k] === (store.state as any)[k])) return
 

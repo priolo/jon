@@ -76,6 +76,8 @@ The companion `src/lib/experimentals/storeToAiTools.ts` imports `Store` *from `r
 - State updates are **shallow merges** — a mutator returning `{ a }` only replaces `a`.
 - The type system infers the public store from the setup *literal*, so `createStore` must stay generic over `S extends StoreSetup`. Avoid annotating the setup with an explicit interface that has an index signature — `T & Record<string, any>` collapses precise method types to `any`.
 
-## Note on docs drift
+## Note on docs
 
-The `website/` Docusaurus docs are partly out of sync with the current code — e.g. they reference `useStoreNext`, a `rules` export, and a `selector`-style `useStore` signature that don't match what [src/index.ts](src/index.ts) actually exports today (the current `useStore` takes a re-render *predicate*, not a selector). Treat [src/index.ts](src/index.ts) and the source as the source of truth over the website docs.
+The `website/` Docusaurus docs have been rewritten to match the current API: the old drift (`useStoreNext`, a `rules` export, a `selector`-style `useStore`) is gone — `useStore` is documented as taking a re-render *predicate* `(state, oldState) => boolean`, not a selector. A couple of historical `useStoreNext`/`MultiStoreProvider` mentions survive only as comments inside test files (`src/tests/store_selector.test.tsx`, `store_plugin.test.tsx`) and are harmless.
+
+Still, treat [src/index.ts](src/index.ts) and the source as the source of truth if anything diverges. When annotating a variable that holds `createStore(...)`'s result, prefer `StoreOf<typeof setup>` over `: Store` — `Store` is the permissive handle (`Record<string, any>`) and collapses the inferred method/state types to `any`, defeating the type inference. Annotating the *setup function's* `store` param as `store: Store` is correct, though (that param is the permissive handle by design).

@@ -11,7 +11,7 @@
     ],
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
-    "strict": false,
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
     "resolveJsonModule": true,
@@ -21,8 +21,6 @@
     "declaration": true,
     "declarationMap": true,
     "checkJs": false,
-    "noImplicitAny": false,
-    "strictNullChecks": false,
     "types": [
       "vitest/globals",
       "@testing-library/jest-dom"
@@ -30,5 +28,8 @@
   },
   "include": [
     "./src"
+  ],
+  "exclude": [
+    "./src/tests"
   ]
 }

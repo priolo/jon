@@ -24,12 +24,12 @@ function mix<T>(setup1:StoreSetup<T>, setup2:StoreSetup<T>): StoreSetup<T> | nul
 	if (!setup1) return setup2;
 	if (!setup2) return setup1;
 
-	const state = (typeof setup1.state == "function" || typeof setup2.state == "function")
+	const state: StoreSetup<T>["state"] = (typeof setup1.state == "function" || typeof setup2.state == "function")
 		? () => {
 			const state1 = finalizeState(setup1.state);
 			const state2 = finalizeState(setup2.state);
-			return { ...state1, ...state2 };
-		} : { ...setup1.state, ...setup2.state }
+			return { ...state1, ...state2 } as T;
+		} : { ...setup1.state, ...setup2.state } as T
 
 	return {
 		state,

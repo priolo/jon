@@ -17,7 +17,11 @@
  * - Call methods directly on the store, passing ONLY the payload: `myStore.setCount(3)`.
  * - Never write `store.state` directly; only mutators replace state.
  * - `useStore(store, fn?)`: `fn(state, oldState) => boolean` is a re-render
- *   PREDICATE, not a selector. `useStore` always returns the full state.
+ *   PREDICATE, not a selector. `useStore` always returns the full state. The
+ *   predicate must be PURE (decide only from state/oldState, not captured vars):
+ *   it is bound once at subscribe time and would go stale otherwise.
+ * - State is compared by REFERENCE, not deep-equal: a mutator returning a new
+ *   object/array that is deeply equal still re-renders (return undefined to skip).
  *
  * EXAMPLE
  * const counterStore = createStore({
@@ -74,9 +78,9 @@ export function createStore(setup: any): Store {
 	for (const k in setup.getters) store[k] = (payload: any) => setup.getters[k](payload, store)
 	for (const k in setup.actions) store[k] = async (payload: any) => setup.actions[k](payload, store)
 	for (const k in setup.mutators) store[k] = (payload: any) => {
-		// the mutator returns a partial diff; if it's null or changes nothing, skip the update (no re-render)
+		// the mutator returns a partial diff; if it's undefined/null or changes nothing, skip the update (no re-render)
 		const stub = setup.mutators[k](payload, store)
-		if (!stub || Object.keys(stub).every(k => stub[k] === store.state[k])) return
+		if (stub == null || Object.keys(stub).every(k => stub[k] === store.state[k])) return
 		const old = store.state
 		store.state = { ...store.state, ...stub }
 		for (const l of listeners) if (!l.fn || l.fn(store.state, old)) l(store.state)
