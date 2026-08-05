@@ -28,7 +28,7 @@ export function pluginEmit(type: EVENTS_TYPES, store: Store, key: string, payloa
 
 	const msg = { type, store, key, payload, result } as WatchMsg
 
-	// se non trovo lo store non fare nulla
+	// if the store is not found do nothing
 	if (!listeners.has(store)) return
 
 	const storeActions = listeners.get(store)

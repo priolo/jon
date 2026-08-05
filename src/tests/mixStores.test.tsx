@@ -48,7 +48,7 @@ test('mixStores - mutator', async () => {
 		<TestCommand />
 	</>)
 
-	// ha il valore iniziale?
+	// does it have the initial value?
 	expect(myStore.state.value).toBe("init value")
 
 	// change state value with reducer

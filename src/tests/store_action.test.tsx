@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { createStore, useStore } from '../lib/store/rvx'
 
 /**
- * TEST riguardanti le ACTION dello STORE
+ * TESTS about the STORE ACTIONS
  */
 
 function makeStore() {
@@ -83,7 +83,7 @@ test('sync motator -> action', async () => {
 
 	render(<TestView />)
 
-	// mi aspetto questo valore perche' "setValue" e "processValue" non sono sincronizzati
+	// I expect this value because "setValue" and "processValue" are not synchronized
 	fireEvent.click(screen.getByText('click1'))	
 	await waitFor(() => expect(screen.getByTestId('view')).toHaveTextContent("INIT VALUE"))
 

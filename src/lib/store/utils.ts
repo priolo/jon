@@ -1,26 +1,26 @@
 
 /**
- * renderizza se le proprietà specificate di due stati sono diversi
- * Confronta due stati e restituisce true se sono diversi in almeno una delle proprietà specificate
+ * renders if the specified properties of two states are different
+ * Compares two states and returns true if they differ in at least one of the specified properties
  */
 export const renderOnChange = (properties: string[]) => (currentState: any, oldState: any) => !equalsSome(currentState, oldState, properties)
 
 
 /**
- * Confronta le proprietà specificate di due oggetti
- * @param obj1 - Primo oggetto da confrontare
- * @param obj2 - Secondo oggetto da confrontare
- * @param properties - Array di nomi delle proprietà da confrontare
- * @returns true se tutte le proprietà specificate hanno valori uguali in entrambi gli oggetti, false altrimenti
+ * Compares the specified properties of two objects
+ * @param obj1 - First object to compare
+ * @param obj2 - Second object to compare
+ * @param properties - Array of property names to compare
+ * @returns true if all the specified properties have equal values in both objects, false otherwise
  */
 export function equalsSome<T extends Record<string, any>>(
 	obj1: T,
 	obj2: T,
 	properties: (keyof T)[]
 ): boolean {
-	// Verifica che entrambi gli oggetti esistano
+	// check that both objects exist
 	if (!obj1 || !obj2) return false
-	// Confronta ogni proprietà specificata
+	// compare each specified property
 	for (const property of properties) {
 		if (obj1[property] !== obj2[property]) {
 			return false;
@@ -30,33 +30,33 @@ export function equalsSome<T extends Record<string, any>>(
 }
 
 /**
- * Confronta due oggetti verificando che tutte le proprietà siano uguali, eccetto quelle da ignorare
- * @param obj1 - Primo oggetto da confrontare
- * @param obj2 - Secondo oggetto da confrontare
- * @param ignoredProperties - Array di nomi delle proprietà da ignorare nel confronto
- * @returns true se tutti i valori delle proprietà (eccetto quelle ignorate) sono uguali, false altrimenti
+ * Compares two objects checking that all properties are equal, except the ones to ignore
+ * @param obj1 - First object to compare
+ * @param obj2 - Second object to compare
+ * @param ignoredProperties - Array of property names to ignore in the comparison
+ * @returns true if all property values (except the ignored ones) are equal, false otherwise
  */
 export function equalsIgnore<T extends Record<string, any>>(
 	obj1: T,
 	obj2: T,
 	ignoredProperties: (keyof T)[] = []
 ): boolean {
-	// Verifica che entrambi gli oggetti esistano
+	// check that both objects exist
 	if (!obj1 || !obj2) return obj1 === obj2
 
-	// Ottiene tutte le chiavi uniche dai due oggetti
+	// get all the unique keys of the two objects
 	const allKeys = new Set([...Object.keys(obj1), ...Object.keys(obj2)])
 
-	// Converte l'array delle proprietà ignorate in un Set per una ricerca più efficiente
+	// convert the array of ignored properties into a Set for a more efficient lookup
 	const ignoredSet = new Set(ignoredProperties);
 
-	// Confronta ogni proprietà che non deve essere ignorata
+	// compare each property that must not be ignored
 	for (const key of allKeys) {
-		// Salta le proprietà che devono essere ignorate
+		// skip the properties that must be ignored
 		if (ignoredSet.has(key as keyof T)) continue
-		// Se una proprietà esiste solo in uno dei due oggetti, non sono uguali
+		// if a property exists in only one of the two objects, they are not equal
 		if (!(key in obj1) || !(key in obj2)) return false
-		// Se i valori delle proprietà sono diversi, non sono uguali
+		// if the property values are different, they are not equal
 		if (obj1[key] !== obj2[key]) return false
 	}
 

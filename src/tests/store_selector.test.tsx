@@ -2,9 +2,9 @@ import { act, render, screen } from '@testing-library/react'
 import { createStore, useStore } from '../lib/store/rvx'
 import React from 'react'
 
-// `useStore(store, fn)` ora usa un PREDICATO di rendering `(state, oldState) => boolean`
-// (ex `useStoreNext`): ritorna l'intero stato e ri-renderizza solo quando `fn` torna true.
-// Non esiste piu' una API a "selettore" che ritorna una slice.
+// `useStore(store, fn)` now uses a rendering PREDICATE `(state, oldState) => boolean`
+// (formerly `useStoreNext`): it returns the whole state and re-renders only when `fn` returns true.
+// There is no longer a "selector" API that returns a slice.
 describe('useStore with conditional render', () => {
     it('should re-render only when the watched slice changes', () => {
         const store = createStore({

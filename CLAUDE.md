@@ -75,7 +75,6 @@ The companion `src/lib/experimentals/storeToAiTools.ts` imports `Store` *from `r
 - Mutators are synchronous and return state diffs; actions handle async and orchestration. Don't put async logic in mutators.
 - State updates are **shallow merges** — a mutator returning `{ a }` only replaces `a`.
 - The type system infers the public store from the setup *literal*, so `createStore` must stay generic over `S extends StoreSetup`. Avoid annotating the setup with an explicit interface that has an index signature — `T & Record<string, any>` collapses precise method types to `any`.
-- Some comments in the codebase are in Italian (the author's language); that's expected, not a bug to "translate away".
 
 ## Note on docs drift
 

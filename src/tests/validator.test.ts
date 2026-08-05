@@ -2,9 +2,9 @@ import { act, renderHook } from '@testing-library/react'
 import { useValidator, validateAll, resetAll } from '../lib/input/validator'
 
 /**
- * TEST sull'API reale del validator. Il vecchio modulo esterno `rules`
- * (basato su @priolo/jon-utils) non esiste piu', quindi qui si definiscono
- * un paio di regole banali e si verifica l'hook + le funzioni globali.
+ * TESTS on the real validator API. The old external `rules` module
+ * (based on @priolo/jon-utils) no longer exists, so here a couple of
+ * trivial rules are defined and the hook + the global functions are checked.
  */
 
 const required = (v: any) => (!v ? 'required' : undefined)

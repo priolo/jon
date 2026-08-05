@@ -51,7 +51,7 @@ test('addWatch/deleteWatch', async () => {
 	</>)
 
 	// addWatch
-	// se cambia "setValue1" dello store1 allora cambia anche "value" dello store2
+	// if "setValue1" of store1 changes then "value" of store2 changes too
 	addWatch({
 		store: myStore1,
 		actionName: "setValue1",
@@ -64,14 +64,14 @@ test('addWatch/deleteWatch', async () => {
 		myStore1.changeValue1("value-changed")
 	})
 
-	// il watch propaga la modifica allo store2 tramite changeValue (action async)
+	// the watch propagates the change to store2 via changeValue (async action)
 	await waitFor(() => expect(myStore2.state.value).toBe("value-changed... from 1... from 2"))
 	expect(myStore1.state.value1).toBe("value-changed... from 1")
 	expect(myStore1.state.value2).toBe("init value2")
 
 
 	// removeWatch
-	// lo store2 non cambia piu'
+	// store2 does not change anymore
 	removeWatch({ store: myStore1 })
 
 	await act(async () => {
@@ -79,7 +79,7 @@ test('addWatch/deleteWatch', async () => {
 	})
 
 	expect(myStore1.state.value1).toBe("value-changed-2... from 1")
-	// store2 invariato: il watch e' stato rimosso
+	// store2 unchanged: the watch has been removed
 	expect(myStore2.state.value).toBe("value-changed... from 1... from 2")
 })
 

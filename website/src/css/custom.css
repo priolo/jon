@@ -2,29 +2,119 @@
  * Any CSS included here will be global. The classic template
  * bundles Infima by default. Infima is a CSS framework designed to
  * work well for content-centric websites.
+ *
+ * Jon palette: yellow #f6e73d, black, white.
+ * - Yellow is used as the accent (hero, buttons, highlights, active items).
+ * - Text and links stay black on white / white-yellow on black, because
+ *   yellow text on a white background is unreadable.
  */
 
-/* You can override the default Infima variables here. */
 :root {
-  --ifm-color-primary: #2e8555;
-  --ifm-color-primary-dark: #29784c;
-  --ifm-color-primary-darker: #277148;
-  --ifm-color-primary-darkest: #205d3b;
-  --ifm-color-primary-light: #33925d;
-  --ifm-color-primary-lighter: #359962;
-  --ifm-color-primary-lightest: #3cad6e;
+  --jon-yellow: #f6e73d;
+
+  --ifm-color-primary: #f6e73d;
+  --ifm-color-primary-dark: #f5e31f;
+  --ifm-color-primary-darker: #f4e013;
+  --ifm-color-primary-darkest: #d4c20b;
+  --ifm-color-primary-light: #f7eb59;
+  --ifm-color-primary-lighter: #f8ed67;
+  --ifm-color-primary-lightest: #faf294;
+
   --ifm-code-font-size: 95%;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  --docusaurus-highlighted-code-line-bg: rgba(246, 231, 61, 0.25);
+
+  /* Yellow links on white are unreadable: links are black + underlined. */
+  --ifm-link-color: #000;
+  --ifm-link-hover-color: #000;
+  --ifm-link-decoration: underline;
+
+  /* Sidebar: active item is black text on a yellow background. */
+  --ifm-menu-color-active: #000;
+  --ifm-menu-color-background-active: rgba(246, 231, 61, 0.45);
+
+  /* Navbar is black in both themes. */
+  --ifm-navbar-background-color: #000;
+  --ifm-navbar-link-color: #fff;
+  --ifm-navbar-link-hover-color: var(--jon-yellow);
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme='dark'] {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: #21af90;
-  --ifm-color-primary-darker: #1fa588;
-  --ifm-color-primary-darkest: #1a8870;
-  --ifm-color-primary-light: #29d5b0;
-  --ifm-color-primary-lighter: #32d8b4;
-  --ifm-color-primary-lightest: #4fddbf;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  --ifm-color-primary: #f6e73d;
+  --ifm-color-primary-dark: #f5e31f;
+  --ifm-color-primary-darker: #f4e013;
+  --ifm-color-primary-darkest: #d4c20b;
+  --ifm-color-primary-light: #f7eb59;
+  --ifm-color-primary-lighter: #f8ed67;
+  --ifm-color-primary-lightest: #faf294;
+
+  /* True black background: yellow reads great on it. */
+  --ifm-background-color: #0b0b0b;
+  --ifm-background-surface-color: #000;
+  --docusaurus-highlighted-code-line-bg: rgba(246, 231, 61, 0.15);
+
+  --ifm-link-color: var(--ifm-color-primary);
+  --ifm-link-hover-color: var(--ifm-color-primary-light);
+  --ifm-link-decoration: none;
+
+  --ifm-menu-color-active: var(--jon-yellow);
+  --ifm-menu-color-background-active: rgba(246, 231, 61, 0.12);
+}
+
+/* Navbar title, hamburger and color-mode toggle on the black navbar. */
+.navbar .navbar__brand,
+.navbar .clean-btn {
+  color: #fff;
+}
+.navbar .navbar__brand:hover,
+.navbar .clean-btn:hover {
+  color: var(--jon-yellow);
+}
+.navbar__link--active {
+  color: var(--jon-yellow);
+}
+
+/* Hero: yellow background, black text (default would be white on yellow). */
+.hero--primary {
+  --ifm-hero-background-color: var(--jon-yellow);
+  --ifm-hero-text-color: #000;
+}
+
+/* Primary buttons are yellow: force black text for contrast. */
+.button--primary {
+  --ifm-button-color: #000;
+}
+
+/* On the yellow hero the CTA pops as black with yellow text. */
+.hero--primary .button--secondary {
+  --ifm-button-background-color: #000;
+  --ifm-button-border-color: #000;
+  --ifm-button-color: var(--jon-yellow);
+}
+.hero--primary .button--secondary:hover {
+  --ifm-button-background-color: #222;
+  --ifm-button-border-color: #222;
+}
+
+/* Homepage feature icons (static/img/no-*.svg): the SVGs have fill="none"
+   on the root and rely on these classes for the inner disc (icon-bg) and
+   the drawing (icon-fg). Without them the paths inherit "none" and vanish. */
+.icon-bg {
+  fill: #fff;
+}
+.icon-fg {
+  fill: #000;
+}
+[data-theme='dark'] .icon-bg {
+  fill: #0b0b0b;
+}
+[data-theme='dark'] .icon-fg {
+  fill: #fff;
+}
+
+/* Footer: black with yellow accents. */
+.footer--dark {
+  --ifm-footer-background-color: #000;
+  --ifm-footer-title-color: var(--jon-yellow);
+  --ifm-footer-link-hover-color: var(--jon-yellow);
 }

@@ -37,11 +37,11 @@ describe("use store next function render", () => {
 
 		// change state value1 with event 
 		await userEvent.click(screen.getByText('click1'))
-		// effettivamente è cambiato "view1" !
+		// "view1" has actually changed!
 		expect(screen.getByTestId('view1')).toHaveTextContent("new value1")
 		// e mo proviamo con "click2"
 		await userEvent.click(screen.getByText('click2'))
-		// e questo non è cambiato... giusto!
+		// and this one has not changed... right!
 		expect(screen.getByTestId('view2')).toHaveTextContent("init value2")
 
 	})

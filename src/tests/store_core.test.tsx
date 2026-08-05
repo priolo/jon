@@ -4,8 +4,8 @@ import { addWatch, removeWatch } from '../lib/store/rvxPlugin'
 import { LISTENER_CHANGE } from '../lib/store/global'
 
 /**
- * TEST sui rami "nascosti" del core: update saltati, clonazione dello stato
- * iniziale, hook di lifecycle e rimozione selettiva dei watcher.
+ * TESTS on the "hidden" branches of the core: skipped updates, cloning of the
+ * initial state, lifecycle hooks and selective removal of watchers.
  */
 
 describe('mutator update is skipped', () => {
@@ -28,8 +28,8 @@ describe('mutator update is skipped', () => {
 
 		act(() => store.noop())
 
-		expect(renders).toBe(1)            // nessun re-render
-		expect(events).not.toHaveBeenCalled() // nessun evento plugin
+		expect(renders).toBe(1)            // no re-render
+		expect(events).not.toHaveBeenCalled() // no plugin event
 		expect(store.state.count).toBe(0)
 
 		removeWatch({ store })
@@ -47,11 +47,11 @@ describe('mutator update is skipped', () => {
 		function View() { useStore(store); renders++; return null }
 		render(<View />)
 
-		act(() => store.setCount(0)) // stesso valore -> saltato
+		act(() => store.setCount(0)) // same value -> skipped
 		expect(renders).toBe(1)
 		expect(events).not.toHaveBeenCalled()
 
-		act(() => store.setCount(1)) // cambiamento reale -> aggiorna
+		act(() => store.setCount(1)) // real change -> updates
 		expect(renders).toBe(2)
 		expect(events).toHaveBeenCalledTimes(1)
 
@@ -71,7 +71,7 @@ describe('initial state handling', () => {
 		expect(store.state).not.toBe(initial)
 		expect(store.state.nested).not.toBe(initial.nested)
 
-		// mutare l'oggetto originale non tocca lo stato dello store
+		// mutating the original object does not touch the store state
 		initial.nested.n = 99
 		expect(store.state.nested.n).toBe(1)
 	})

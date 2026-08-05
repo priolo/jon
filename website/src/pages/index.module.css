@@ -21,3 +21,18 @@
   align-items: center;
   justify-content: center;
 }
+
+.copyPaste {
+  padding: 3rem 0 4rem;
+}
+
+.codeCol :global(.theme-code-block) {
+  text-align: left;
+  margin-bottom: 2rem;
+}
+
+/* Same height for the two windows: the juice file scrolls, the example fits. */
+.codeCol :global(.theme-code-block pre) {
+  max-height: 560px;
+  overflow: auto;
+}

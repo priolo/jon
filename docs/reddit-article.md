@@ -10,7 +10,7 @@ Let me make the case, and please poke holes in it.
 
 ## TL;DR
 
-- It's ~80 lines of TypeScript on top of `useSyncExternalStore`. No runtime, no magic.
+- It's ~30 lines of TypeScript on top of `useSyncExternalStore`. No runtime, no magic.
 - You can **copy-paste the file into your project** instead of adding a dependency. You own the code.
 - Stores are defined with a `state / getters / actions / mutators` setup (Pinia/Vue vibes), and the types are **fully inferred** — no casts, no hand-written interfaces.
 - The same store can be exposed as **tools for an LLM agent** with ~30 extra lines. The agent and your UI mutate the *same* reactive state.

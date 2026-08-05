@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { createStore, useStore } from '../lib/store/rvx'
 
 /**
- * TEST riguardanti le ACTION dello STORE
+ * TESTS about the STORE ACTIONS
  */
 
 function makeStore() {

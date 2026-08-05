@@ -37,7 +37,7 @@ test('action', async () => {
 
 	const results = []
 
-	// ascolta tutti i "changeValue" dello store "myStore"
+	// listens to all the "changeValue" of the "myStore" store
 	addWatch({
 		store: myStore,
 		actionName: "changeValue",
@@ -55,7 +55,7 @@ test('action', async () => {
 	// with hooks
 	fireEvent.click(screen.getByText('click'))
 
-	// attende che la catena async dell'handler abbia emesso entrambi gli eventi
+	// waits for the handler's async chain to have emitted both events
 	await waitFor(() => expect(results).toHaveLength(2))
 
 	expect(results).toEqual([
@@ -82,7 +82,7 @@ test('store', async () => {
 
 	const results = []
 
-	// ascolta tutti i "changeValue" dello store "myStore"
+	// listens to all the "changeValue" of the "myStore" store
 	addWatch({
 		store: myStore,
 		actionName: "*",
@@ -100,7 +100,7 @@ test('store', async () => {
 	// with hooks
 	fireEvent.click(screen.getByText('click'))
 
-	// attende che la catena async dell'handler abbia emesso tutti gli eventi
+	// waits for the handler's async chain to have emitted all the events
 	await waitFor(() => expect(results).toHaveLength(6))
 
 	expect(results).toEqual([
@@ -151,7 +151,7 @@ test('store', async () => {
 // 	const myStore = getStore("myStore")
 // 	const myStore2 = getStore("myStore2")
 
-// 	// ascolta tutti i "changeValue" dello store "myStore"
+// 	// listens to all the "changeValue" of the "myStore" store
 // 	addWatch({
 // 		storeName: "*",
 // 		actionName: "*",

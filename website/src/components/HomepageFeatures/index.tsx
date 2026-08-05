@@ -15,8 +15,10 @@ const FeatureList: FeatureItem[] = [
     Svg: require('@site/static/img/no-magic.svg').default,
     description: (
       <>
-        What it does is clear!
-        You can also take the code (about 60 lines) and paste it into your project
+        Jon is ~80 lines of TypeScript on top of React's native{' '}
+        <code>useSyncExternalStore</code>. What it does is clear!
+        You can read the whole source in one sitting — or just copy-paste it
+        into your project and own the code.
       </>
     ),
   },
@@ -25,18 +27,21 @@ const FeatureList: FeatureItem[] = [
     Svg: require('@site/static/img/no-multitool.svg').default,
     description: (
       <>
-        Designed ONLY to manage the STORE
+        Jon is designed ONLY to manage the STORE:{' '}
+        <code>state</code>, <code>getters</code>, <code>actions</code> and{' '}
+        <code>mutators</code>, fully type-inferred.
         It serves no other purpose!
       </>
     ),
   },
   {
-    title: 'NO Caos',
+    title: 'NO Chaos',
     Svg: require('@site/static/img/no-community.svg').default,
     description: (
       <>
-        Any bugs reported will be fixed.
-        But Jon will remain unchanged for quite some time
+        Zero production dependencies (React is a peer dependency).
+        Any bug reported will be fixed, but Jon's API is stable and will
+        remain unchanged for a long time.
       </>
     ),
   },
