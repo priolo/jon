@@ -90,4 +90,5 @@ export default function App() {
 - The component doesn't import a global store: it gets its instance **via props**, so `Window` is reusable anywhere — including with two windows rendered side by side.
 - Who owns what: the App owns the *list* (open/close is plain React state), each store owns its *window's* state. Global singletons and per-component instances are the same API — a store is just a value.
 
-Full source: [src/examples/storeInstances](https://github.com/priolo/jon/blob/master/src/examples/storeInstances/App.tsx)
+Full source: [src/examples/storeInstances](https://github.com/priolo/jon/blob/master/src/examples/storeInstances/App.tsx)  
+Live demo: [open on CodeSandbox](https://codesandbox.io/p/sandbox/instances-fmt7mn)

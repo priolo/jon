@@ -63,4 +63,5 @@ export default function App() {
 - The parent renders the panels but doesn't call `useStore`, so clicking a button never re-renders the whole tree — only the panel whose predicate says yes.
 - The runnable version adds a render counter to each panel so you can *see* who re-renders when.
 
-Full source: [src/examples/conditionalRender](https://github.com/priolo/jon/blob/master/src/examples/conditionalRender/App.tsx)
+Full source: [src/examples/conditionalRender](https://github.com/priolo/jon/blob/master/src/examples/conditionalRender/App.tsx)  
+Live demo: [open on CodeSandbox](https://codesandbox.io/p/sandbox/snowy-hooks-5s996m)

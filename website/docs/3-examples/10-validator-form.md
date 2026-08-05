@@ -86,4 +86,5 @@ export default function App() {
 - `validateAll()` validates *every* registered field, returns the errors, and focuses the first failing input — so the submit handler is two lines.
 - Store and validator are independent: the validator only sees the values you pass it.
 
-Full source: [src/examples/validatorForm](https://github.com/priolo/jon/blob/master/src/examples/validatorForm/App.tsx)
+Full source: [src/examples/validatorForm](https://github.com/priolo/jon/blob/master/src/examples/validatorForm/App.tsx)  
+Live demo: [open on CodeSandbox](https://codesandbox.io/p/sandbox/validator-form-3v8lzc)

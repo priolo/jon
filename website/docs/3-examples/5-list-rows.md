@@ -62,4 +62,5 @@ export default function App() {
 - `memo` isolates the rows from parent renders, the predicate isolates them from each other. Click `+1` on row 2 and *only* row 2 re-renders.
 - The runnable version shows a render counter per row so you can verify it.
 
-Full source: [src/examples/listRows](https://github.com/priolo/jon/blob/master/src/examples/listRows/App.tsx)
+Full source: [src/examples/listRows](https://github.com/priolo/jon/blob/master/src/examples/listRows/App.tsx)  
+Live demo: [open on CodeSandbox](https://codesandbox.io/p/sandbox/list-rows-gg4sq9)

@@ -49,4 +49,5 @@ export default function App() {
 - The **mutator** `setCount` is the only thing that changes state. It returns a *partial* state (`{ count }`) that gets shallow-merged into the store.
 - You call methods directly on the store, passing only the payload: `counterStore.increment()`, `counterStore.setCount(5)`. Everything is typed by inference — no interfaces written anywhere.
 
-Full source: [src/examples/counter](https://github.com/priolo/jon/blob/master/src/examples/counter/App.tsx)
+Full source: [src/examples/counter](https://github.com/priolo/jon/blob/master/src/examples/counter/App.tsx)  
+Live demo: [open on CodeSandbox](https://codesandbox.io/p/sandbox/counter-kc4lj5)

@@ -82,4 +82,5 @@ export default function App() {
 - `goto` pushes the new URL into browser history *and* mutates the store; the `popstate` listener handles back/forward by pushing the URL back into the store. The URL bar and the state can't drift apart.
 - Rendering routes is just conditional JSX — no `<Route>` components, no context, nothing to configure.
 
-Full source: [src/examples/router](https://github.com/priolo/jon/tree/master/src/examples/router)
+Full source: [src/examples/router](https://github.com/priolo/jon/tree/master/src/examples/router)  
+Live demo: [open on CodeSandbox](https://codesandbox.io/p/sandbox/routing-s32zxk)

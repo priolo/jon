@@ -62,4 +62,5 @@ export default function App() {
 - Each mutator settles a whole UI branch in one shallow merge: `setUsers` sets the data *and* turns loading off; `setError` records the error *and* turns loading off. No inconsistent in-between states.
 - The component just reads the three slices and renders — it doesn't know or care that a fetch is going on.
 
-Full source: [src/examples/asyncFetch](https://github.com/priolo/jon/blob/master/src/examples/asyncFetch/App.tsx) (with a fake API that randomly fails, so you can see the error branch)
+Full source: [src/examples/asyncFetch](https://github.com/priolo/jon/blob/master/src/examples/asyncFetch/App.tsx) (with a fake API that randomly fails, so you can see the error branch)  
+Live demo: [open on CodeSandbox](https://codesandbox.io/p/sandbox/async-fetch-xnz982)

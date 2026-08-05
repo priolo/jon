@@ -59,4 +59,5 @@ function Parent() {
 - Changing `title` re-renders the Parent, but the children stay put thanks to `memo` (without it, React would re-render them along with the Parent, predicate or not).
 - Rule of thumb: **predicate** decides when the store wakes a component up, **memo** decides whether the parent drags it along. In nested trees you usually want both.
 
-Full source: [src/examples/nestedRender](https://github.com/priolo/jon/blob/master/src/examples/nestedRender/App.tsx)
+Full source: [src/examples/nestedRender](https://github.com/priolo/jon/blob/master/src/examples/nestedRender/App.tsx)  
+Live demo: [open on CodeSandbox](https://codesandbox.io/p/sandbox/nested-render-wcnhll)

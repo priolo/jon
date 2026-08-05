@@ -87,4 +87,5 @@ export default function App() {
 - One trade-off: a mixed setup is heterogeneous, so the result is the permissive `Store` handle rather than a precisely-inferred type (same as sibling calls inside actions).
 - Same trick works for splitting one big store across files, sharing a common `loading/error` block between stores, or overriding a single action of an existing setup.
 
-Full source: [src/examples/mixStores](https://github.com/priolo/jon/blob/master/src/examples/mixStores/App.tsx)
+Full source: [src/examples/mixStores](https://github.com/priolo/jon/blob/master/src/examples/mixStores/App.tsx)  
+Live demo: [open on CodeSandbox](https://codesandbox.io/p/sandbox/mix-stores-8n87qm)

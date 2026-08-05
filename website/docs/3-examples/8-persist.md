@@ -69,4 +69,5 @@ export default function App() {
 - Swap `localStorage` for `sessionStorage`, IndexedDB or an API call — the pattern doesn't change.
 - Want to reuse this persistence logic across many stores? The [mix stores](/docs/examples/mix-stores) example extracts it into a generic, composable setup.
 
-Full source: [src/examples/persist](https://github.com/priolo/jon/blob/master/src/examples/persist/App.tsx)
+Full source: [src/examples/persist](https://github.com/priolo/jon/blob/master/src/examples/persist/App.tsx)  
+Live demo: [open on CodeSandbox](https://codesandbox.io/p/sandbox/persist-3qmy2r)

@@ -78,4 +78,5 @@ export default function App() {
 - The watcher fires when the *action* runs, so any way of logging out (button, session timeout, another watcher...) empties the cart.
 - `removeWatch` unregisters a watcher with the same `{ store, actionName, callback }` triple.
 
-Full source: [src/examples/watchStores](https://github.com/priolo/jon/blob/master/src/examples/watchStores/App.tsx)
+Full source: [src/examples/watchStores](https://github.com/priolo/jon/blob/master/src/examples/watchStores/App.tsx)  
+Live demo: [open on CodeSandbox](https://codesandbox.io/p/sandbox/watch-store-5mrdny)

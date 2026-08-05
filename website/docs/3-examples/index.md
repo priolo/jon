@@ -29,4 +29,3 @@ A note on imports: the snippets import from `@priolo/jon`. If you [copy-pasted](
 - [Mix stores](/docs/examples/mix-stores) — compose setups like classes: a generic "persistent" base + the real properties.
 - [Validator form](/docs/examples/validator-form) — declarative field validation.
 - [Watch stores](/docs/examples/watch-stores) — two decoupled stores that react to each other.
-- [AI tools](/docs/examples/ai-tools) — store actions as an LLM agent's tools.
