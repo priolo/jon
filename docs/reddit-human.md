@@ -1,7 +1,10 @@
+**Title:** I replaced Redux/Zustand with ~40 lines I copy-paste into every project — am I crazy?
+
 Hi,
-I'd like to share an idea of mine about state management in React that I've been applying in my projects for years.
-I don't use any library (Zustand, Redux, Recoil, etc.) — I have a micro state manager (I called it **jon**) built on `useSyncExternalStore`.
-Here it is:
+I'd like to share an idea about state management in React that I've been applying in my own projects for years.
+I don't install any library (Zustand, Redux, Recoil, etc.). I have a micro state manager (I called it **jon**) built on `useSyncExternalStore` — and it's small enough that I don't *install* it, I copy-paste it into the project.
+
+Here's the whole thing:
 
 ```ts
 import { useCallback, useSyncExternalStore } from 'react'
@@ -19,7 +22,7 @@ export function useStore<T>(store: Store<T>, fn?: (state: T, oldState: T) => boo
 export function createStore(setup: any): Store {
 	const listeners = new Set<any>()
 	const store: Store = {
-		// a plain object is deep-cloned; a factory is called as-is
+		// state must be plain-serializable: a plain object is deep-cloned; a factory is called as-is
 		state: typeof setup.state == 'function' ? setup.state() : structuredClone(setup.state ?? {}),
 		_subscribe: (listener: any, fn: any) => {
 			listener.fn = fn
@@ -30,9 +33,9 @@ export function createStore(setup: any): Store {
 	for (const k in setup.getters) store[k] = (payload: any) => setup.getters[k](payload, store)
 	for (const k in setup.actions) store[k] = async (payload: any) => setup.actions[k](payload, store)
 	for (const k in setup.mutators) store[k] = (payload: any) => {
-		// the mutator returns a partial diff; if it's null or changes nothing, skip the update (no re-render)
+		// the mutator returns a partial diff; if it's null/undefined or changes nothing, skip the update (no re-render)
 		const stub = setup.mutators[k](payload, store)
-		if (!stub || Object.keys(stub).every(k => stub[k] === store.state[k])) return
+		if (stub == null || Object.keys(stub).every(k => stub[k] === store.state[k])) return
 		const old = store.state
 		store.state = { ...store.state, ...stub }
 		for (const l of listeners) if (!l.fn || l.fn(store.state, old)) l(store.state)
@@ -40,24 +43,60 @@ export function createStore(setup: any): Store {
 	return store
 }
 ```
-and... that's it, there's nothing else!
 
-I use it like vuex:
-I define state, getters, actions and mutators
-and then I use `useStore` in React components to read the state and react to changes.
-I haven't found any use case where it isn't enough,
-and I've never had performance or re-rendering problems.
+and... that's it, there's nothing else.
 
-I usually use a client-side routing library, but I could do without that too and use only the state manager.
+## How I use it
 
-An unexpected benefit is that an LLM doesn't have to read the documentation to understand how it works — it already has all the code available, so it can figure out how it works and how to use it.
+The API is Vuex/Pinia-flavored: you define `state`, `getters`, `actions` and `mutators`. Every function receives the `store` itself as its second argument, so you can call siblings and read `store.state`:
 
-It's a personal project; for my work I import an npm version that has better handling of types and utilities, but the basic behavior is the one I shared here.
+```tsx
+const counter = createStore({
+	state: { count: 0 },
+	getters: {
+		isEven: (_, store) => store.state.count % 2 === 0,
+	},
+	mutators: {
+		// mutators are the ONLY thing that changes state; they return a partial diff
+		add: (n, store) => ({ count: store.state.count + n }),
+	},
+})
 
+function Counter() {
+	const { count } = useStore(counter)
+	return (
+		<button onClick={() => counter.add(1)}>
+			{count} — {counter.isEven() ? 'even' : 'odd'}
+		</button>
+	)
+}
+```
 
-I wonder whether I'm crazy or whether this approach makes sense.
+- `mutators` are synchronous and are the only place state changes.
+- `actions` are for async / side effects and orchestration — they don't return state, they call mutators.
+- `getters` are derived values.
+- `useStore(store)` subscribes the component. Pass an optional predicate `(state, oldState) => boolean` to re-render only when the slice you care about actually changed.
+
+I've been using it like this for years and I've never hit a case where it wasn't enough, nor a performance / re-render problem.
+
+## But… why not Zustand?
+
+Fair question — Zustand is also tiny and also built on `useSyncExternalStore`. Two reasons this exists:
+
+1. **I copy-paste it instead of installing it.** The core is ~40 lines and stable, so it lives *in* my project. No dependency, no version bumps, no supply-chain surface. If I need to change something, I own the code.
+2. **The Vuex-style shape** (`state / getters / actions / mutators`) is how my brain organizes a store, and it forces a clear line between "sync state change" (mutators) and "async / side effects" (actions).
+
+It's not "better than Zustand" — it's "small enough that installing a dependency for it felt silly".
+
+## An unexpected bonus with LLMs
+
+Because the whole thing is ~40 lines that live in the repo, an LLM coding assistant doesn't need to read any docs to use it: the entire implementation is right there in context, so it just figures out how it works and writes correct stores on the first try. Zero API surface to hallucinate. That turned out to be a surprisingly nice side effect of "no library".
+
+---
+
+It's a personal project; for my day job I import an npm version with better type inference and some utilities, but the core behavior is exactly what I shared here.
+
+So — am I crazy, or does this approach actually make sense?
 Go easy on me :)
 
-p.s.:
-Written without AI, but I had it translated because my mother tongue isn't English and I didn't want to ruin the readability of the post.
-The project is mine as well. I used AI for the web page and to generate the examples and the tests.
+p.s.: Written without AI, but I had it translated because English isn't my mother tongue and I didn't want to ruin the readability. The project is mine too — I used AI only for the web page, the examples and the tests.

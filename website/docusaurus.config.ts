@@ -6,7 +6,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'Jon',
-  tagline: 'Minimalist state management for React. A typed store in ~80 lines, built on useSyncExternalStore. No magic, no dependencies.',
+  tagline: 'Minimalist state management for React. A fully typed store in ~30 lines of code on useSyncExternalStore — no magic, no dependencies. Install it, or just copy one file and own the code.',
   favicon: 'img/favicon.ico',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future

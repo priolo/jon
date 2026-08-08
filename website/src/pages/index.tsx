@@ -99,7 +99,7 @@ export default function Home(): ReactNode {
   return (
     <Layout
       title={siteConfig.title}
-      description="Jon is a minimalist React state-management library: a fully typed store in ~80 lines built on useSyncExternalStore, with zero dependencies. Install it from npm or just copy-paste a single file.">
+      description="Jon is a minimalist React state-management library: a fully typed store in ~30 lines of code built on useSyncExternalStore, with zero dependencies. Install it from npm or just copy-paste a single file.">
       <HomepageHeader />
       <main>
         <HomepageFeatures />

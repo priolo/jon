@@ -1,25 +1,28 @@
-Salve, 
-vorrei condividere una mia idea sullo state manager in React che applico nei miei progetti da anni.
-Non uso nessuna libreria (Zustand, Redux, Recoil, ecc.) ma ho un micro state manager (l'ho chiamato **jon**) e si basa su `useSyncExternalStore`.
-E' questo:
+**Titolo:** Ho sostituito Redux/Zustand con ~40 righe che copio-incollo in ogni progetto
+
+Ciao,
+vorrei condividere un'idea sulla gestione dello stato in React che applico da anni nei miei progetti.
+Non installo nessuna libreria (Zustand, Redux, Recoil, ecc.). Ho un micro state manager (l'ho chiamato **jon**) costruito su `useSyncExternalStore` — ed è così piccolo che non lo *installo*, lo copio-incollo direttamente nel progetto.
+
+Eccolo per intero:
 
 ```ts
 import { useCallback, useSyncExternalStore } from 'react'
 
-/** Store handle: `state` plus the setup's methods (not type-checked). */
+/** Handle dello store: `state` più i metodi del setup (non type-checked). */
 export type Store<T = any> = { state: T } & Record<string, any>
 
-/** React hook: subscribes the component and returns the state. `fn` => re-render only if it returns true. */
+/** Hook React: sottoscrive il componente e ritorna lo stato. `fn` => ri-renderizza solo se ritorna true. */
 export function useStore<T>(store: Store<T>, fn?: (state: T, oldState: T) => boolean): T {
 	const subscribe = useCallback((listener: any) => store._subscribe(listener, fn), [store])
 	return useSyncExternalStore(subscribe, () => store.state)
 }
 
-/** Creates a store from the setup: getters/actions/mutators become methods (without the `store` param). */
+/** Crea uno store dal setup: getters/actions/mutators diventano metodi (senza il parametro `store`). */
 export function createStore(setup: any): Store {
 	const listeners = new Set<any>()
 	const store: Store = {
-		// a plain object is deep-cloned; a factory is called as-is
+		// lo state dev'essere serializzabile: un oggetto semplice viene deep-clonato; una factory viene invocata
 		state: typeof setup.state == 'function' ? setup.state() : structuredClone(setup.state ?? {}),
 		_subscribe: (listener: any, fn: any) => {
 			listener.fn = fn
@@ -30,9 +33,9 @@ export function createStore(setup: any): Store {
 	for (const k in setup.getters) store[k] = (payload: any) => setup.getters[k](payload, store)
 	for (const k in setup.actions) store[k] = async (payload: any) => setup.actions[k](payload, store)
 	for (const k in setup.mutators) store[k] = (payload: any) => {
-		// the mutator returns a partial diff; if it's null or changes nothing, skip the update (no re-render)
+		// il mutator ritorna un diff parziale; se è null/undefined o non cambia nulla, salta l'update (niente re-render)
 		const stub = setup.mutators[k](payload, store)
-		if (!stub || Object.keys(stub).every(k => stub[k] === store.state[k])) return
+		if (stub == null || Object.keys(stub).every(k => stub[k] === store.state[k])) return
 		const old = store.state
 		store.state = { ...store.state, ...stub }
 		for (const l of listeners) if (!l.fn || l.fn(store.state, old)) l(store.state)
@@ -40,24 +43,60 @@ export function createStore(setup: any): Store {
 	return store
 }
 ```
-e... basta, non c'e' altro!
 
-Lo uso come vuex: 
-definisco state, getters, actions e mutators 
-e poi uso `useStore` nei componenti React per leggere lo state e reagire ai cambiamenti.
-Non ho trovato casi d'uso in cui non sia sufficiente, 
-e non ho mai avuto problemi di performance o di re-rendering.
+e... è tutto qui, non c'è altro.
 
-Di solito uso una libreria di routing lato client ma potrei anche fare a meno di quella, e usare solo lo state manager.
+## Come lo uso
 
-Un vantaggio inatteso è che un LLM non deve leggere la documentazione per capire come funziona ma ha gia' tutto il codice a disposizione quindi puo' capire come funziona e come usarlo.
+L'API è in stile Vuex/Pinia: si definiscono `state`, `getters`, `actions` e `mutators`. Ogni funzione riceve lo `store` stesso come secondo argomento, così puoi chiamare i "fratelli" e leggere `store.state`:
 
-E' un progetto personale, per i miei lavori importo una versione npm che ha una migliore gestione dei types e delle utility, ma il funzionamento base e' quello che ho condiviso qui.
+```tsx
+const counter = createStore({
+	state: { count: 0 },
+	getters: {
+		isEven: (_, store) => store.state.count % 2 === 0,
+	},
+	mutators: {
+		// i mutator sono l'UNICA cosa che cambia lo stato; ritornano un diff parziale
+		add: (n, store) => ({ count: store.state.count + n }),
+	},
+})
 
+function Counter() {
+	const { count } = useStore(counter)
+	return (
+		<button onClick={() => counter.add(1)}>
+			{count} — {counter.isEven() ? 'even' : 'odd'}
+		</button>
+	)
+}
+```
 
-Mi chiedo se sono matto oppure questo approccio ha senso.
+- I `mutators` sono sincroni e sono l'unico posto in cui lo stato cambia.
+- Le `actions` sono per async / side effect e orchestrazione — non ritornano stato, chiamano i mutator.
+- I `getters` sono valori derivati.
+- `useStore(store)` sottoscrive il componente. Passa un predicato opzionale `(state, oldState) => boolean` per ri-renderizzare solo quando la parte che ti interessa è davvero cambiata.
+
+Lo uso così da anni e non ho mai incontrato un caso in cui non bastasse, né problemi di performance / re-render.
+
+## Ma… perché non Zustand?
+
+Domanda legittima — anche Zustand è minuscolo e anch'esso costruito su `useSyncExternalStore`. Due ragioni per cui questo esiste:
+
+1. **Lo copio-incollo invece di installarlo.** Il core è ~40 righe ed è stabile, quindi vive *dentro* il mio progetto. Nessuna dipendenza, nessun aggiornamento di versione, nessuna superficie di supply-chain. Se devo cambiare qualcosa, il codice è mio.
+2. **La forma in stile Vuex** (`state / getters / actions / mutators`) è il modo in cui il mio cervello organizza uno store, e mi obbliga a separare nettamente il "cambio di stato sincrono" (mutators) dagli "async / side effect" (actions).
+
+Non è "meglio di Zustand" — è "così piccolo che installare una dipendenza per farlo mi sembrava assurdo".
+
+## Un bonus inaspettato con gli LLM
+
+Siccome è tutto ~40 righe che vivono nel repo, un assistente LLM non ha bisogno di leggere nessuna documentazione per usarlo: l'intera implementazione è lì nel contesto, quindi capisce da solo come funziona e scrive store corretti al primo colpo. Zero superficie di API da allucinare. È risultato un effetto collaterale sorprendentemente piacevole del "niente libreria".
+
+---
+
+È un progetto personale; per lavoro importo una versione npm con inferenza dei tipi migliore e qualche utility, ma il comportamento di base è esattamente quello che ho condiviso qui.
+
+Quindi — sono pazzo, o questo approccio ha davvero senso?
 Andateci piano :)
 
-p.s.:
-Scritto senza AI ma l'ho fatto tradurre perché la mia lingua madre non è l'ingelse e non volevo rovinare la comprensione del post.
-Il progetto è anche mio. Ho usato l'AI per la pagina web e per generare gli esempi e i test.
+p.s.: Scritto senza AI, ma l'ho fatto tradurre perché l'inglese non è la mia lingua madre e non volevo rovinare la leggibilità. Anche il progetto è mio — ho usato l'AI solo per la pagina web, gli esempi e i test.

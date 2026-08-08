@@ -15,10 +15,10 @@ const FeatureList: FeatureItem[] = [
     Svg: require('@site/static/img/no-magic.svg').default,
     description: (
       <>
-        Jon is ~80 lines of TypeScript on top of React's native{' '}
-        <code>useSyncExternalStore</code>. What it does is clear!
-        You can read the whole source in one sitting — or just copy-paste it
-        into your project and own the code.
+        No hidden runtime, no secrets. The whole store is ~30 lines of code on
+        top of React's native <code>useSyncExternalStore</code> — right in front
+        of you. It's so plain that you, or even an AI agent, can read it end to
+        end, understand it, and start using it in one sitting.
       </>
     ),
   },
@@ -27,10 +27,10 @@ const FeatureList: FeatureItem[] = [
     Svg: require('@site/static/img/no-multitool.svg').default,
     description: (
       <>
-        Jon is designed ONLY to manage the STORE:{' '}
+        Jon does ONE thing: manage the store —{' '}
         <code>state</code>, <code>getters</code>, <code>actions</code> and{' '}
         <code>mutators</code>, fully type-inferred.
-        It serves no other purpose!
+        Nothing else, on purpose.
       </>
     ),
   },
@@ -39,9 +39,9 @@ const FeatureList: FeatureItem[] = [
     Svg: require('@site/static/img/no-community.svg').default,
     description: (
       <>
-        Zero production dependencies (React is a peer dependency).
-        Any bug reported will be fixed, but Jon's API is stable and will
-        remain unchanged for a long time.
+        Zero production dependencies (React is a peer dependency) — nothing to
+        audit, no dependency tree to trust. Bugs get fixed, but Jon's API is
+        stable and won't churn under you.
       </>
     ),
   },
