@@ -86,7 +86,7 @@ const { functionDeclarations, dispatchAll } = storeToTools(todoStore, [
 // then dispatchAll(model function calls) → the UI updates by itself
 ```
 
-It's still experimental (not exported from the package yet — copy the file, it's also self-contained). See it in action: [AI tools](/docs/examples/ai-tools).
+It's still experimental (not exported from the package yet — copy the file, it's also self-contained). See it in action: [src/examples/aiTools](https://github.com/priolo/jon/blob/master/src/examples/aiTools/App.tsx).
 
 ## Rule of thumb
 
