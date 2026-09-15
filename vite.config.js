@@ -1,10 +1,11 @@
 /// <reference types="vitest" />
 /// <reference types="vite/client" />
 
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react-swc'
-import dts from 'vite-plugin-dts';
+import dts from 'vite-plugin-dts'
 
+const reactExternals = ['react', 'react-dom']
 
 export default defineConfig({
 	plugins: [
@@ -19,15 +20,21 @@ export default defineConfig({
 			formats: ['es', 'umd'],
 			fileName: (format) => `index.${format}.js`,
 		},
-		rollupOptions: {
-			external: (id) => ["react", "react-dom"].includes(id) || id.endsWith('.test.ts') || id.endsWith('.test.jsx'),
+		rolldownOptions: {
+			external: (id) =>
+				reactExternals.includes(id) ||
+				id.startsWith('react/') ||
+				id.startsWith('react-dom/') ||
+				id.endsWith('.test.ts') ||
+				id.endsWith('.test.jsx'),
 			output: {
 				globals: {
-					'react': 'React',
+					react: 'React',
 					'react-dom': 'ReactDOM',
+					'react/jsx-runtime': 'React',
+					'react/jsx-dev-runtime': 'React',
 				},
 			},
-
 		},
 	},
 	test: {

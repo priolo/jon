@@ -30,9 +30,9 @@ export function createStore(setup: any): Store {
 	for (const k in setup.getters) store[k] = (payload: any) => setup.getters[k](payload, store)
 	for (const k in setup.actions) store[k] = async (payload: any) => setup.actions[k](payload, store)
 	for (const k in setup.mutators) store[k] = (payload: any) => {
-		// the mutator returns a partial diff; if it's null or changes nothing, skip the update (no re-render)
+		// the mutator returns a partial diff; if it's undefined/null or changes nothing, skip the update (no re-render)
 		const stub = setup.mutators[k](payload, store)
-		if (!stub || Object.keys(stub).every(k => stub[k] === store.state[k])) return
+		if (stub == null || Object.keys(stub).every(k => stub[k] === store.state[k])) return
 		const old = store.state
 		store.state = { ...store.state, ...stub }
 		for (const l of listeners) if (!l.fn || l.fn(store.state, old)) l(store.state)
@@ -47,7 +47,7 @@ I define state, getters, actions and mutators
 and then I use `useStore` in React components to read the state and react to changes.
 I haven't found use cases where it isn't enough,
 and I've never had performance or re-rendering problems.  
-Here's the [documentation](https://priolo.github.io/jon)
+Here's the [repo](https://priolo.github.io) and [documentation](https://priolo.github.io/jon)
 
 
 

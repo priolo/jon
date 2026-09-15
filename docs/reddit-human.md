@@ -1,4 +1,4 @@
-**Title:** I replaced Redux/Zustand with ~40 lines I copy-paste into every project — am I crazy?
+**Title:** I use 40 lines of code that I copy and paste instead of a library like Redux/Zustand
 
 Hi,
 I'd like to share an idea about state management in React that I've been applying in my own projects for years.
