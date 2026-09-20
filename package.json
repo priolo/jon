@@ -1,6 +1,6 @@
 {
   "name": "@priolo/jon",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": false,
   "description": "React manager state with reducers hooks",
   "author": "Iorio Ivano <iorioivano@gmail.com>",
