@@ -30,8 +30,7 @@ const setup3 = {
 	},
 }
 
-// `mixStores` merges heterogeneous setups, so its result is the permissive
-// `Store` handle rather than a precisely-inferred store type.
+// `mixStores` preserves the types of the heterogeneous setups it merges.
 let myStore: Store
 
 beforeEach(() => {

@@ -1,17 +1,36 @@
 import { StoreSetup } from "./global";
 import { finalizeState } from "./rvx";
 
+type Setup = StoreSetup<any>
+type StateOf<S> = S extends { state?: infer State }
+	? State extends () => infer Result ? Result : State
+	: {}
+type MembersOf<S, K extends "getters" | "actions" | "mutators"> = S extends Record<K, infer Members> ? Members : {}
+type MergeObjects<A, B> = Omit<A, keyof B> & B
+type MergeSetups<A, B> = Omit<A, "state" | "getters" | "actions" | "mutators"> & {
+	state: MergeObjects<StateOf<A>, StateOf<B>>
+	getters: MergeObjects<MembersOf<A, "getters">, MembersOf<B, "getters">>
+	actions: MergeObjects<MembersOf<A, "actions">, MembersOf<B, "actions">>
+	mutators: MergeObjects<MembersOf<A, "mutators">, MembersOf<B, "mutators">>
+}
+type MergedSetups<T extends readonly unknown[]> =
+	T extends readonly [infer First, ...infer Rest]
+		? Rest extends readonly [] ? First : MergeSetups<First, MergedSetups<Rest>>
+		: {}
+
 
 /**
  * Merges the parameters and returns a derived SETUP-STORE
  * @example
  * const mixedSetup = mixStores(setup1, setup2, setup3);
  */
-export default function mixStores(...stores: StoreSetup<any>[]): StoreSetup<any> | null {
+export default function mixStores<const T extends readonly [object, ...object[]]>(...stores: T): MergedSetups<T>
+export default function mixStores(...stores: Setup[]): Setup | null
+export default function mixStores(...stores: Setup[]): Setup | null {
 	return stores.reduce<StoreSetup<any>|null>((acc, store) => {
 		if (acc == null) return store;
 		return mix(acc, store);
-	}, null);
+	}, null) as Setup | null;
 }
 
 /**
