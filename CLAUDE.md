@@ -74,6 +74,7 @@ The companion `src/lib/experimentals/storeToAiTools.ts` imports `Store` *from `r
 - The core is **TypeScript**; tests are `.jsx`. Prefer TS for new core logic.
 - Mutators are synchronous and return state diffs; actions handle async and orchestration. Don't put async logic in mutators.
 - State updates are **shallow merges** — a mutator returning `{ a }` only replaces `a`.
+- To type the `store` param with the store's *own* precise type, declare `interface MyStore extends StoreOf<typeof setup> {}` and annotate `store?: MyStore` (see [src/examples/typedStore/App.tsx](src/examples/typedStore/App.tsx)). It must be an `interface`, not a `type` alias, and the setup literal must not use `satisfies StoreSetup`: both resolve the self-reference eagerly and fail with TS7022. This relies on `CallStoreSetup`'s `store` param being `any` in `global.ts` — don't narrow it back to `Store<T>` (parameter contravariance would reject the precise annotation).
 - The type system infers the public store from the setup *literal*, so `createStore` must stay generic over `S extends StoreSetup`. Avoid annotating the setup with an explicit interface that has an index signature — `T & Record<string, any>` collapses precise method types to `any`.
 
 ## Note on docs

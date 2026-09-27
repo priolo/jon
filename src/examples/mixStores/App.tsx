@@ -46,10 +46,10 @@ const noteSetup = {
 	},
 
 	actions: {
-		reset: (_: void, store: Store) => {
+		reset: (_: void, store?: Store) => {
 			localStorage.removeItem(STORAGE_KEY)
-			store.setText("")
-			store.setCount(0)
+			store?.setText("")
+			store?.setCount(0)
 		},
 	},
 

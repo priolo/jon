@@ -18,7 +18,6 @@ type MergedSetups<T extends readonly unknown[]> =
 		? Rest extends readonly [] ? First : MergeSetups<First, MergedSetups<Rest>>
 		: {}
 
-
 /**
  * Merges the parameters and returns a derived SETUP-STORE
  * @example

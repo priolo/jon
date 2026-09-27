@@ -20,8 +20,8 @@ const authStore = createStore({
   },
 
   actions: {
-    login: (name: string, store: Store) => store.setUser(name),
-    logout: (_: void, store: Store) => store.setUser(null),
+    login: (name: string, store?: Store) => store?.setUser(name),
+    logout: (_: void, store?: Store) => store?.setUser(null),
   },
 
   mutators: {
@@ -37,7 +37,9 @@ const cartStore = createStore({
   },
 
   mutators: {
-    addItem: (item: string, store: Store) => ({ items: [...store.state.items, item] }),
+    addItem: (item: string, store?: Store) => store
+      ? { items: [...store.state.items, item] }
+      : undefined,
     clear: () => ({ items: [] as string[] }),
   },
 

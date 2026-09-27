@@ -8,33 +8,35 @@ export enum LISTENER_CHANGE {
 	REMOVE,
 }
 
-/**
- * Lets you create a STORE with 'createStore'
- */
+type StoreSetupMethods<T> = Record<string, CallStoreSetup<T>>
+
+/** Lets you create a STORE with 'createStore'. */
 export interface StoreSetup<T=any> {
 	/** called when the LISTENERS change */
 	onListenerChange?: (store: Store<T>, type: LISTENER_CHANGE) => void
 	/** called when the STORE state changes */
 	onStateChange?: (store: StoreCore<T>, oldState: T) => void
 	state?: T | (() => T),
-	getters?: { [name: string]: CallStoreSetup<T> },
-	actions?: { [name: string]: CallStoreSetup<T> },
-	mutators?: { [name: string]: CallStoreSetup<T> },
+	getters?: StoreSetupMethods<T>,
+	actions?: StoreSetupMethods<T>,
+	mutators?: StoreSetupMethods<T>,
 }
 
 /**
  * The functions of `StoreSetup` ALL have this signature
  * @param payload parameter passed to STORE
  * @param store the STORE object itself... can be seen as a kind of `this`.
- * It is the permissive `Store` handle (index signature included) so a setup
- * function can call sibling methods (`store.setX(...)`) without a circular type.
+ * Typed as `any` on purpose: a setup function may annotate it with its own
+ * precise store (`store?: MyStore`, where `interface MyStore extends StoreOf<typeof setup> {}`).
+ * A `Store<T>` here would reject that annotation (parameters are contravariant).
  */
-type CallStoreSetup<T> = (payload: any, store: Store<T>) => any
+type CallStoreSetup<T> = (payload: any, store?: any) => any
+
 
 
 
 /**
- * Instance of a STORE
+ * Instance of a STORE CORE
  */
 export interface StoreCore<T=any> {
 	/**
@@ -84,7 +86,7 @@ export type Store<T = any> = StoreCore<T> & Record<string, any>
  * the resolved state type (unwraps a `() => state` factory) 
  * S is the STORE SETUP type
  * */
-type StateOf<S> = S extends { state: infer St }
+type StateOf<S> = S extends { state?: infer St }
 	? (St extends () => infer R ? R : St)
 	: Record<string, never>
 
@@ -92,38 +94,52 @@ type StateOf<S> = S extends { state: infer St }
 type IsAny<T> = 0 extends (1 & T) ? true : false
 
 /**
+ * true only for `unknown`.
+ * `[unknown] extends [P]` alone is not enough: TS reports it as true also for
+ * "weak" types (all-optional properties, e.g. `Partial<Entity>`), so a typed
+ * payload would be dropped. `keyof unknown` is `never`, a weak type has keys.
+ */
+type IsUnknown<T> = IsAny<T> extends true ? false
+	: unknown extends T ? ([keyof T] extends [never] ? true : false)
+	: false
+
+/** Extracts the first public payload parameter without requiring a second argument. */
+type PayloadOf<F> = F extends (...args: infer A) => any
+	? A extends [infer P, ...any[]] ? P : void
+	: never
+
+/**
  * Strip the injected `store` param, keeping the public `(payload) => result`:
  * - un-annotated payload (`any`) ........ `(payload?: any) => R`  (e.g. `(_, store) => …`)
  * - no payload (`void`/`unknown`/none) .. `() => R`
  * - annotated payload `P` ............... `(payload: P) => R`     (kept required)
  */
-type PublicFn<F> = F extends (payload: infer P, ...rest: any[]) => infer R
-	? (IsAny<P> extends true ? (payload?: any) => R
-		: [P] extends [void] ? () => R
-		: [unknown] extends [P] ? () => R
-		: (payload: P) => R)
+type PublicCall<P, R> = IsAny<P> extends true ? (payload?: any) => R
+	: [P] extends [void] ? () => R
+	: IsUnknown<P> extends true ? () => R
+	: (payload: P) => R
+
+type PublicFn<F> = F extends (...args: any[]) => infer R
+	? PublicCall<PayloadOf<F>, R>
 	: never
 
 /** like `PublicFn`, but mutators always resolve to `void` at runtime */
-type PublicMut<F> = F extends (payload: infer P, ...rest: any[]) => any
-	? (IsAny<P> extends true ? (payload?: any) => void
-		: [P] extends [void] ? () => void
-		: [unknown] extends [P] ? () => void
-		: (payload: P) => void)
+type PublicMut<F> = F extends (...args: any[]) => any
+	? PublicCall<PayloadOf<F>, void>
 	: never
 
 /** the callable methods exposed on the store, rebuilt from the setup */
 type Methods<S> =
-	& (S extends { getters: infer G } ? { [K in keyof G]: PublicFn<G[K]> } : {})
-	& (S extends { actions: infer A } ? { [K in keyof A]: PublicFn<A[K]> } : {})
-	& (S extends { mutators: infer M } ? { [K in keyof M]: PublicMut<M[K]> } : {})
+	& (S extends { getters?: infer G } ? { [K in keyof G]: PublicFn<G[K]> } : {})
+	& (S extends { actions?: infer A } ? { [K in keyof A]: PublicFn<A[K]> } : {})
+	& (S extends { mutators?: infer M } ? { [K in keyof M]: PublicMut<M[K]> } : {})
 
 /**
  * The fully-typed STORE returned by `createStore`: the reactive core typed over
  * the inferred state, plus the inferred getters/actions/mutators as methods.
  * No cast or hand-written interface required at the call site.
  */
-export type StoreOf<S> = StoreCore<StateOf<S>> & Methods<S>
+export type StoreOf<S extends StoreSetup> = StoreCore<StateOf<S>> & Methods<S>
 
 // -----------------------------------------------------------------------------
 
